@@ -1,0 +1,17 @@
+# .NET Ignore
+[Oo]bj/
+[Bb]in/
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.DS_Store
+
+# FreeRDP Build Ignore
+Bin/FreeRDP/vcpkg/
+Bin/FreeRDP/build/
+Bin/FreeRDP/FreeRDP/
+
+# Keep the compiled binaries so the wrapper works out of the box
+!Bin/FreeRDP/Compiled/bin/
