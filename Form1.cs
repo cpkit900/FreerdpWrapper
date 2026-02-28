@@ -4,84 +4,250 @@ using System.IO;
 using System.Windows.Forms;
 using FreeRdpWrapper.Models;
 using FreeRdpWrapper.UI;
+using FreeRdpWrapper.Services;
+using System.Collections.Generic;
 
 namespace FreeRdpWrapper
 {
     public partial class Form1 : Form
     {
-        private Panel topPanel;
-        private TextBox txtHost;
-        private TextBox txtUser;
-        private TextBox txtPass;
-        private CheckBox chkUseSdl;
-        private CheckBox chkIgnoreCert;
-        private Button btnConnect;
+        private ConnectionStore _store;
+        private List<SavedConnection> _connections;
 
-        private SplitContainer splitContainer;
+        // UI Elements
+        private SplitContainer mainSplit; // Left: Tree, Right: Content
+        private TreeView treeConnections;
+        private ContextMenuStrip treeContextMenu;
+        
+        // Right side
+        private SplitContainer rightSplit; // Top: Tabs, Bottom: Logs
         private TabControl tabControl;
         private TextBox txtLogs;
 
         public Form1()
         {
             InitializeComponent();
+            _store = new ConnectionStore();
+            _connections = _store.LoadConnections();
+            
             SetupUI();
+            RefreshTree();
         }
 
         private void SetupUI()
         {
-            this.Text = "FreeRDP Wrapper (.NET 8 WinForms)";
-            this.Width = 1024;
-            this.Height = 768;
+            this.Text = "FreeRDP Manager (.NET 8 WinForms)";
+            this.Width = 1200;
+            this.Height = 800;
 
-            topPanel = new Panel { Dock = DockStyle.Top, Height = 50 };
+            // Main Split
+            mainSplit = new SplitContainer 
+            { 
+                Dock = DockStyle.Fill, 
+                Orientation = Orientation.Vertical,
+                SplitterDistance = 250 // Width of left panel
+            };
+
+            // Setup Tree
+            treeConnections = new TreeView 
+            { 
+                Dock = DockStyle.Fill,
+                FullRowSelect = true,
+                HideSelection = false
+            };
+            treeConnections.NodeMouseDoubleClick += TreeConnections_NodeMouseDoubleClick;
+            treeConnections.MouseUp += TreeConnections_MouseUp;
+
+            // Context Menu for Tree
+            treeContextMenu = new ContextMenuStrip();
+            treeContextMenu.Items.Add("Add Connection", null, (s, e) => AddConnection());
+            treeContextMenu.Items.Add("Edit Connection", null, (s, e) => EditConnection());
+            treeContextMenu.Items.Add("Delete Connection", null, (s, e) => DeleteConnection());
             
-            txtHost = new TextBox { Location = new Point(10, 15), Width = 150, Text = "192.168.1.10" };
-            txtUser = new TextBox { Location = new Point(170, 15), Width = 100, Text = "Administrator" };
-            txtPass = new TextBox { Location = new Point(280, 15), Width = 100, PasswordChar = '*' };
-            chkUseSdl = new CheckBox { Location = new Point(390, 15), Width = 120, Text = "Use sdlfreerdp" };
-            chkIgnoreCert = new CheckBox { Location = new Point(520, 15), Width = 100, Text = "Ignore Cert", Checked = true };
-            btnConnect = new Button { Location = new Point(630, 13), Width = 100, Text = "Connect" };
-            btnConnect.Click += BtnConnect_Click;
+            Panel leftPanel = new Panel { Dock = DockStyle.Fill };
+            Label lblServers = new Label { Text = "Saved Connections", Dock = DockStyle.Top, Height = 25, TextAlign = ContentAlignment.MiddleLeft, Font = new Font(this.Font, FontStyle.Bold) };
+            Button btnAdd = new Button { Text = "+ Add", Dock = DockStyle.Bottom, Height = 30 };
+            btnAdd.Click += (s, e) => AddConnection();
 
-            topPanel.Controls.Add(new Label { Text = "Host:", Location = new Point(10, 0), AutoSize = true });
-            topPanel.Controls.Add(txtHost);
-            topPanel.Controls.Add(new Label { Text = "User:", Location = new Point(170, 0), AutoSize = true });
-            topPanel.Controls.Add(txtUser);
-            topPanel.Controls.Add(new Label { Text = "Pass:", Location = new Point(280, 0), AutoSize = true });
-            topPanel.Controls.Add(txtPass);
-            topPanel.Controls.Add(chkUseSdl);
-            topPanel.Controls.Add(chkIgnoreCert);
-            topPanel.Controls.Add(btnConnect);
+            leftPanel.Controls.Add(treeConnections);
+            leftPanel.Controls.Add(lblServers);
+            leftPanel.Controls.Add(btnAdd);
 
-            splitContainer = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal };
-            splitContainer.SplitterDistance = this.Height - 200;
+            // Right Split
+            rightSplit = new SplitContainer 
+            { 
+                Dock = DockStyle.Fill, 
+                Orientation = Orientation.Horizontal,
+                SplitterDistance = this.Height - 200
+            };
 
-            tabControl = new TabControl { Dock = DockStyle.Fill };
-            txtLogs = new TextBox { Dock = DockStyle.Fill, Multiline = true, ScrollBars = ScrollBars.Vertical, ReadOnly = true };
+            tabControl = new TabControl 
+            { 
+                Dock = DockStyle.Fill,
+                DrawMode = TabDrawMode.OwnerDrawFixed,
+                Padding = new Point(15, 4) // extra space for X
+            };
+            tabControl.DrawItem += TabControl_DrawItem;
+            tabControl.MouseDown += TabControl_MouseDown;
 
-            splitContainer.Panel1.Controls.Add(tabControl);
-            splitContainer.Panel2.Controls.Add(txtLogs);
+            txtLogs = new TextBox 
+            { 
+                Dock = DockStyle.Fill, 
+                Multiline = true, 
+                ScrollBars = ScrollBars.Vertical, 
+                ReadOnly = true,
+                BackColor = Color.Black,
+                ForeColor = Color.LightGray,
+                Font = new Font("Consolas", 9f)
+            };
 
-            this.Controls.Add(splitContainer);
-            this.Controls.Add(topPanel);
+            rightSplit.Panel1.Controls.Add(tabControl);
+            rightSplit.Panel2.Controls.Add(txtLogs);
+
+            mainSplit.Panel1.Controls.Add(leftPanel);
+            mainSplit.Panel2.Controls.Add(rightSplit);
+
+            this.Controls.Add(mainSplit);
         }
 
-        private void BtnConnect_Click(object? sender, EventArgs e)
+        private void RefreshTree()
         {
-            string host = txtHost.Text;
-            if (string.IsNullOrWhiteSpace(host)) return;
+            treeConnections.Nodes.Clear();
+            var dict = new Dictionary<string, TreeNode>();
 
-            var config = new RdpConfig
+            foreach (var c in _connections)
             {
-                Host = host,
-                User = txtUser.Text,
-                Pass = txtPass.Text,
-                UseSdl = chkUseSdl.Checked,
-                IgnoreCert = chkIgnoreCert.Checked,
-                DynamicResolution = true,
-                AdditionalFlags = "/gfx:avc444"
-            }; // Removing /f because it might force full screen independently of our embedding.
+                if (!dict.ContainsKey(c.Group))
+                {
+                    var groupNode = new TreeNode(c.Group);
+                    groupNode.ImageIndex = 0; // if you had images
+                    dict[c.Group] = groupNode;
+                    treeConnections.Nodes.Add(groupNode);
+                }
 
+                var node = new TreeNode(c.Name) { Tag = c };
+                dict[c.Group].Nodes.Add(node);
+            }
+
+            treeConnections.ExpandAll();
+        }
+
+        private void TreeConnections_MouseUp(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                TreeNode node = treeConnections.GetNodeAt(e.X, e.Y);
+                if (node != null)
+                {
+                    treeConnections.SelectedNode = node;
+                }
+                treeContextMenu.Show(treeConnections, e.Location);
+            }
+        }
+
+        private void AddConnection()
+        {
+            using var dlg = new ConnectionDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                _connections.Add(dlg.Connection);
+                _store.SaveConnections(_connections);
+                RefreshTree();
+            }
+        }
+
+        private void EditConnection()
+        {
+            if (treeConnections.SelectedNode?.Tag is SavedConnection c)
+            {
+                using var dlg = new ConnectionDialog(c);
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    _store.SaveConnections(_connections);
+                    RefreshTree();
+                }
+            }
+        }
+
+        private void DeleteConnection()
+        {
+            if (treeConnections.SelectedNode?.Tag is SavedConnection c)
+            {
+                if (MessageBox.Show($"Delete {c.Name}?", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    _connections.Remove(c);
+                    _store.SaveConnections(_connections);
+                    RefreshTree();
+                }
+            }
+        }
+
+        private void TreeConnections_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Node.Tag is SavedConnection c)
+            {
+                LaunchSession(c);
+            }
+        }
+
+        // --- Custom Tab Drawing for 'X' button ---
+        private void TabControl_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            var tabPage = tabControl.TabPages[e.Index];
+            var tabRect = tabControl.GetTabRect(e.Index);
+            
+            bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            Brush backBrush = isSelected ? SystemBrushes.Window : SystemBrushes.ControlLight;
+            e.Graphics.FillRectangle(backBrush, tabRect);
+
+            if (isSelected)
+            {
+                e.Graphics.DrawLine(SystemPens.ControlDark, tabRect.Left, tabRect.Top, tabRect.Right, tabRect.Top);
+            }
+
+            string title = tabPage.Text;
+            Font font = e.Font ?? tabControl.Font;
+            
+            // Draw Text
+            e.Graphics.DrawString(title, font, SystemBrushes.ControlText, new PointF(tabRect.X + 5, tabRect.Y + 4));
+
+            // Draw 'X'
+            var closeRect = new Rectangle(tabRect.Right - 15, tabRect.Y + 6, 10, 10);
+            e.Graphics.DrawString("X", new Font("Arial", 8, FontStyle.Bold), Brushes.Red, closeRect);
+            
+            e.DrawFocusRectangle();
+        }
+
+        private void TabControl_MouseDown(object? sender, MouseEventArgs e)
+        {
+            for (int i = 0; i < tabControl.TabPages.Count; i++)
+            {
+                Rectangle r = tabControl.GetTabRect(i);
+                Rectangle closeRect = new Rectangle(r.Right - 15, r.Y + 4, 10, 10);
+                if (closeRect.Contains(e.Location))
+                {
+                    CloseTab(tabControl.TabPages[i]);
+                    break;
+                }
+            }
+        }
+
+        private void CloseTab(TabPage tabPage)
+        {
+            if (tabPage.Controls.Count > 0 && tabPage.Controls[0] is FreeRdpContainer container)
+            {
+                // Disconnecting kills the process
+                container.Disconnect();
+                container.Dispose();
+            }
+            tabControl.TabPages.Remove(tabPage);
+            tabPage.Dispose();
+        }
+        
+        // --- Session Launching ---
+        private void LaunchSession(SavedConnection config)
+        {
+            string host = config.Host;
             string exeName = config.UseSdl ? "sdl3-freerdp.exe" : "wfreerdp.exe";
             string relativeBuildPath = Path.Combine("Compiled", "bin", exeName);
             
@@ -89,7 +255,6 @@ namespace FreeRdpWrapper
             string? currentDir = AppDomain.CurrentDomain.BaseDirectory;
             while (!string.IsNullOrEmpty(currentDir))
             {
-                // Unified path where cmake --install put both exe and DLLs
                 string testPath = Path.GetFullPath(Path.Combine(currentDir, "Bin", "FreeRDP", relativeBuildPath));
                 if (File.Exists(testPath))
                 {
@@ -109,25 +274,34 @@ namespace FreeRdpWrapper
                 currentDir = parentDir;
             }
 
-            var tabPage = new TabPage(host);
+            var tabPage = new TabPage(config.Name);
             var container = new FreeRdpContainer { Dock = DockStyle.Fill };
             
-            container.OnLogMessage += (msg) => {
+            // Log hook
+            Action<string> appendLog = (msg) => {
                 if (txtLogs.IsHandleCreated && !txtLogs.Disposing)
                 {
-                    txtLogs.Invoke((MethodInvoker)delegate {
-                        txtLogs.AppendText($"[{host}] {msg}\r\n");
+                    txtLogs.BeginInvoke((MethodInvoker)delegate {
+                        if (txtLogs.TextLength > 50000) txtLogs.Clear();
+                        txtLogs.AppendText($"[{config.Name}] {msg}\r\n");
+                        txtLogs.SelectionStart = txtLogs.TextLength;
+                        txtLogs.ScrollToCaret();
                     });
                 }
             };
+
+            container.OnLogMessage += appendLog;
 
             container.OnDisconnected += () => {
                 if (tabControl.IsHandleCreated && !tabControl.Disposing)
                 {
                     tabControl.Invoke((MethodInvoker)delegate {
-                        txtLogs.AppendText($"[{host}] Session Disconnected.\r\n");
-                        tabControl.TabPages.Remove(tabPage);
-                        container.Dispose();
+                        appendLog("Session Disconnected.");
+                        if (tabControl.TabPages.Contains(tabPage))
+                        {
+                            tabControl.TabPages.Remove(tabPage);
+                            container.Dispose();
+                        }
                     });
                 }
             };
@@ -138,11 +312,12 @@ namespace FreeRdpWrapper
 
             try
             {
+                appendLog($"Attempting to launch {possiblePath}");
                 container.LaunchSession(config, possiblePath);
             }
             catch (Exception ex)
             {
-                txtLogs.AppendText($"[{host}] Failed to launch {possiblePath}: {ex.Message}\r\n");
+                appendLog($"Failed to launch {possiblePath}: {ex.Message}");
             }
         }
     }

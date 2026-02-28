@@ -25,16 +25,29 @@ namespace FreeRdpWrapper.UI
         [DllImport("user32.dll")]
         static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
+        delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll")]
+        static extern bool IsWindowVisible(IntPtr hWnd);
+
         const int GWL_STYLE = -16;
         const int WS_VISIBLE = 0x10000000;
         const int WS_CHILD = 0x40000000;
+        const int WS_CAPTION = 0x00C00000;
+        const int WS_THICKFRAME = 0x00040000;
+        const int WS_POPUP = unchecked((int)0x80000000);
 
         public event Action<string>? OnLogMessage;
         public event Action? OnDisconnected;
 
         public FreeRdpContainer()
         {
-            this.Resize += FreeRdpContainer_Resize;
         }
 
         public void LaunchSession(RdpConfig config, string exePath)
@@ -46,10 +59,37 @@ namespace FreeRdpWrapper.UI
 
             string uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             
-            // Build arguments
             string dynRes = config.DynamicResolution ? "+dynamic-resolution" : "";
             string certArg = config.IgnoreCert ? "/cert:ignore" : "";
-            string baseArgs = $"/v:{config.Host} /u:{config.User} /p:{config.Pass} /parent-window:{this.Handle} {dynRes} {certArg}";
+            
+            // Core Authentication
+            string baseArgs = $"/v:\"{config.Host}\" /u:\"{config.User}\" /p:\"{config.Pass}\"";
+            if (!string.IsNullOrEmpty(config.Domain)) baseArgs += $" /d:\"{config.Domain}\"";
+            if (config.EnableCredGuard) baseArgs += " +remote-credential-guard";
+
+            // Gateway Setup
+            if (!string.IsNullOrEmpty(config.GatewayHost))
+            {
+                baseArgs += $" /g:\"{config.GatewayHost}\"";
+                if (!string.IsNullOrEmpty(config.GatewayUser)) baseArgs += $" /gu:\"{config.GatewayUser}\"";
+                if (!string.IsNullOrEmpty(config.GatewayPass)) baseArgs += $" /gp:\"{config.GatewayPass}\"";
+            }
+
+            // Display & Embed
+            baseArgs += $" /parent-window:{this.Handle} {dynRes} {certArg}";
+            if (config.EnableDpiScale) baseArgs += " +dpiscale";
+            if (!string.IsNullOrEmpty(config.RemoteApp)) baseArgs += $" /app:\"||{config.RemoteApp}\"";
+
+            // Hardware Redirection
+            if (config.EnableClipboard) baseArgs += " +clipboard";
+            else baseArgs += " -clipboard";
+
+            if (config.EnableSound) baseArgs += " /sound";
+            if (config.EnableMicrophone) baseArgs += " /microphone";
+            if (config.MapDrive) baseArgs += " /drive:host,C:\\";
+            if (config.MapPrinter) baseArgs += " /printers";
+            if (config.MapSmartcard) baseArgs += " /smartcard";
+
             if (!string.IsNullOrEmpty(config.AdditionalFlags))
             {
                 baseArgs += $" {config.AdditionalFlags}";
@@ -101,28 +141,48 @@ namespace FreeRdpWrapper.UI
             // Wait for window handle creation
             Task.Run(() => {
                 int retries = 0;
-                while (_rdpProcess != null && !_rdpProcess.HasExited && retries < 50)
+                while (_rdpProcess != null && !_rdpProcess.HasExited && retries < 100)
                 {
                     _rdpProcess.Refresh();
-                    if (_rdpProcess.MainWindowHandle != IntPtr.Zero)
+                    
+                    IntPtr foundHandle = IntPtr.Zero;
+                    if (_rdpProcess.Id > 0)
                     {
-                        _rdpHandle = _rdpProcess.MainWindowHandle;
+                        EnumWindows((hWnd, lParam) => {
+                            GetWindowThreadProcessId(hWnd, out uint processId);
+                            if (processId == _rdpProcess.Id && IsWindowVisible(hWnd))
+                            {
+                                foundHandle = hWnd;
+                                return false; // Stop enumerating when found
+                            }
+                            return true; // Continue
+                        }, IntPtr.Zero);
+                    }
+
+                    if (foundHandle != IntPtr.Zero)
+                    {
+                        _rdpHandle = foundHandle;
                         if (this.IsHandleCreated && !this.IsDisposed)
                         {
                             this.Invoke((MethodInvoker)delegate {
                                 // Swallow the window
                                 SetParent(_rdpHandle, this.Handle);
                                 
-                                // Remove borders
-                                SetWindowLong(_rdpHandle, GWL_STYLE, WS_VISIBLE | WS_CHILD);
+                                // Aggressively remove all borders, captions, and popup styles
+                                int style = GetWindowLong(_rdpHandle, GWL_STYLE);
+                                style &= ~WS_POPUP;
+                                style &= ~WS_CAPTION;
+                                style &= ~WS_THICKFRAME;
+                                style |= WS_CHILD | WS_VISIBLE;
+                                SetWindowLong(_rdpHandle, GWL_STYLE, style);
 
-                                // Resize it
-                                MoveWindow(_rdpHandle, 0, 0, this.Width, this.Height, true);
+                                // Resize it to perfectly fill the client area
+                                MoveWindow(_rdpHandle, 0, 0, this.ClientSize.Width, this.ClientSize.Height, true);
                             });
                         }
                         break;
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                     retries++;
                 }
 
@@ -133,13 +193,15 @@ namespace FreeRdpWrapper.UI
             });
         }
 
-        private void FreeRdpContainer_Resize(object? sender, EventArgs e)
+        protected override void OnResize(EventArgs e)
         {
+            base.OnResize(e);
             if (_rdpHandle != IntPtr.Zero)
             {
-                MoveWindow(_rdpHandle, 0, 0, this.Width, this.Height, true);
+                MoveWindow(_rdpHandle, 0, 0, this.ClientSize.Width, this.ClientSize.Height, true);
             }
         }
+
 
         public void Disconnect()
         {
