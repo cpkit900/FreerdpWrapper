@@ -60,25 +60,54 @@ namespace FreeRdpWrapper.UI
             string uniqueId = Guid.NewGuid().ToString().Substring(0, 8);
             
             string dynRes = config.DynamicResolution ? "+dynamic-resolution" : "";
-            string certArg = config.IgnoreCert ? "/cert:ignore" : "";
+            if (config.UseCustomResolution)
+            {
+                dynRes = $"/w:{config.ResolutionWidth} /h:{config.ResolutionHeight}";
+            }
+
+            string certArg = config.CertConfig switch
+            {
+                CertSecurity.Tofu => "/cert:tofu",
+                CertSecurity.Deny => "/cert:deny",
+                _ => "/cert:ignore"
+            };
             
             // Core Authentication
-            string baseArgs = $"/v:\"{config.Host}\" /u:\"{config.User}\" /p:\"{config.Pass}\"";
+            string baseArgs = $"/v:\"{config.Host}\" /u:\"{config.User}\"";
+            
+            string plainPass = FreeRdpWrapper.Services.CryptoHelper.DecryptString(config.Pass);
+            if (!string.IsNullOrEmpty(plainPass)) baseArgs += $" /p:\"{plainPass}\"";
+            
             if (!string.IsNullOrEmpty(config.Domain)) baseArgs += $" /d:\"{config.Domain}\"";
             if (config.EnableCredGuard) baseArgs += " +remote-credential-guard";
 
             // Gateway Setup
-            if (!string.IsNullOrEmpty(config.GatewayHost))
+            if (config.EnableGateway && !string.IsNullOrEmpty(config.GatewayHost))
             {
-                baseArgs += $" /g:\"{config.GatewayHost}\"";
-                if (!string.IsNullOrEmpty(config.GatewayUser)) baseArgs += $" /gu:\"{config.GatewayUser}\"";
-                if (!string.IsNullOrEmpty(config.GatewayPass)) baseArgs += $" /gp:\"{config.GatewayPass}\"";
+                string gwArgs = $"g:{config.GatewayHost}";
+                if (!string.IsNullOrEmpty(config.GatewayDomain)) gwArgs += $",d:{config.GatewayDomain}";
+                if (!string.IsNullOrEmpty(config.GatewayUser)) gwArgs += $",u:{config.GatewayUser}";
+                
+                string plainGwPass = FreeRdpWrapper.Services.CryptoHelper.DecryptString(config.GatewayPass);
+                if (!string.IsNullOrEmpty(plainGwPass))
+                {
+                    // If password has commas or quotes, we need to be careful, but generally removing internal quotes is better.
+                    gwArgs += $",p:{plainGwPass}";
+                }
+                baseArgs += $" \"/gateway:{gwArgs}\"";
             }
 
             // Display & Embed
-            baseArgs += $" /parent-window:{this.Handle} {dynRes} {certArg}";
-            if (config.EnableDpiScale) baseArgs += " +dpiscale";
-            if (!string.IsNullOrEmpty(config.RemoteApp)) baseArgs += $" /app:\"||{config.RemoteApp}\"";
+            if (config.MultiMonitor) baseArgs += " /multimon";
+            else baseArgs += $" /parent-window:{this.Handle}";
+            
+            baseArgs += $" {dynRes} {certArg}";
+            if (!string.IsNullOrEmpty(config.RemoteApp)) 
+            {
+                // Simplified syntax: /app:"||Alias" instead of /app:program:"||Alias"
+                // This ensures the SDL parser correctly identifies the application name.
+                baseArgs += $" /app:\"||{config.RemoteApp}\"";
+            }
 
             // Hardware Redirection
             if (config.EnableClipboard) baseArgs += " +clipboard";
@@ -86,9 +115,30 @@ namespace FreeRdpWrapper.UI
 
             if (config.EnableSound) baseArgs += " /sound";
             if (config.EnableMicrophone) baseArgs += " /microphone";
-            if (config.MapDrive) baseArgs += " /drive:host,C:\\";
-            if (config.MapPrinter) baseArgs += " /printers";
+            if (config.MapDrive) baseArgs += " +drives"; // Replaces specific C:\ mapping with universal mapping
             if (config.MapSmartcard) baseArgs += " /smartcard";
+            if (config.EnableUsbRedirection) baseArgs += " /usb:auto";
+
+            // Security & Admin Features
+            if (config.AdminSession) baseArgs += " +admin";
+            
+            // RAIL (RemoteApp) conflicts with modern GFX and Auto Network profiles in some FreeRDP builds.
+            // We disable them here if a RemoteApp is active to ensure a stable handshake.
+            if (string.IsNullOrEmpty(config.RemoteApp))
+            {
+                if (config.AutoNetworkProfile && !config.GamingMode) baseArgs += " /network:auto";
+
+                // Gaming Optimizations
+                if (config.GamingMode)
+                {
+                    baseArgs += " /gfx:avc444,mask:1 +async-update +async-channels /network:broadband-high";
+                }
+            }
+            else
+            {
+                // For RemoteApp, we use a more conservative network profile if none specified
+                if (config.AutoNetworkProfile) baseArgs += " /network:lan";
+            }
 
             if (!string.IsNullOrEmpty(config.AdditionalFlags))
             {
@@ -135,10 +185,13 @@ namespace FreeRdpWrapper.UI
             };
 
             _rdpProcess.Start();
+            
             _rdpProcess.BeginOutputReadLine();
             _rdpProcess.BeginErrorReadLine();
 
             // Wait for window handle creation
+            if (config.MultiMonitor) return; // Do not swallow window if using multiple monitors
+
             Task.Run(() => {
                 int retries = 0;
                 while (_rdpProcess != null && !_rdpProcess.HasExited && retries < 100)

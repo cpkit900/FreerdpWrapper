@@ -1,3 +1,8 @@
+using System;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Windows.Security.Credentials.UI;
+
 namespace FreeRdpWrapper;
 
 static class Program
@@ -8,9 +13,21 @@ static class Program
     [STAThread]
     static void Main()
     {
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
+
+        var settings = FreeRdpWrapper.Services.SettingsStore.LoadSettings();
+        
+        bool isSetup = string.IsNullOrEmpty(settings.MasterPasswordHash);
+        
+        using (var dialog = new FreeRdpWrapper.UI.MasterPasswordDialog(isSetup, settings.MasterPasswordHash))
+        {
+            if (dialog.ShowDialog() != DialogResult.OK)
+            {
+                // User cancelled or failed authentication
+                return;
+            }
+        }
+
         Application.Run(new Form1());
     }    
 }

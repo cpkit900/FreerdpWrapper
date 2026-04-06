@@ -30,7 +30,16 @@ namespace FreeRdpWrapper.Services
             try
             {
                 string json = File.ReadAllText(_filePath);
-                return JsonSerializer.Deserialize<List<SavedConnection>>(json) ?? new List<SavedConnection>();
+                var connections = JsonSerializer.Deserialize<List<SavedConnection>>(json) ?? new List<SavedConnection>();
+                
+                // Decrypt passwords after loading
+                foreach (var conn in connections)
+                {
+                    conn.Pass = CryptoHelper.DecryptString(conn.Pass);
+                    conn.GatewayPass = CryptoHelper.DecryptString(conn.GatewayPass);
+                }
+                
+                return connections;
             }
             catch
             {
@@ -42,8 +51,24 @@ namespace FreeRdpWrapper.Services
         {
             try
             {
+                // Create a deep copy or encrypt in-place temporarily then decrypt back.
+                // Best approach: clone the list to avoid modifying the in-memory models used by the UI.
+                var connectionsToSave = new List<SavedConnection>();
+                foreach (var conn in connections)
+                {
+                    // Serialize then deserialize to get a fresh clone
+                    string tempJson = JsonSerializer.Serialize(conn);
+                    var clone = JsonSerializer.Deserialize<SavedConnection>(tempJson);
+                    if (clone != null)
+                    {
+                        clone.Pass = CryptoHelper.EncryptString(clone.Pass);
+                        clone.GatewayPass = CryptoHelper.EncryptString(clone.GatewayPass);
+                        connectionsToSave.Add(clone);
+                    }
+                }
+
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                string json = JsonSerializer.Serialize(connections, options);
+                string json = JsonSerializer.Serialize(connectionsToSave, options);
                 File.WriteAllText(_filePath, json);
             }
             catch (Exception ex)

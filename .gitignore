@@ -15,3 +15,10 @@ Bin/FreeRDP/FreeRDP/
 
 # Keep the compiled binaries so the wrapper works out of the box
 !Bin/FreeRDP/Compiled/bin/
+
+# Ignore large Release zips
+*.zip
+
+# Ignore Publish directories
+FreeRdpWrapper_Release/
+PublishOutput/
