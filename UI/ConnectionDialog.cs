@@ -381,7 +381,7 @@ namespace FreeRdpWrapper.UI
             Connection.RemoteApp = txtRemoteApp.Text;
             Connection.AutoReconnect = chkAutoReconnect.Checked;
 
-            Connection.AdditionalFlags = "/gfx:avc444"; // Fixed for now
+            Connection.AdditionalFlags = "/gfx"; // Auto-negotiate best graphics
 
             this.DialogResult = DialogResult.OK;
             this.Close();

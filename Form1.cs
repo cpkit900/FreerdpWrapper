@@ -155,6 +155,13 @@ namespace FreeRdpWrapper
             };
             tabControl.DrawItem += TabControl_DrawItem;
             tabControl.MouseDown += TabControl_MouseDown;
+            tabControl.SelectedIndexChanged += async (s, e) => {
+                if (tabControl.SelectedTab?.Controls.Count > 0 && tabControl.SelectedTab.Controls[0] is FreeRdpContainer container)
+                {
+                    await System.Threading.Tasks.Task.Delay(50);
+                    container.FocusRdpWindow();
+                }
+            };
 
             Panel logPanel = new Panel { Dock = DockStyle.Fill };
             Panel logHeader = new Panel { Dock = DockStyle.Top, Height = 30 };

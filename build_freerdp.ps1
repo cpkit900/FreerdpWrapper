@@ -26,13 +26,15 @@ if (!(Test-Path $buildDir)) {
 Write-Host "Configuring CMake..."
 cmake -S $freeRdpDir -B $buildDir `
       -G "Visual Studio 17 2022" -A x64 `
-      -DCMAKE_TOOLCHAIN_FILE=$vcpkgToolchain `
+      -DCMAKE_TOOLCHAIN_FILE="C:/Users/Junnu/vcpkg/scripts/buildsystems/vcpkg.cmake" `
       -DCMAKE_BUILD_TYPE=Release `
       -DCMAKE_INSTALL_PREFIX=$compiledDir `
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON `
       -DFREERDP_UNIFIED_BUILD=ON `
       -DBUILD_SHARED_LIBS=ON `
-      -DWITH_SERVER=OFF
+      -DWITH_SERVER=OFF `
+      -DWITH_MEDIA_FOUNDATION=OFF `
+      -DWITH_OPENH264=ON
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "CMake configuration failed."
@@ -50,6 +52,12 @@ cmake --install $buildDir --config Release
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "CMake install failed."
+}
+
+Write-Host "Copying vcpkg dependencies into Compiled/bin..."
+$vcpkgBin = "C:\Users\Junnu\vcpkg\installed\x64-windows\bin"
+if (Test-Path $vcpkgBin) {
+    Copy-Item "$vcpkgBin\*.dll" -Destination "$compiledDir\bin\" -Force
 }
 
 Write-Host "=========================================="
