@@ -41,6 +41,9 @@ namespace FreeRdpWrapper.UI
         static extern IntPtr SetFocus(IntPtr hWnd);
 
         [DllImport("user32.dll")]
+        static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
         static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
 
         const uint RDW_INVALIDATE  = 0x0001;
@@ -48,6 +51,7 @@ namespace FreeRdpWrapper.UI
         const uint RDW_ALLCHILDREN = 0x0080;
         const uint RDW_UPDATENOW   = 0x0100;
         const uint WM_PAINT        = 0x000F;
+        const uint WM_ACTIVATE     = 0x0006;
 
         // ── Events ───────────────────────────────────────────────────────────
 
@@ -273,6 +277,7 @@ namespace FreeRdpWrapper.UI
         /// WinForms container. The SDL3 HWND in the other process never receives
         /// WM_SETFOCUS and won't process keyboard events until the user clicks.
         /// AttachThreadInput + SetFocus bridges the cross-process focus gap.
+        /// WM_ACTIVATE is also sent so SDL3's internal focus tracking updates correctly.
         /// </summary>
         public void FocusRdpWindow()
         {
@@ -287,13 +292,18 @@ namespace FreeRdpWrapper.UI
             if (targetThreadId != 0 && targetThreadId != myThreadId)
             {
                 AttachThreadInput(myThreadId, targetThreadId, true);
+                BringWindowToTop(_rdpHandle);
                 SetFocus(_rdpHandle);
+                // WM_ACTIVATE(WA_ACTIVE=1) triggers SDL3's SDL_EVENT_WINDOW_FOCUS_GAINED
+                // so its event loop recognises the focus and starts routing key events
+                SendMessage(_rdpHandle, WM_ACTIVATE, (IntPtr)1, IntPtr.Zero);
                 Task.Delay(150).ContinueWith(_ =>
                     AttachThreadInput(myThreadId, targetThreadId, false));
             }
             else
             {
                 SetFocus(_rdpHandle);
+                SendMessage(_rdpHandle, WM_ACTIVATE, (IntPtr)1, IntPtr.Zero);
             }
         }
 
