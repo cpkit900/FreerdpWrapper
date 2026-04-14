@@ -31,6 +31,15 @@ namespace FreeRdpWrapper.UI
         [DllImport("user32.dll")]
         static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
+        [DllImport("kernel32.dll")]
+        static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr SetFocus(IntPtr hWnd);
+
         [DllImport("user32.dll")]
         static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
 
@@ -200,13 +209,15 @@ namespace FreeRdpWrapper.UI
 
         private void CaptureChildHandle(string exePath)
         {
-            const int maxWaitMs   = 20_000;
-            const int intervalMs  = 100;
+            const int maxWaitMs  = 20_000;
+            const int intervalMs = 100;
             int elapsed = 0;
 
-            // Give the process a moment to create its message loop before we poll
-            try { _rdpProcess?.WaitForInputIdle(3000); } catch { }
-
+            // Poll every 100ms — do NOT use WaitForInputIdle here.
+            // WaitForInputIdle returns as soon as SDL3's message loop starts, which is
+            // well before the RDP connection is established and the child HWND is visible.
+            // If we capture too early we get a stale/wrong handle. We need the window
+            // to be visible (IsWindowVisible) which only happens after GDI init + first frame.
             while (_rdpProcess != null && !_rdpProcess.HasExited && elapsed < maxWaitMs)
             {
                 IntPtr found = IntPtr.Zero;
@@ -229,7 +240,10 @@ namespace FreeRdpWrapper.UI
                     if (this.IsHandleCreated && !this.IsDisposed)
                     {
                         this.Invoke((MethodInvoker)(() =>
-                            MoveWindow(_rdpHandle, 0, 0, this.ClientSize.Width, this.ClientSize.Height, true)));
+                        {
+                            MoveWindow(_rdpHandle, 0, 0, this.ClientSize.Width, this.ClientSize.Height, true);
+                            FocusRdpWindow(); // route keyboard focus now that handle is ready
+                        }));
                     }
                     return;
                 }
@@ -253,11 +267,34 @@ namespace FreeRdpWrapper.UI
 
         // ── Tab visibility / focus ────────────────────────────────────────────
 
-        /// <summary>Called by Form1 when a tab is selected to route focus into the RDP session.</summary>
+        /// <summary>
+        /// Routes keyboard focus into the embedded SDL3 session.
+        /// SDL3 runs in a separate Win32 process — this.Focus() alone only focuses our
+        /// WinForms container. The SDL3 HWND in the other process never receives
+        /// WM_SETFOCUS and won't process keyboard events until the user clicks.
+        /// AttachThreadInput + SetFocus bridges the cross-process focus gap.
+        /// </summary>
         public void FocusRdpWindow()
         {
             RepaintRdpWindow();
-            this.Focus();
+            this.Focus(); // focus our container first
+
+            if (_rdpHandle == IntPtr.Zero) return;
+
+            uint targetThreadId = GetWindowThreadProcessId(_rdpHandle, out _);
+            uint myThreadId     = GetCurrentThreadId();
+
+            if (targetThreadId != 0 && targetThreadId != myThreadId)
+            {
+                AttachThreadInput(myThreadId, targetThreadId, true);
+                SetFocus(_rdpHandle);
+                Task.Delay(150).ContinueWith(_ =>
+                    AttachThreadInput(myThreadId, targetThreadId, false));
+            }
+            else
+            {
+                SetFocus(_rdpHandle);
+            }
         }
 
         protected override void OnVisibleChanged(EventArgs e)
