@@ -12,7 +12,7 @@ if (Test-Path $publishDir) { Remove-Item -Recurse -Force $publishDir }
 if (Test-Path $zipFile)    { Remove-Item -Force $zipFile }
 
 Write-Host "Publishing .NET App..."
-dotnet publish "$baseDir\FreeRdpWrapper.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o $publishDir
+dotnet publish "$baseDir\FreeRdpWrapper.csproj" -c Release -f net8.0-windows10.0.19041.0 -r win-x64 --self-contained true -p:PublishSingleFile=true -o $publishDir
 
 Write-Host "Assembling release folder..."
 New-Item -ItemType Directory -Force -Path $releaseDir | Out-Null
