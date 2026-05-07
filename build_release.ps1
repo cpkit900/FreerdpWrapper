@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$version   = "v3.0.1"
+$version   = "v3.0.2"
 $baseDir   = "c:\Users\Junnu\Freerdp Wrapper"
 $releaseDir = "$baseDir\FreeRdpWrapper_Release"
 $publishDir = "$baseDir\PublishOutput"
