@@ -94,24 +94,7 @@ LRESULT CALLBACK wf_ll_kbd_proc(int nCode, WPARAM wParam, LPARAM lParam)
 		HWND fg_win_hwnd = GetForegroundWindow();
 		DWORD fg_win_thread_id = GetWindowThreadProcessId(fg_win_hwnd, &ext_proc_id);
 		BOOL result = GetGUIThreadInfo(fg_win_thread_id, &gui_thread_info);
-		HWND focusedWnd = gui_thread_info.hwndFocus;
-		/* Accept keyboard input if:
-		 * 1. The focused window IS the parent handle (original behaviour), OR
-		 * 2. The focused window is a descendant child of the parent (embedded TabPage/Panel), OR
-		 * 3. The foreground window belongs to the same process as the parent (wrapper owns focus)
-		 */
-		BOOL ownedByParentProcess = FALSE;
-		if (fg_win_hwnd)
-		{
-			DWORD parentProcId = 0;
-			GetWindowThreadProcessId(wfc->hWndParent, &parentProcId);
-			DWORD fgProcId = 0;
-			GetWindowThreadProcessId(fg_win_hwnd, &fgProcId);
-			ownedByParentProcess = (fgProcId == parentProcId);
-		}
-		if (focusedWnd != wfc->hWndParent &&
-		    !IsChild(wfc->hWndParent, focusedWnd) &&
-		    !ownedByParentProcess)
+		if (gui_thread_info.hwndFocus != wfc->hWndParent)
 		{
 			g_focus_hWnd = nullptr;
 			return CallNextHookEx(nullptr, nCode, wParam, lParam);
@@ -769,6 +752,12 @@ LRESULT CALLBACK wf_event_proc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 				else if (wParam == SYSCOMMAND_ID_REQUEST_CONTROL)
 				{
 					freerdp_client_encomsp_set_control(wfc->common.encomsp, TRUE);
+				}
+				else if (((wParam & 0xfff0) == SC_MAXIMIZE) && wfc->fullscreen_toggle &&
+				         freerdp_settings_get_bool(settings, FreeRDP_Fullscreen) &&
+				         !wfc->fullscreen)
+				{
+					wf_toggle_fullscreen(wfc);
 				}
 				else
 				{

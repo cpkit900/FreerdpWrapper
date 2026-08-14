@@ -39,15 +39,6 @@ void SdlConnectionDialogWrapper::create(rdpContext* context)
 	const auto enabled =
 	    freerdp_settings_get_bool(context->settings, FreeRDP_UseCommonStdioCallbacks);
 	_connection_dialog.reset();
-
-	// When running embedded inside a parent window (e.g. a WinForms TabControl),
-	// skip the SDL dialog entirely. The host application is responsible for showing
-	// disconnect/error UI. Attempting to run SDL modal dialogs as a child window
-	// causes SDL_RunOnMainThread failures during shutdown (the "handleShow" error).
-	const auto parentId = freerdp_settings_get_uint64(context->settings, FreeRDP_ParentWindowId);
-	if (parentId != 0)
-		return;
-
 	if (!enabled)
 		_connection_dialog = std::make_unique<SDLConnectionDialog>(context);
 }
@@ -219,11 +210,6 @@ void SdlConnectionDialogWrapper::push(EventArg&& arg)
 {
 	{
 		std::unique_lock lock(_mux);
-		// When running embedded (no dialog created), skip queuing work on the
-		// main SDL thread. SDL_RunOnMainThread fails during shutdown producing
-		// spurious "[handleShow]" error log lines.
-		if (!_connection_dialog)
-			return;
 		_queue.push(std::move(arg));
 	}
 

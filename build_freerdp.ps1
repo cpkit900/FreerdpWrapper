@@ -28,13 +28,16 @@ cmake -S $freeRdpDir -B $buildDir `
       -G "Visual Studio 17 2022" -A x64 `
       -DCMAKE_TOOLCHAIN_FILE="C:/Users/Junnu/vcpkg/scripts/buildsystems/vcpkg.cmake" `
       -DCMAKE_BUILD_TYPE=Release `
-      -DCMAKE_INSTALL_PREFIX=$compiledDir `
+      "-DCMAKE_INSTALL_PREFIX=$compiledDir" `
       -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON `
       -DFREERDP_UNIFIED_BUILD=ON `
       -DBUILD_SHARED_LIBS=ON `
       -DWITH_SERVER=OFF `
       -DWITH_MEDIA_FOUNDATION=OFF `
-      -DWITH_OPENH264=ON
+      -DWITH_OPENH264=ON `
+      -DWITH_CLIENT_SDL=ON `
+      -DWITH_CLIENT_SDL3=ON `
+      -DWITH_CLIENT_SDL_VERSIONED=ON
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "CMake configuration failed."
