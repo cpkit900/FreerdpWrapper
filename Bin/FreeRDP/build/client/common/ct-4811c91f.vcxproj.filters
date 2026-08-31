@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\CMakeFiles\aff95957689ea2b637b7bb2d95628905\ct-4811c91f.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\CMakeFiles\ct-4811c91f" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{461FD4AA-A4D8-3263-8A89-49974E356273}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

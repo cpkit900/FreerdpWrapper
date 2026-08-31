@@ -1,0 +1,9 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_gdi.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_gdi.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_event.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_event.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_channels.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_channels.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_graphics.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_graphics.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_cliprdr.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_cliprdr.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_rail.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_rail.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_client.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_client.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_floatbar.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_floatbar.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\Windows\wf_defaults.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.dir\Release\wf_defaults.obj

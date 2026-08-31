@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\ainput\client\ainput-client.dir\Release\ainput-client.lib

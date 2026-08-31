@@ -1,0 +1,7 @@
+# CMake generation dependency list for this directory.
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/include/CMakeLists.txt
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/include/config/build-config.h.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/include/config/buildflags.h.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/include/config/config.h.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/include/config/version.h.in

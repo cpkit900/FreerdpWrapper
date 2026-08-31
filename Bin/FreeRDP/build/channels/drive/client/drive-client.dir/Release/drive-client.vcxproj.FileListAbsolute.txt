@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\drive\client\drive-client.dir\Release\drive-client.lib

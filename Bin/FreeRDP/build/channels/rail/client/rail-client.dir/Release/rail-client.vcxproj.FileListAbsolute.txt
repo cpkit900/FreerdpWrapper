@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rail\client\rail-client.dir\Release\rail-client.lib

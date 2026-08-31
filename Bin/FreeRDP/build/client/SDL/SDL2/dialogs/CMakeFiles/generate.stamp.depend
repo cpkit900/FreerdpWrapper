@@ -1,0 +1,10 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FeatureSummary.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/SDL2/dialogs/CMakeLists.txt
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttf-shared-targets-debug.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttf-shared-targets-release.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttf-shared-targets.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttfConfig.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/SDL2_ttf/SDL2_ttfConfigVersion.cmake

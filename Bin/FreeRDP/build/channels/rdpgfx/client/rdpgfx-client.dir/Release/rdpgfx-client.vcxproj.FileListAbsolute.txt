@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpgfx\client\rdpgfx-client.dir\Release\rdpgfx-client.lib

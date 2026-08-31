@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\CMakeFiles\_CMakeLTOTest-CXX\bin\CMakeFiles\34e7cab7839c9905f3dd8c805a13e8d2\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{31998D06-A708-35AC-8830-98BDA7CC6A2F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

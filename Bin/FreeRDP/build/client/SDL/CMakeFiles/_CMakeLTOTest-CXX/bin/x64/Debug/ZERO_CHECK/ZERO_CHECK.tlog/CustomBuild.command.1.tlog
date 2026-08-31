@@ -1,0 +1,10 @@
+^C:\USERS\JUNNU\FREERDP WRAPPER\BIN\FREERDP\BUILD\CLIENT\SDL\CMAKEFILES\_CMAKELTOTEST-CXX\BIN\CMAKEFILES\34E7CAB7839C9905F3DD8C805A13E8D2\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/src" "-BC:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/lto-test.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

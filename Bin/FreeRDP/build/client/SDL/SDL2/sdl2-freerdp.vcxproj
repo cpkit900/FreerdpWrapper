@@ -1,0 +1,414 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BBAF24C1-51B3-3E3B-81F4-1AAF2967171A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <VcpkgEnabled>false</VcpkgEnabled>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>sdl2-freerdp</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="do_not_import_user.props" Condition="exists('do_not_import_user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">sdl2-freerdp.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">sdl2-freerdp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'"></LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">sdl2-freerdp.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">sdl2-freerdp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'"></LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">sdl2-freerdp.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">sdl2-freerdp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'"></LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">sdl2-freerdp.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">sdl2-freerdp</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'"></LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include" /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include/SDL2" /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Junnu/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/Release/sdl2-freerdp.exe" -installedDir C:/Users/Junnu/vcpkg/installed/x64-windows/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\common\Release\freerdp-client3.lib;dialogs\res\Release\sdl2_client_res.lib;dialogs\Release\sdl2-dialogs.lib;..\common\aad\Release\sdl-common-aad-view.lib;..\common\Release\sdl-common-prefs.lib;dialogs\res\Release\sdl2_client_res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\manual-link\SDL2main.lib;shell32.lib;..\common\res\Release\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL2_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL2.lib;..\..\..\libfreerdp\Release\freerdp3.lib;..\..\..\winpr\libwinpr\Release\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/Release/sdl2-freerdp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/Release/sdl2-freerdp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\resources\freerdp.manifest;</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include" /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include/SDL2" /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CallingConvention>Cdecl</CallingConvention>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Junnu/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/Debug/sdl2-freerdp.exe" -installedDir C:/Users/Junnu/vcpkg/installed/x64-windows/debug/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\common\Debug\freerdp-client3.lib;dialogs\res\Debug\sdl2_client_res.lib;dialogs\Debug\sdl2-dialogs.lib;..\common\aad\Debug\sdl-common-aad-view.lib;..\common\Debug\sdl-common-prefs.lib;dialogs\res\Debug\sdl2_client_res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\manual-link\SDL2maind.lib;shell32.lib;..\common\res\Debug\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\SDL2_ttfd.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\SDL2d.lib;..\..\..\libfreerdp\Debug\freerdp3.lib;..\..\..\winpr\libwinpr\Debug\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/Debug/sdl2-freerdp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/Debug/sdl2-freerdp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\resources\freerdp.manifest;</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include" /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include/SDL2" /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CallingConvention>Cdecl</CallingConvention>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Junnu/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/MinSizeRel/sdl2-freerdp.exe" -installedDir C:/Users/Junnu/vcpkg/installed/x64-windows/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\common\MinSizeRel\freerdp-client3.lib;dialogs\res\MinSizeRel\sdl2_client_res.lib;dialogs\MinSizeRel\sdl2-dialogs.lib;..\common\aad\MinSizeRel\sdl-common-aad-view.lib;..\common\MinSizeRel\sdl-common-prefs.lib;dialogs\res\MinSizeRel\sdl2_client_res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\manual-link\SDL2main.lib;shell32.lib;..\common\res\MinSizeRel\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL2_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL2.lib;..\..\..\libfreerdp\MinSizeRel\freerdp3.lib;..\..\..\winpr\libwinpr\MinSizeRel\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/MinSizeRel/sdl2-freerdp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/MinSizeRel/sdl2-freerdp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\resources\freerdp.manifest;</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include" /external:I "C:/Users/Junnu/vcpkg/installed/x64-windows/include/SDL2" /utf-8</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <CallingConvention>Cdecl</CallingConvention>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MinimalRebuild></MinimalRebuild>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SupportJustMyCode></SupportJustMyCode>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2;C:\Users\Junnu\vcpkg\installed\x64-windows\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PostBuildEvent>
+      <Message></Message>
+      <Command>setlocal
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Junnu/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/RelWithDebInfo/sdl2-freerdp.exe" -installedDir C:/Users/Junnu/vcpkg/installed/x64-windows/bin -OutVariable out
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>..\..\common\RelWithDebInfo\freerdp-client3.lib;dialogs\res\RelWithDebInfo\sdl2_client_res.lib;dialogs\RelWithDebInfo\sdl2-dialogs.lib;..\common\aad\RelWithDebInfo\sdl-common-aad-view.lib;..\common\RelWithDebInfo\sdl-common-prefs.lib;dialogs\res\RelWithDebInfo\sdl2_client_res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\manual-link\SDL2main.lib;shell32.lib;..\common\res\RelWithDebInfo\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL2_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL2.lib;..\..\..\libfreerdp\RelWithDebInfo\freerdp3.lib;..\..\..\winpr\libwinpr\RelWithDebInfo\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/RelWithDebInfo/sdl2-freerdp.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/SDL2/RelWithDebInfo/sdl2-freerdp.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Manifest>
+      <AdditionalManifestFiles>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\resources\freerdp.manifest;</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_types.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_utils.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_utils.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_kbd.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_kbd.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_touch.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_touch.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_pointer.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_pointer.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_disp.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_disp.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_monitor.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_monitor.hpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_freerdp.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_freerdp.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_channels.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_channels.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_window.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL2\sdl_window.cpp" />
+    <ResourceCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\version.rc" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\freerdp.vcxproj">
+      <Project>{FEF68D0D-A134-34F6-9E3F-5B4CE86AC56E}</Project>
+      <Name>freerdp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.vcxproj">
+      <Project>{2E3E0DEA-3724-3297-906F-7EF74C4CB318}</Project>
+      <Name>freerdp-client</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\aad\sdl-common-aad-view.vcxproj">
+      <Project>{CD659616-D220-328C-BB76-974849330C94}</Project>
+      <Name>sdl-common-aad-view</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\res\sdl-common-client-res.vcxproj">
+      <Project>{26CA153E-9679-39A7-912B-B296060F8D82}</Project>
+      <Name>sdl-common-client-res</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\sdl-common-prefs.vcxproj">
+      <Project>{11EED6E8-636A-3A7B-8152-71E8D11F1266}</Project>
+      <Name>sdl-common-prefs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\dialogs\sdl2-dialogs.vcxproj">
+      <Project>{ACF520EE-E15A-3692-96C4-8BE31BE8B7D0}</Project>
+      <Name>sdl2-dialogs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\dialogs\res\sdl2_client_res.vcxproj">
+      <Project>{C45ACC2E-C298-3D5E-81E9-6E7F76A95EC6}</Project>
+      <Name>sdl2_client_res</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.vcxproj">
+      <Project>{8AEF0B63-8A3C-3E22-9C79-A6E88A7EF268}</Project>
+      <Name>winpr</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

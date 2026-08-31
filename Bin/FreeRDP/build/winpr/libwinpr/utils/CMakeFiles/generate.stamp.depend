@@ -1,0 +1,9 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDependentOption.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckFunctionExists.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPkgConfig.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/Findlibsystemd.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/libwinpr/utils/CMakeLists.txt

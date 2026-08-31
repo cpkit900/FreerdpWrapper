@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\smartcard\client\smartcard-client.dir\Release\smartcard-client.lib

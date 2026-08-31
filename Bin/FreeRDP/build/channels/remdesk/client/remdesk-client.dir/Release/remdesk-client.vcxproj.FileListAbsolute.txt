@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\remdesk\client\remdesk-client.dir\Release\remdesk-client.lib

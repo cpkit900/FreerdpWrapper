@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\client.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\cmdline.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\client_cliprdr_file.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\geometry.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\smartcard_cli.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\client\tables.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\addin.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\generic_dynvc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\cmdline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\addin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\ainput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\audin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\channels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\client_cliprdr_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\cliprdr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\cmdline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\disp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\drdynvc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\encomsp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\geometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\location.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\printer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\rail.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\rdpdr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\rdpei.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\rdpgfx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\rdpsnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\remdesk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\sshagent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\tsmf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\utils\smartcard_cli.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\drdynvc\client\drdynvc-client.dir\$(Configuration)\drdynvc_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\remdesk\client\remdesk-client.dir\$(Configuration)\remdesk_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\client\rdpsnd-client.dir\$(Configuration)\rdpsnd_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpdr\client\rdpdr-client.dir\$(Configuration)\irp.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpdr\client\rdpdr-client.dir\$(Configuration)\devman.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpdr\client\rdpdr-client.dir\$(Configuration)\rdpdr_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpdr\client\rdpdr-client.dir\$(Configuration)\rdpdr_capabilities.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rail\client\rail-client.dir\$(Configuration)\rail_common.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rail\client\rail-client.dir\$(Configuration)\client_rails.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rail\client\rail-client.dir\$(Configuration)\rail_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rail\client\rail-client.dir\$(Configuration)\rail_orders.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\encomsp\client\encomsp-client.dir\$(Configuration)\encomsp_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\cliprdr\client\cliprdr-client.dir\$(Configuration)\cliprdr_format.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\cliprdr\client\cliprdr-client.dir\$(Configuration)\cliprdr_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\cliprdr\client\cliprdr-client.dir\$(Configuration)\cliprdr_common.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\video\client\video-client.dir\$(Configuration)\video_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\urbdrc-client.dir\$(Configuration)\data_transfer.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\urbdrc-client.dir\$(Configuration)\urbdrc_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpgfx\client\rdpgfx-client.dir\$(Configuration)\rdpgfx_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpgfx\client\rdpgfx-client.dir\$(Configuration)\rdpgfx_codec.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpgfx\client\rdpgfx-client.dir\$(Configuration)\rdpgfx_common.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpei\client\rdpei-client.dir\$(Configuration)\rdpei_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpei\client\rdpei-client.dir\$(Configuration)\rdpei_common.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\location\client\location-client.dir\$(Configuration)\location_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\geometry\client\geometry-client.dir\$(Configuration)\geometry_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\echo\client\echo-client.dir\$(Configuration)\echo_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\disp\client\disp-client.dir\$(Configuration)\disp_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\disp\client\disp-client.dir\$(Configuration)\disp_common.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\audin\client\audin-client.dir\$(Configuration)\audin_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\ainput\client\ainput-client.dir\$(Configuration)\ainput_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\smartcard\client\smartcard-client.dir\$(Configuration)\smartcard_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\printer\client\printer-client.dir\$(Configuration)\printer_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\drive\client\drive-client.dir\$(Configuration)\drive_file.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\drive\client\drive-client.dir\$(Configuration)\drive_main.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\libusb\urbdrc-client-libusb.dir\$(Configuration)\libusb_udevman.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\libusb\urbdrc-client-libusb.dir\$(Configuration)\libusb_udevice.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\client\winmm\rdpsnd-client-winmm.dir\$(Configuration)\rdpsnd_winmm.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\client\fake\rdpsnd-client-fake.dir\$(Configuration)\rdpsnd_fake.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\printer\client\win\printer-client-win.dir\$(Configuration)\printer_win.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\audin\client\winmm\audin-client-winmm.dir\$(Configuration)\audin_winmm.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\version.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4298D628-F68D-3800-9778-78277DD8B851}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object Libraries">
+      <UniqueIdentifier>{9E9ECA21-EBF2-3E57-9093-61AF293EA52C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{986F7323-BB94-3500-94D8-7A7F9DBA771C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

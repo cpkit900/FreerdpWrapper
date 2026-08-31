@@ -1,0 +1,15 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPkgConfig.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/SelectLibraryConfigurations.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/FindCairo.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/FindFFmpeg.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/WindowsDLLVersion.rc.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/pkg-config-install-prefix.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/libfreerdp/CMakeLists.txt
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/libfreerdp/FreeRDPConfig.cmake.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/libfreerdp/freerdp.pc.in
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/ffmpeg/vcpkg-cmake-wrapper.cmake

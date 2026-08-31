@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpdr\client\rdpdr-client.dir\Release\rdpdr-client.lib

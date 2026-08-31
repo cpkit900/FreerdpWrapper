@@ -1,0 +1,19 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDependentOption.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckFunctionExists.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPkgConfig.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/JsonDetect.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/WindowsDLLVersion.rc.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/libwinpr/CMakeLists.txt
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/cjson/cJSONConfig.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/cjson/cJSONConfigVersion.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/cjson/cjson-debug.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/cjson/cjson-release.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/cjson/cjson.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/json-c/json-c-config.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/json-c/json-c-targets-debug.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/json-c/json-c-targets-release.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/json-c/json-c-targets.cmake

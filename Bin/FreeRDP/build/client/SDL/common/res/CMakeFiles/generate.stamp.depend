@@ -1,0 +1,6 @@
+# CMake generation dependency list for this directory.
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/common/res/CMakeLists.txt
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/common/res/resource.cpp.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/common/res/resource.hpp.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/ConvertFileToHexArray.cmake

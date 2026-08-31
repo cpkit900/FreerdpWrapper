@@ -1,0 +1,19 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCSourceCompiles.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFile.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FeatureSummary.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/SDL2/CMakeLists.txt
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/SDL2/sdl_config.hpp.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/WarnExperimental.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/WarnUnmaintained.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/WindowsDLLVersion.rc.in
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2Config.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2ConfigVersion.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2Targets.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/sdlfind.cmake

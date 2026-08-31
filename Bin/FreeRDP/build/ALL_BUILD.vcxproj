@@ -1,0 +1,360 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ResolveNugetPackages>false</ResolveNugetPackages>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5B4FE68C-CD4C-3162-8024-8865C17BDCED}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <Platform>x64</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\ainput\client\ainput-client.vcxproj">
+      <Project>{AE81C3E4-A75C-3D8A-9ADD-68C2614644BC}</Project>
+      <Name>ainput-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\audin\client\audin-client.vcxproj">
+      <Project>{3AF9DD4D-0441-314F-9501-B70817EABD7D}</Project>
+      <Name>audin-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\audin\client\winmm\audin-client-winmm.vcxproj">
+      <Project>{62981F5E-7A10-31A2-B7A5-54C9457D8628}</Project>
+      <Name>audin-client-winmm</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\cliprdr\client\cliprdr-client.vcxproj">
+      <Project>{15AB8702-BD0E-3323-A6AC-0E4E5B7B0719}</Project>
+      <Name>cliprdr-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\disp\client\disp-client.vcxproj">
+      <Project>{29FFC8E6-BB76-3D69-9E8D-37282F6F5129}</Project>
+      <Name>disp-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\drdynvc\client\drdynvc-client.vcxproj">
+      <Project>{1DCC4AD3-17FB-3C78-A4D9-C2EBDE0B5344}</Project>
+      <Name>drdynvc-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\drive\client\drive-client.vcxproj">
+      <Project>{4D08BFC7-9074-308C-BA4C-6F55024F282F}</Project>
+      <Name>drive-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\echo\client\echo-client.vcxproj">
+      <Project>{928D8B10-2CF6-36B8-B396-D07939BD0BFC}</Project>
+      <Name>echo-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\encomsp\client\encomsp-client.vcxproj">
+      <Project>{D437324D-A70C-376E-9819-CD07495C80E0}</Project>
+      <Name>encomsp-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\freerdp.vcxproj">
+      <Project>{FEF68D0D-A134-34F6-9E3F-5B4CE86AC56E}</Project>
+      <Name>freerdp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.vcxproj">
+      <Project>{2E3E0DEA-3724-3297-906F-7EF74C4CB318}</Project>
+      <Name>freerdp-client</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\codec\freerdp-codecs.vcxproj">
+      <Project>{A86EAF0C-2470-3A72-B074-6B918068150F}</Project>
+      <Name>freerdp-codecs</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.vcxproj">
+      <Project>{180C6BC5-592C-3CD1-866F-DF7A0991A435}</Project>
+      <Name>freerdp-primitives</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\geometry\client\geometry-client.vcxproj">
+      <Project>{58BD6898-5361-3115-88CB-68131EBFBF67}</Project>
+      <Name>geometry-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\location\client\location-client.vcxproj">
+      <Project>{C147B4C3-3738-33E0-B791-89A4DB09327B}</Project>
+      <Name>location-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\printer\client\printer-client.vcxproj">
+      <Project>{C6905ECA-F70D-3E9D-8CFE-9F7CCF219690}</Project>
+      <Name>printer-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\printer\client\win\printer-client-win.vcxproj">
+      <Project>{2F1FB447-68F3-3DAC-A50B-728F29CB600E}</Project>
+      <Name>printer-client-win</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rail\client\rail-client.vcxproj">
+      <Project>{267C7A53-68E3-3867-979C-C0468792B23F}</Project>
+      <Name>rail-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpdr\client\rdpdr-client.vcxproj">
+      <Project>{E8F4FE16-CED5-3D76-B798-D6DEBA27DF90}</Project>
+      <Name>rdpdr-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpei\client\rdpei-client.vcxproj">
+      <Project>{001108B0-366E-31EE-9C65-80FD0D9A0153}</Project>
+      <Name>rdpei-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpgfx\client\rdpgfx-client.vcxproj">
+      <Project>{1897ED5C-7BBE-3743-82D2-C95E9C847A62}</Project>
+      <Name>rdpgfx-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\client\rdpsnd-client.vcxproj">
+      <Project>{C1B982B5-7169-35D7-8AFA-21EDCF4D8881}</Project>
+      <Name>rdpsnd-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\client\fake\rdpsnd-client-fake.vcxproj">
+      <Project>{EBBDBDF0-2FB3-32F5-9355-683406729D69}</Project>
+      <Name>rdpsnd-client-fake</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\client\winmm\rdpsnd-client-winmm.vcxproj">
+      <Project>{4CD2E4B8-14F4-3303-90FD-E7CED50A5A60}</Project>
+      <Name>rdpsnd-client-winmm</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\rdpsnd\common\rdpsnd-common.vcxproj">
+      <Project>{E09300C6-845F-3A38-A0CA-92F64D6C4276}</Project>
+      <Name>rdpsnd-common</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\remdesk\client\remdesk-client.vcxproj">
+      <Project>{0BD3F42F-225B-3516-AB43-36DFAB881AC6}</Project>
+      <Name>remdesk-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\remdesk\common\remdesk-common.vcxproj">
+      <Project>{99A16F16-C0D0-397A-A002-3C5962C3BD2B}</Project>
+      <Name>remdesk-common</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\aad\sdl-common-aad-view.vcxproj">
+      <Project>{CD659616-D220-328C-BB76-974849330C94}</Project>
+      <Name>sdl-common-aad-view</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\res\sdl-common-client-res.vcxproj">
+      <Project>{26CA153E-9679-39A7-912B-B296060F8D82}</Project>
+      <Name>sdl-common-client-res</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\sdl-common-prefs.vcxproj">
+      <Project>{11EED6E8-636A-3A7B-8152-71E8D11F1266}</Project>
+      <Name>sdl-common-prefs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\dialogs\sdl2-dialogs.vcxproj">
+      <Project>{ACF520EE-E15A-3692-96C4-8BE31BE8B7D0}</Project>
+      <Name>sdl2-dialogs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\sdl2-freerdp.vcxproj">
+      <Project>{BBAF24C1-51B3-3E3B-81F4-1AAF2967171A}</Project>
+      <Name>sdl2-freerdp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\dialogs\res\sdl2_client_res.vcxproj">
+      <Project>{C45ACC2E-C298-3D5E-81E9-6E7F76A95EC6}</Project>
+      <Name>sdl2_client_res</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\dialogs\sdl3-dialogs.vcxproj">
+      <Project>{0C373779-A23F-3458-8982-49EC3CEFDF2B}</Project>
+      <Name>sdl3-dialogs</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\sdl3-freerdp.vcxproj">
+      <Project>{BB71A4E9-DED0-3622-8D7E-29C33E2C3951}</Project>
+      <Name>sdl3-freerdp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\dialogs\res\sdl3_client_res.vcxproj">
+      <Project>{E6EACE21-4821-35D6-A992-780B900706F5}</Project>
+      <Name>sdl3_client_res</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\smartcard\client\smartcard-client.vcxproj">
+      <Project>{68CF68A0-5441-3725-B2B2-7840444C5532}</Project>
+      <Name>smartcard-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\urbdrc-client.vcxproj">
+      <Project>{9D96203F-62C9-37C9-8870-E2BC8F7DDE22}</Project>
+      <Name>urbdrc-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\libusb\urbdrc-client-libusb.vcxproj">
+      <Project>{9FB6B208-CDAE-3254-9B87-B490D82C5DE5}</Project>
+      <Name>urbdrc-client-libusb</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\common\urbdrc-common.vcxproj">
+      <Project>{A9F2930E-A319-3302-AC79-7EA6ABB454BB}</Project>
+      <Name>urbdrc-common</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\video\client\video-client.vcxproj">
+      <Project>{68AA0557-6E31-3840-8939-2F4A9ECDA7F5}</Project>
+      <Name>video-client</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\cli\wfreerdp.vcxproj">
+      <Project>{51C780EF-8B30-30FC-88F3-CD54FFD29004}</Project>
+      <Name>wfreerdp</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\wfreerdp-client.vcxproj">
+      <Project>{77B9E601-2FC0-3113-B73E-C64299D008D4}</Project>
+      <Name>wfreerdp-client</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.vcxproj">
+      <Project>{8AEF0B63-8A3C-3E22-9C79-A6E88A7EF268}</Project>
+      <Name>winpr</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\tools\hash-cli\winpr-hash.vcxproj">
+      <Project>{6C7590C0-07B5-34EF-A885-D99B43724C8F}</Project>
+      <Name>winpr-hash</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\tools\makecert-cli\winpr-makecert.vcxproj">
+      <Project>{892690C2-0491-3C33-BE67-6B0FADB46A01}</Project>
+      <Name>winpr-makecert</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\tools\winpr-tools.vcxproj">
+      <Project>{7AD03F5E-C143-3572-B538-EF60997A18ED}</Project>
+      <Name>winpr-tools</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\Release\winpr3.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\Release\freerdp3.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\Release\freerdp-client3.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\Release\sdl2-freerdp.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\Release\sdl3-freerdp.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\Release\wfreerdp-client3.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\cli\Release\wfreerdp.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\tools\hash-cli\Release\winpr-hash.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\tools\Release\winpr-tools3.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\tools\makecert-cli\Release\winpr-makecert.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\x64\Release\ALL_BUILD</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

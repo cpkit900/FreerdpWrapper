@@ -1,0 +1,4 @@
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/foo.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/boo.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/ALL_BUILD.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/CMakeFiles/ZERO_CHECK.dir

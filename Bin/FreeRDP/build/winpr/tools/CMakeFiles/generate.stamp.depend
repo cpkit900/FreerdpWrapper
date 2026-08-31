@@ -1,0 +1,8 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/WindowsDLLVersion.rc.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/pkg-config-install-prefix.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/tools/CMakeLists.txt
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/tools/WinPR-toolsConfig.cmake.in
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/winpr/tools/winpr-tools.pc.in

@@ -1,0 +1,64 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCXXInformation.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDependentOption.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXCompilerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported/CMakeLists-C.txt.in
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported/CMakeLists-CXX.txt.in
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported/foo.c
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported/foo.cpp
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported/main.c
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported/main.cpp
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFiles.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Compiler/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Compiler/MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/FeatureSummary.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/GNUInstallDirs.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CMakeCXXLinkerInformation.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CMakeCommonLinkerInformation.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Linker/MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Linker/MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Platform/Linker/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Platform/Linker/Windows-MSVC.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Platform/Windows-MSVC.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/4.0.3/CMakeCXXCompiler.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/SDL/CMakeLists.txt
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/AddTargetWithResourceFile.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CFlagsToVar.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CXXCompilerFlags.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CheckAndSetFlag.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/ClangTidy.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CleaningConfigureFile.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CommonCompilerFlags.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CommonConfigOptions.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CompilerSanitizerOptions.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/ConfigureFreeRDP.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/ConfigureRPATH.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/DisableCompilerWarnings.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/ExportAllSymbols.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/GNUInstallDirsWrapper.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/MSVCRuntime.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/PlatformDefaults.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/PreventInSourceBuilds.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/ProjectCXXStandard.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2Config.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2ConfigVersion.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2Targets-debug.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2Targets-release.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2Targets.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets-debug.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets-release.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/SDL2mainTargets.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl2/sdlfind.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl3/SDL3Config.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl3/SDL3ConfigVersion.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl3/SDL3headersTargets.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl3/SDL3sharedTargets-debug.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl3/SDL3sharedTargets-release.cmake
+C:/Users/Junnu/vcpkg/installed/x64-windows/share/sdl3/SDL3sharedTargets.cmake

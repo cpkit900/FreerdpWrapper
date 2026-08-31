@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\echo\client\echo-client.dir\Release\echo-client.lib

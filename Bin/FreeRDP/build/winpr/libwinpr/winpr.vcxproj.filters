@@ -1,0 +1,899 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\address.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\barrier.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\critical.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\event.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\init.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\mutex.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\pollset.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\semaphore.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\sleep.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\timer.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\wait.c">
+      <Filter>synch</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\library\library.c">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\file\generic.c">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\file\namedPipeClient.c">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\file\pattern.c">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\file\file.c">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\credentials\credentials.c">
+      <Filter>credentials</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pipe\pipe.c">
+      <Filter>pipe</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\interlocked\interlocked.c">
+      <Filter>interlocked</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\security\security.c">
+      <Filter>security</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\environment\environment.c">
+      <Filter>nt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\hash.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\rand.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\cipher.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\cert.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\crypto.c">
+      <Filter>crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.c">
+      <Filter>registry</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry.c">
+      <Filter>registry</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\path\path.c">
+      <Filter>path</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\path\shell.c">
+      <Filter>path</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\io\device.c">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\io\io.c">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\memory\memory.c">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\ncrypt\ncrypt.c">
+      <Filter>ncrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\input\virtualkey.c">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\input\scancode.c">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\input\keycode.c">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\shell\shell.c">
+      <Filter>shell</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\json\json-c.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\json\json.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\atexit.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ini.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\sam.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ntlm.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\image.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\print.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\stream.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\strlst.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\debug.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\winpr.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\cmdline.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ssl.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\windows\debug.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\Object.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\Queue.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\Stack.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\PubSub.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\BitStream.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\ArrayList.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\LinkedList.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\HashTable.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\ListDictionary.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\CountdownEvent.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\BufferPool.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\ObjectPool.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\StreamPool.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\MessageQueue.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\MessagePipe.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\wlog.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\Layout.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\Message.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\DataMessage.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\ImageMessage.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\PacketMessage.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\Appender.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\FileAppender.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\BinaryAppender.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\CallbackAppender.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\ConsoleAppender.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\UdpAppender.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\asn1\asn1.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\error\error.c">
+      <Filter>error</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneNameMapUtils.c">
+      <Filter>timezone</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\timezone.c">
+      <Filter>timezone</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\WindowsZones.c">
+      <Filter>timezone</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sysinfo\sysinfo.c">
+      <Filter>sysinfo</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\synch.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\work.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\timer.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\io.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\cleanup_group.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\pool.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\callback.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\callback_cleanup.c">
+      <Filter>pool</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\handle\handle.c">
+      <Filter>handle</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\handle\nonehandle.c">
+      <Filter>handle</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\apc.c">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\argv.c">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\process.c">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\processor.c">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\thread.c">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\tls.c">
+      <Filter>thread</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\winsock\winsock.c">
+      <Filter>winsock</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\CredSSP\credssp.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_av_pairs.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_compute.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_message.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Kerberos\kerberos.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Negotiate\negotiate.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Schannel\schannel_openssl.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Schannel\schannel.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi_winpr.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi_export.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi_gss.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi.c">
+      <Filter>sspi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspicli\sspicli.c">
+      <Filter>sspicli</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\alignment.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\conversion.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\buffer.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\memory.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\unicode.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\string.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crt\assert.c">
+      <Filter>crt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\bcrypt\bcrypt.c">
+      <Filter>bcrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\rpc\rpc.c">
+      <Filter>rpc</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\wtsapi\wtsapi.c">
+      <Filter>wtsapi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\wtsapi\wtsapi_win32.c">
+      <Filter>wtsapi</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\dsparse\dsparse.c">
+      <Filter>dsparse</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard.c">
+      <Filter>smartcard</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_pcsc.c">
+      <Filter>smartcard</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_windows.c">
+      <Filter>smartcard</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\nt\nt.c">
+      <Filter>nt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\nt\ntstatus.c">
+      <Filter>nt</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\clipboard\synthetic.c">
+      <Filter>clipboard</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\clipboard\clipboard.c">
+      <Filter>clipboard</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\clipboard\synthetic_file.c">
+      <Filter>clipboard</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\pollset.h">
+      <Filter>synch</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\synch\synch.h">
+      <Filter>synch</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\file\namedPipeClient.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pipe\pipe.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\crypto.h">
+      <Filter>crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.h">
+      <Filter>registry</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\io\io.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\memory\memory.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\ncrypt\ncrypt.h">
+      <Filter>ncrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\stream.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\windows\debug.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\wlog.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\Layout.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\Message.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\DataMessage.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\ImageMessage.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\PacketMessage.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\Appender.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\FileAppender.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\BinaryAppender.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\CallbackAppender.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\ConsoleAppender.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\wlog\UdpAppender.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneNameMap.h">
+      <Filter>timezone</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\timezone.h">
+      <Filter>timezone</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneNameMap_static.h">
+      <Filter>timezone</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\WindowsZones.h">
+      <Filter>timezone</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\pool\pool.h">
+      <Filter>pool</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\handle\handle.h">
+      <Filter>handle</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\handle\nonehandle.h">
+      <Filter>handle</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\apc.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\thread.h">
+      <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\CredSSP\credssp.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_av_pairs.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_compute.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_message.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_export.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Kerberos\kerberos.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Negotiate\negotiate.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Schannel\schannel_openssl.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\Schannel\schannel.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi_winpr.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi_gss.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\sspi.h">
+      <Filter>sspi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\wtsapi\wtsapi_win32.h">
+      <Filter>wtsapi</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard.h">
+      <Filter>smartcard</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_pcsc.h">
+      <Filter>smartcard</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_windows.h">
+      <Filter>smartcard</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\clipboard\clipboard.h">
+      <Filter>clipboard</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\clipboard\synthetic_file.h">
+      <Filter>clipboard</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include\winpr\build-config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include\winpr\buildflags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include\winpr\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include\winpr\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\asn1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\assert-api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\assert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\atexit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\bcrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\bitstream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\cast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\clipboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\cmdline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\collections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\comm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\cred.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\crt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\crypto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\custom-crypto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\dsparse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\environment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\ini.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\interlocked.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\intrin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\ncrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\nt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\ntlm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\pack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\pipe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\print.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\rpc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\sam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\schannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\secapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\security.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\shell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\smartcard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\spec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\ssl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\sspi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\sspicli.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\stream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\strlst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\synch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\sysinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\tchar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\timezone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\user.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\wincrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\windows.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\winpr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\winsock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\wlog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\wtsapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\wtypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\version.rc">
+      <Filter>Source Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{4298D628-F68D-3800-9778-78277DD8B851}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{986F7323-BB94-3500-94D8-7A7F9DBA771C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bcrypt">
+      <UniqueIdentifier>{5A394E11-675B-3593-A6CF-0C7152544C97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="clipboard">
+      <UniqueIdentifier>{0AC60599-1F18-36CD-8FA3-90C481EC13A6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="credentials">
+      <UniqueIdentifier>{5CED0D22-8B27-3BDD-9955-13076D4C2325}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crt">
+      <UniqueIdentifier>{2EAC7877-E9C1-36BB-B627-959C9665887B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto">
+      <UniqueIdentifier>{3A747966-C7BB-35BB-B323-0DE2ACDAE995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dsparse">
+      <UniqueIdentifier>{E95B47EF-EB64-391E-B1C1-0E2DA7D62F1E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="error">
+      <UniqueIdentifier>{8AAEE63D-330B-37D3-9B6F-83DDE13E98AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{3E778284-7A67-3729-A28F-B2A88A9C76AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="handle">
+      <UniqueIdentifier>{7BB1ED17-14B7-37E9-B516-E9AFDF08064D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{B0616E8D-F56D-35C6-B387-24F2D77C3642}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interlocked">
+      <UniqueIdentifier>{379A1026-FDF2-3A40-861B-806D094B8E0A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="io">
+      <UniqueIdentifier>{9C37B1C5-69B9-375A-B93B-3398AE266BDA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="library">
+      <UniqueIdentifier>{F88484E3-CD45-30E7-ABA5-9CBB8B0E9667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="memory">
+      <UniqueIdentifier>{5CE6056A-167B-3FE8-965E-C810A799F6FE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ncrypt">
+      <UniqueIdentifier>{D0DD90BB-0EA4-3AA8-98C2-9E3235CFE792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nt">
+      <UniqueIdentifier>{900C0350-0FAD-3662-9C76-6304ECC41FA0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="path">
+      <UniqueIdentifier>{31BADDC5-E6CC-3FA8-A821-BFA8DA14EF4A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{1E1303E5-611F-34CD-B276-07A212E94B44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pool">
+      <UniqueIdentifier>{F435D7FB-DC55-3BA0-9638-84220CF20064}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="registry">
+      <UniqueIdentifier>{83BFF44E-23B0-3695-9EE9-F30377039832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rpc">
+      <UniqueIdentifier>{C1F8B8CD-C579-3194-BB9D-F3642A30B016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="security">
+      <UniqueIdentifier>{FD624D96-1BFD-39EE-A0DA-C8B9300F7D5E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shell">
+      <UniqueIdentifier>{F389B167-674D-35C3-8475-CBB7DA57EA5A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="smartcard">
+      <UniqueIdentifier>{D9E61FF1-C189-3A6D-8B59-ED0779CFC442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sspi">
+      <UniqueIdentifier>{B033F5F9-63B2-346F-A785-246CECD84641}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sspicli">
+      <UniqueIdentifier>{BC04DA54-FE54-3F21-9414-4081C9AFB3CA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="synch">
+      <UniqueIdentifier>{D8153360-686E-38CF-A9DD-D66110FC60E8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sysinfo">
+      <UniqueIdentifier>{07D517CE-2EDA-32F8-B7CF-06AC33633AEC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thread">
+      <UniqueIdentifier>{379B0EF6-0DAD-3968-970B-61B4FB40051E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="timezone">
+      <UniqueIdentifier>{24FBF148-26FA-3EFC-BC2D-4026B50059F3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{F8EFAEB4-4216-3281-A910-FAE6D80CBB1E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="winsock">
+      <UniqueIdentifier>{6352ABEC-1366-38B5-A3B3-34A58533C368}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wtsapi">
+      <UniqueIdentifier>{C66021C4-7839-3B41-845F-7C002CFE4065}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

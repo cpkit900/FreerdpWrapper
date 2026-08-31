@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\urbdrc\client\urbdrc-client.dir\Release\urbdrc-client.lib

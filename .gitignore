@@ -1,6 +1,8 @@
-# .NET build output — only lowercase 'bin/' so the capital 'Bin/' FreeRDP folder is NOT ignored
+# .NET build output
+/bin/Debug/
+/bin/Release/
+/bin/net*/
 [Oo]bj/
-bin/
 .vs/
 *.user
 *.userosscache
@@ -8,16 +10,15 @@ bin/
 *.userprefs
 *.DS_Store
 
-# FreeRDP Build Ignore (large generated directories — source, vcpkg, cmake build)
+# FreeRDP Build Ignore (large generated directories — source, vcpkg)
 Bin/FreeRDP/vcpkg/
-Bin/FreeRDP/build/
 Bin/FreeRDP/FreeRDP/
 
-# Keep pre-built binaries tracked so the wrapper works out of the box after cloning
-# Note: use ** to un-ignore files inside the directory, not just the directory itself
+# Keep build directory and pre-built binaries tracked
+!Bin/FreeRDP/build/
+!Bin/FreeRDP/build/**
 !Bin/FreeRDP/Compiled/
-!Bin/FreeRDP/Compiled/bin/
-!Bin/FreeRDP/Compiled/bin/**
+!Bin/FreeRDP/Compiled/**
 
 # Ignore large Release zips and publish output
 *.zip

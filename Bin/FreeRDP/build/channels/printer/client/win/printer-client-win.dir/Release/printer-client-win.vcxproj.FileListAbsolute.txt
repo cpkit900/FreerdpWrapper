@@ -1,0 +1,1 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\printer\client\win\printer-client-win.dir\Release\printer-client-win.lib

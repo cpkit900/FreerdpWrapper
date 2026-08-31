@@ -1,0 +1,9 @@
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\client.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\client.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\cmdline.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\cmdline.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\file.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\file.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\client_cliprdr_file.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\client_cliprdr_file.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\geometry.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\geometry.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\smartcard_cli.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\smartcard_cli.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\client\tables.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\tables.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\addin.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\addin.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\generic_dynvc.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.dir\Release\generic_dynvc.obj
