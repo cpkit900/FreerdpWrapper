@@ -112,7 +112,7 @@ static inline pstatus_t general_ChromaV1ToYUV444(const BYTE* WINPR_RESTRICT pSrc
 	const UINT32 oddX = 1;
 	/* The auxiliary frame is aligned to multiples of 16x16.
 	 * We need the padded height for B4 and B5 conversion. */
-	const UINT32 padHeigth = nHeight + 16 - nHeight % 16;
+	const UINT32 padHeight = nHeight + 16 - nHeight % 16;
 	const BYTE* pSrc[3] = { pSrcRaw[0] + 1ULL * roi->top * srcStep[0] + roi->left,
 		                    pSrcRaw[1] + 1ULL * roi->top / 2 * srcStep[1] + roi->left / 2,
 		                    pSrcRaw[2] + 1ULL * roi->top / 2 * srcStep[2] + roi->left / 2 };
@@ -122,7 +122,7 @@ static inline pstatus_t general_ChromaV1ToYUV444(const BYTE* WINPR_RESTRICT pSrc
 
 	/* The second half of U and V is a bit more tricky... */
 	/* B4 and B5 */
-	for (size_t y = 0; y < padHeigth; y++)
+	for (size_t y = 0; y < padHeight; y++)
 	{
 		const BYTE* Ya = pSrc[0] + y * srcStep[0];
 		BYTE* pX = nullptr;
@@ -146,7 +146,8 @@ static inline pstatus_t general_ChromaV1ToYUV444(const BYTE* WINPR_RESTRICT pSrc
 			pX = pDst[2] + dstStep[2] * pos;
 		}
 
-		memcpy(pX, Ya, nWidth);
+		if (y < nHeight)
+			memcpy(pX, Ya, nWidth);
 	}
 
 	/* B6 and B7 */
@@ -264,7 +265,7 @@ general_YUV444SplitToYUV420(const BYTE* WINPR_RESTRICT pSrc[3], const UINT32 src
 
 	/* The auxiliary frame is aligned to multiples of 16x16.
 	 * We need the padded height for B4 and B5 conversion. */
-	const UINT32 padHeigth = roi->height + 16 - roi->height % 16;
+	const UINT32 padHeight = roi->height + 16 - roi->height % 16;
 	const UINT32 halfWidth = (roi->width + 1) / 2;
 	const UINT32 halfHeight = (roi->height + 1) / 2;
 
@@ -292,7 +293,7 @@ general_YUV444SplitToYUV420(const BYTE* WINPR_RESTRICT pSrc[3], const UINT32 src
 	}
 
 	/* B4 and B5 */
-	for (size_t y = 0; y < padHeigth; y++)
+	for (size_t y = 0; y < padHeight; y++)
 	{
 		BYTE* pY = pAuxDst[0] + y * dstAuxStep[0];
 
@@ -343,7 +344,6 @@ static inline void general_YUV444ToRGB_DOUBLE_ROW(BYTE* WINPR_RESTRICT pRGB[2], 
 {
 	fkt_writePixel writePixel = getPixelWriteFunction(DstFormat, FALSE);
 
-	WINPR_ASSERT(nWidth % 2 == 0);
 	for (size_t x = 0; x < nWidth; x += 2)
 	{
 		for (size_t i = 0; i < 2; i++)
@@ -376,7 +376,6 @@ static inline void general_YUV444ToRGB_SINGLE_ROW(BYTE* WINPR_RESTRICT pRGB, UIN
 {
 	fkt_writePixel writePixel = getPixelWriteFunction(DstFormat, FALSE);
 
-	WINPR_ASSERT(nWidth % 2 == 0);
 	for (size_t x = 0; x < nWidth; x += 2)
 	{
 		for (size_t j = 0; j < 2; j++)
@@ -701,8 +700,6 @@ static inline void general_BGRXToYUV444_DOUBLE_ROW(const BYTE* WINPR_RESTRICT pR
                                                    BYTE* WINPR_RESTRICT pU[2],
                                                    BYTE* WINPR_RESTRICT pV[2], UINT32 nWidth)
 {
-
-	WINPR_ASSERT((nWidth % 2) == 0);
 	for (size_t x = 0; x < nWidth; x += 2)
 	{
 		BGRX_fillYUV(x, pRGB, pY, pU, pV);
@@ -713,8 +710,6 @@ static inline void general_BGRXToYUV444_SINGLE_ROW(const BYTE* WINPR_RESTRICT pR
                                                    BYTE* WINPR_RESTRICT pY, BYTE* WINPR_RESTRICT pU,
                                                    BYTE* WINPR_RESTRICT pV, UINT32 nWidth)
 {
-
-	WINPR_ASSERT((nWidth % 2) == 0);
 	for (size_t x = 0; x < nWidth; x += 2)
 	{
 		BGRX_fillYUV_single(x, pRGB, pY, pU, pV);
@@ -825,8 +820,6 @@ static inline void general_RGBToYUV444_DOUBLE_ROW(const BYTE* WINPR_RESTRICT pRG
                                                   BYTE* WINPR_RESTRICT pU[2],
                                                   BYTE* WINPR_RESTRICT pV[2], UINT32 nWidth)
 {
-
-	WINPR_ASSERT((nWidth % 2) == 0);
 	for (size_t x = 0; x < nWidth; x += 2)
 	{
 		fillYUV(x, pRGB, SrcFormat, pY, pU, pV);
@@ -837,8 +830,6 @@ static inline void general_RGBToYUV444_SINGLE_ROW(const BYTE* WINPR_RESTRICT pRG
                                                   BYTE* WINPR_RESTRICT pY, BYTE* WINPR_RESTRICT pU,
                                                   BYTE* WINPR_RESTRICT pV, UINT32 nWidth)
 {
-
-	WINPR_ASSERT((nWidth % 2) == 0);
 	for (size_t x = 0; x < nWidth; x += 2)
 	{
 		fillYUV_single(x, pRGB, SrcFormat, pY, pU, pV);
@@ -1346,7 +1337,6 @@ static inline void int_general_RGBToAVC444YUV_BGRX_DOUBLE_ROW(
     BYTE* WINPR_RESTRICT b3, BYTE* WINPR_RESTRICT b4, BYTE* WINPR_RESTRICT b5,
     BYTE* WINPR_RESTRICT b6, BYTE* WINPR_RESTRICT b7, UINT32 width)
 {
-	WINPR_ASSERT((width % 2) == 0);
 	for (size_t x = offset; x < width; x += 2)
 	{
 		const BYTE* srcEven = &pSrcEven[4ULL * x];
@@ -1511,7 +1501,6 @@ static inline void general_RGBToAVC444YUV_RGBX_DOUBLE_ROW(
     BYTE* WINPR_RESTRICT b3, BYTE* WINPR_RESTRICT b4, BYTE* WINPR_RESTRICT b5,
     BYTE* WINPR_RESTRICT b6, BYTE* WINPR_RESTRICT b7, UINT32 width)
 {
-	WINPR_ASSERT((width % 2) == 0);
 	for (UINT32 x = 0; x < width; x += 2)
 	{
 		const BOOL lastX = (x + 1) >= width;
@@ -1917,7 +1906,6 @@ static inline void general_RGBToAVC444YUVv2_ANY_DOUBLE_ROW(
 {
 	const UINT32 bpp = FreeRDPGetBytesPerPixel(srcFormat);
 
-	WINPR_ASSERT((width % 2) == 0);
 	for (UINT32 x = 0; x < width; x += 2)
 	{
 		BYTE Ya = 0;
@@ -2155,7 +2143,6 @@ static inline void int_general_RGBToAVC444YUVv2_BGRX_DOUBLE_ROW(
     BYTE* WINPR_RESTRICT uChromaDst1, BYTE* WINPR_RESTRICT uChromaDst2,
     BYTE* WINPR_RESTRICT vChromaDst1, BYTE* WINPR_RESTRICT vChromaDst2, UINT32 width)
 {
-	WINPR_ASSERT((width % 2) == 0);
 	WINPR_ASSERT(pSrcEven);
 	WINPR_ASSERT(yLumaDstEven);
 	WINPR_ASSERT(uLumaDst);

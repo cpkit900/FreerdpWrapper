@@ -108,14 +108,14 @@
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="Release";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_RESOURCE_ROOT="C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="Release";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"Release\";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_RESOURCE_ROOT=\"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"Release\";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -139,7 +139,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libcrypto.lib;..\libwinpr\Release\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libcrypto.lib;..\libwinpr\Release\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -171,12 +171,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="Debug";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_RESOURCE_ROOT="C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="Debug";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"Debug\";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_RESOURCE_ROOT=\"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"Debug\";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -200,7 +200,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\libcrypto.lib;..\libwinpr\Debug\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\libcrypto.lib;..\libwinpr\Debug\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -231,14 +231,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="MinSizeRel";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_RESOURCE_ROOT="C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="MinSizeRel";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"MinSizeRel\";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_RESOURCE_ROOT=\"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"MinSizeRel\";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -262,7 +262,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libcrypto.lib;..\libwinpr\MinSizeRel\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libcrypto.lib;..\libwinpr\MinSizeRel\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -294,12 +294,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="RelWithDebInfo";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";WINPR_RESOURCE_ROOT="C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR="RelWithDebInfo";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"RelWithDebInfo\";winpr_tools_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";WINPR_RESOURCE_ROOT=\"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/WinPR\";WINPR_DLL;WINPR_EXPORTS;CMAKE_INTDIR=\"RelWithDebInfo\";winpr_tools_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -323,7 +323,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libcrypto.lib;..\libwinpr\RelWithDebInfo\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libssl.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\libcrypto.lib;..\libwinpr\RelWithDebInfo\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>

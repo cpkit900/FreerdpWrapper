@@ -121,7 +121,9 @@ macro(winpr_library_add_link_directory)
   set(WINPR_LINK_DIRS ${WINPR_LINK_DIRS} PARENT_SCOPE)
 endmacro()
 
-set(CMAKE_REQUIRED_LIBRARIES rt)
+if(NOT OPENBSD)
+  set(CMAKE_REQUIRED_LIBRARIES rt)
+endif()
 
 find_package(uriparser)
 option(WITH_URIPARSER "use uriparser library to handle URIs" ${uriparser_FOUND})
@@ -145,7 +147,13 @@ if(NOT IOS)
   check_function_exists(timer_gettime TIMER_GETTIME)
   if(TIMER_CREATE AND TIMER_DELETE AND TIMER_SETTIME AND TIMER_GETTIME)
     add_compile_definitions(WITH_POSIX_TIMER)
-    winpr_library_add_private(rt)
+    if(NOT OPENBSD)
+      winpr_library_add_private(rt)
+    endif()
+  endif()
+  check_function_exists(getexecpath GETEXECPATH)
+  if(GETEXECPATH)
+    add_compile_definitions(WITH_GETEXECPATH)
   endif()
 endif()
 
@@ -219,6 +227,17 @@ list(REMOVE_DUPLICATES WINPR_INCLUDES)
 list(REMOVE_DUPLICATES WINPR_SYSTEM_INCLUDES)
 
 addtargetwithresourcefile(${MODULE_NAME} FALSE "${WINPR_VERSION}" WINPR_SRCS)
+
+# pipe2()/accept4() are only declared by glibc under _GNU_SOURCE (see the WINPR_HAVE_PIPE2/
+# WINPR_HAVE_ACCEPT4 detection in the top-level winpr/CMakeLists.txt, which probes for them with
+# _GNU_SOURCE forced on). Scope the define to exactly the files that call them instead of
+# enabling GNU extension visibility for the whole winpr target.
+if(WINPR_HAVE_PIPE2 OR WINPR_HAVE_ACCEPT4)
+  set_source_files_properties(pipe/pipe.c PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
+endif()
+if(WINPR_HAVE_PIPE2)
+  set_source_files_properties(synch/semaphore.c PROPERTIES COMPILE_DEFINITIONS _GNU_SOURCE)
+endif()
 
 if(WITH_RESOURCE_VERSIONING)
   target_compile_definitions(${MODULE_NAME} PRIVATE WITH_RESOURCE_VERSIONING)

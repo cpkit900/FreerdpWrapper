@@ -27,8 +27,8 @@ Write-Host "Writing release notes..."
 FreeRDP Wrapper $version
 ========================
 
-Release Date : 2026-08-14
-FreeRDP Base : 3.30.0 (SDL3 client, D3D11 renderer)
+Release Date : 2026-10-16
+FreeRDP Base : 3.32.2 (SDL3 client, D3D11 renderer)
 
 ## Changes in $version
 

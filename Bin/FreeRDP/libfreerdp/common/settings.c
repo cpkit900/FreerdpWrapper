@@ -739,8 +739,14 @@ ADDIN_ARGV* freerdp_addin_argv_new(size_t argc, const char* const argv[])
 
 	if (argv)
 	{
+		/* first argument must not be NULL, others might be */
+		if (!argv[0])
+			goto fail;
+
 		for (size_t x = 0; x < argc; x++)
 		{
+			if (!argv[x])
+				continue;
 			args->argv[x] = _strdup(argv[x]);
 			if (!args->argv[x])
 				goto fail;
@@ -1565,6 +1571,11 @@ BOOL freerdp_settings_set_pointer_len(rdpSettings* settings, FreeRDP_Settings_Ke
 			return freerdp_settings_set_pointer_len_(settings, id, FreeRDP_UINT32_UNUSED, data, len,
 			                                         sizeof(TIME_ZONE_INFORMATION));
 		case FreeRDP_BitmapCacheV2CellInfo:
+			if (len > 5)
+			{
+				WLog_ERR(TAG, "FreeRDP_BitmapCacheV2CellInfo::len must be >= 0 and <= 5");
+				return FALSE;
+			}
 			return freerdp_settings_set_pointer_len_(settings, id, FreeRDP_BitmapCacheV2NumCells,
 			                                         data, len, sizeof(BITMAP_CACHE_V2_CELL_INFO));
 		case FreeRDP_GlyphCache:

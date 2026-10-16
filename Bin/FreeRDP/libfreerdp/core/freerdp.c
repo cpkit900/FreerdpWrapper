@@ -36,6 +36,7 @@
 #include "message.h"
 #include <freerdp/buildflags.h>
 #include "gateway/rpc_fault.h"
+#include "../cache/cache.h"
 
 #include <winpr/assert.h>
 
@@ -640,6 +641,8 @@ BOOL freerdp_disconnect(freerdp* instance)
 	}
 
 	IFCALL(instance->PostDisconnect, instance);
+	cache_free(instance->context->cache);
+	instance->context->cache = nullptr;
 
 	if (up)
 	{
@@ -1254,8 +1257,10 @@ const char* freerdp_get_logon_error_info_data_ex(UINT32 data, char* buffer, size
  */
 freerdp* freerdp_new(void)
 {
-	freerdp* instance = nullptr;
-	instance = (freerdp*)calloc(1, sizeof(freerdp));
+	if (!utils_set_umask())
+		return nullptr;
+
+	freerdp* instance = (freerdp*)calloc(1, sizeof(freerdp));
 
 	if (!instance)
 		return nullptr;

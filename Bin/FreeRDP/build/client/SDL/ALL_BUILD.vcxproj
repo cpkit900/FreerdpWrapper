@@ -111,10 +111,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\aad\sdl-common-aad-view.vcxproj">
-      <Project>{CD659616-D220-328C-BB76-974849330C94}</Project>
-      <Name>sdl-common-aad-view</Name>
-    </ProjectReference>
     <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\res\sdl-common-client-res.vcxproj">
       <Project>{26CA153E-9679-39A7-912B-B296060F8D82}</Project>
       <Name>sdl-common-client-res</Name>

@@ -21,6 +21,7 @@
 #define WINPR_PLATFORM_H
 
 #include <stdlib.h>
+#include <winpr/config.h>
 
 /* MSVC only defines _Pragma if you compile with /std:c11 with no extensions
  * see
@@ -90,9 +91,17 @@
 
 #if defined(WINPR_DEFINE_ATTR_NODISCARD)
 #if defined(__cplusplus) && (__cplusplus >= 201703L)
+#if defined(__GNUC__) && !defined(__clang__)
+#define WINPR_ATTR_NODISCARD [[gnu::warn_unused_result]]
+#else
 #define WINPR_ATTR_NODISCARD [[nodiscard]]
+#endif
 #elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 202311L)
+#if defined(__GNUC__) && !defined(__clang__)
+#define WINPR_ATTR_NODISCARD [[gnu::warn_unused_result]]
+#else
 #define WINPR_ATTR_NODISCARD [[nodiscard]]
+#endif
 #elif defined(__clang__)
 #define WINPR_ATTR_NODISCARD __attribute__((warn_unused_result))
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
@@ -100,15 +109,6 @@
 #else
 #define WINPR_ATTR_NODISCARD
 #endif
-
-/* GCC does not like [[nodiscard]] on function pointers.
- * it does not complain when using attribute syntax thoug...
- */
-#if defined(__GNUC__) && !defined(__clang__)
-#undef WINPR_ATTR_NODISCARD
-#define WINPR_ATTR_NODISCARD __attribute__((warn_unused_result))
-#endif
-
 #else
 #define WINPR_ATTR_NODISCARD
 #endif
@@ -134,6 +134,10 @@
 #define WINPR_PRAGMA_DIAG_IGNORED_DEPRECATED_DECL \
 	WINPR_DO_PRAGMA(clang diagnostic ignored      \
 	                "-Wdeprecated-declarations") /** @since version 3.17.2 */
+#define WINPR_PRAGMA_DIAG_IGNORED_CAST_ALIGN \
+	WINPR_DO_PRAGMA(clang diagnostic ignored "-Wcast-align") /** @since 3.32.0 */
+#define WINPR_PRAGMA_DIAG_IGNORED_CAST_FUNCTION_TYPE \
+	WINPR_DO_PRAGMA(clang diagnostic ignored "-Wcast-function-type") /** @since 3.32.0 */
 
 #if __clang_major__ >= 13
 #define WINPR_PRAGMA_DIAG_IGNORED_RESERVED_IDENTIFIER \
@@ -220,6 +224,10 @@
 #define WINPR_PRAGMA_DIAG_POP WINPR_DO_PRAGMA(GCC diagnostic pop)
 #define WINPR_PRAGMA_UNROLL_LOOP \
 	WINPR_DO_PRAGMA(GCC unroll 8) WINPR_DO_PRAGMA(GCC ivdep) /** @since version 3.6.0 */
+#define WINPR_PRAGMA_DIAG_IGNORED_CAST_ALIGN \
+	WINPR_DO_PRAGMA(gcc diagnostic ignored "-Wcast-align") /** @since 3.32.0 */
+#define WINPR_PRAGMA_DIAG_IGNORED_CAST_FUNCTION_TYPE \
+	WINPR_DO_PRAGMA(clang diagnostic ignored "-Wcast-function-type") /** @since 3.32.0 */
 #else
 #define WINPR_PRAGMA_DIAG_PUSH
 #define WINPR_PRAGMA_DIAG_IGNORED_PEDANTIC
@@ -242,6 +250,8 @@
 #define WINPR_PRAGMA_DIAG_IGNORED_MISMATCHED_DEALLOC                 /** @since version 3.3.0 */
 #define WINPR_PRAGMA_DIAG_POP
 #define WINPR_PRAGMA_UNROLL_LOOP /** @since version 3.6.0 */
+#define WINPR_PRAGMA_DIAG_IGNORED_CAST_ALIGN /** @since 3.32.0 */
+#define WINPR_PRAGMA_DIAG_IGNORED_CAST_FUNCTION_TYPE /** @since 3.32.0 */
 #endif
 
 #if defined(MSVC)
@@ -372,12 +382,41 @@ WINPR_PRAGMA_DIAG_IGNORED_RESERVED_ID_MACRO
 #endif
 #endif
 
+/* s390x (_M_S390X) */
+
+#if defined(__s390x__)
+#ifndef _M_S390X
+// NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)
+#define _M_S390X 1
+#endif
+#endif
+
 /* E2K (_M_E2K) */
 
 #if defined(__e2k__)
 #ifndef _M_E2K
 // NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)
 #define _M_E2K 1
+#endif
+#endif
+
+/* RISCV64 (_M_RISCV64) */
+
+#if defined(__riscv)
+#if defined(__riscv_xlen)
+#if __riscv_xlen == 64
+#ifndef _M_RISCV64
+// NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)
+#define _M_RISCV64 1
+#endif
+#elif __riscv_xlen == 32
+#ifndef _M_RISCV32
+// NOLINTNEXTLINE(bugprone-reserved-identifier,cert-dcl37-c,cert-dcl51-cpp)
+#define _M_RISCV32 1
+#endif
+#else
+#error "Unknown/unsupported RISCV xlen value"
+#endif
 #endif
 #endif
 
@@ -572,16 +611,18 @@ WINPR_PRAGMA_DIAG_POP
 #endif
 
 #if defined(__cplusplus) && (__cplusplus >= 201703L)
-#define WINPR_NORETURN(obj) [[noreturn]] obj
+#define WINPR_DECLSPEC_NORETURN [[noreturn]]
 #elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 202311L)
-#define WINPR_NORETURN(obj) [[noreturn]] obj
+#define WINPR_DECLSPEC_NORETURN [[noreturn]]
 #elif defined(WIN32) && !defined(__CYGWIN__)
-#define WINPR_NORETURN(obj) __declspec(noreturn) obj
+#define WINPR_DECLSPEC_NORETURN __declspec(noreturn)
 #elif defined(__GNUC__)
-#define WINPR_NORETURN(obj) __attribute__((__noreturn__)) obj
+#define WINPR_DECLSPEC_NORETURN __attribute__((__noreturn__))
 #else
-#define WINPR_NORETURN(obj) obj
+#define WINPR_DECLSPEC_NORETURN
 #endif
+
+#define WINPR_NORETURN(obj) WINPR_DECLSPEC_NORETURN obj
 
 #define INLINE inline
 
@@ -666,16 +707,18 @@ WINPR_PRAGMA_DIAG_POP
 
 #if defined(EXPORT_ALL_SYMBOLS)
 #define WINPR_LOCAL WINPR_API
-#else
-#if defined _WIN32 || defined __CYGWIN__
+#elif defined _WIN32 || defined __CYGWIN__
 #define WINPR_LOCAL
+#elif defined(__GNUC__) && (__GNUC__ >= 4)
+#if defined(__cplusplus) && (__cplusplus >= 201703L)
+#define WINPR_LOCAL [[gnu::visibility("hidden")]]
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 202311L)
+#define WINPR_LOCAL [[gnu::visibility("hidden")]]
 #else
-#if defined(__GNUC__) && (__GNUC__ >= 4)
 #define WINPR_LOCAL __attribute__((visibility("hidden")))
+#endif
 #else
 #define WINPR_LOCAL
-#endif
-#endif
 #endif
 
 // WARNING: *do not* use thread-local storage for new code because it is not portable

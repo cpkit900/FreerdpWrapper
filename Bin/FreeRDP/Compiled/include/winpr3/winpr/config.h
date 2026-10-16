@@ -12,6 +12,8 @@
 /* #undef WINPR_HAVE_SYS_SOCKIO_H */
 /* #undef WINPR_HAVE_SYS_EVENTFD_H */
 /* #undef WINPR_HAVE_SYS_TIMERFD_H */
+/* #undef WINPR_HAVE_SYS_XATTR_H */
+/* #undef WINPR_HAVE_LINUX_MSDOS_FS_H */
 /* #undef WINPR_HAVE_TM_GMTOFF */
 /* #undef WINPR_HAVE_AIO_H */
 /* #undef WINPR_HAVE_POLL_H */
@@ -23,6 +25,8 @@
 /* #undef WINPR_HAVE_GETPWUID_R */
 /* #undef WINPR_HAVE_STRNDUP */
 /* #undef WINPR_HAVE_STRNSTR */
+/* #undef WINPR_HAVE_PIPE2 */
+/* #undef WINPR_HAVE_ACCEPT4 */
 /* #undef WINPR_HAVE_UNWIND_H */
 /* #undef WINPR_HAVE_SSIZE_T */
 #define WINPR_HAVE_WIN_SSIZE_T
@@ -55,5 +59,7 @@
 #if !defined(WITH_WINPR_DEPRECATED)
 /* #undef WITH_WINPR_DEPRECATED */
 #endif
+
+/* #undef DISABLE_SUPPORTED_ARCH_CHECKS */
 
 #endif /* WINPR_CONFIG_H */

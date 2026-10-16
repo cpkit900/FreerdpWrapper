@@ -28,34 +28,47 @@
 #include <winpr/file.h>
 
 #include "../utils.h"
+#include "path.h"
 
-#if defined(WITH_RESOURCE_VERSIONING)
-#define STR(x) #x
+#if defined(WITH_CWALK)
+#include <cwalk.h>
+#endif
+
+#ifndef PATHCCH_MAX_CCH
+#define PATHCCH_MAX_CCH 0x8000
 #endif
 
 static const char PATH_SLASH_CHR = '/';
 static const char PATH_SLASH_STR[] = "/";
 
 static const char PATH_BACKSLASH_CHR = '\\';
-static const char PATH_BACKSLASH_STR[] = "\\";
 
 #ifdef _WIN32
+static const char PATH_BACKSLASH_STR[] = "\\";
+static const WCHAR PATH_BACKSLASH_STR_W[] = L"\\";
 static const WCHAR PATH_SLASH_CHR_W = L'/';
 static const WCHAR PATH_BACKSLASH_CHR_W = L'\\';
 static const WCHAR PATH_SLASH_STR_W[] = L"/";
-static const WCHAR PATH_BACKSLASH_STR_W[] = L"\\";
 #else
 #if defined(__BIG_ENDIAN__)
 static const WCHAR PATH_SLASH_CHR_W = 0x2f00;
 static const WCHAR PATH_BACKSLASH_CHR_W = 0x5c00;
 static const WCHAR PATH_SLASH_STR_W[] = { 0x2f00, '\0' };
-static const WCHAR PATH_BACKSLASH_STR_W[] = { 0x5c00, '\0' };
 #else
 static const WCHAR PATH_SLASH_CHR_W = '/';
 static const WCHAR PATH_BACKSLASH_CHR_W = '\\';
 static const WCHAR PATH_SLASH_STR_W[] = { '/', '\0' };
+#endif
+
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
+#if defined(__BIG_ENDIAN__)
+static const WCHAR PATH_BACKSLASH_STR_W[] = { 0x5c00, '\0' };
+#else
 static const WCHAR PATH_BACKSLASH_STR_W[] = { '\\', '\0' };
 #endif
+static const char PATH_BACKSLASH_STR[] = "\\";
+#endif
+
 #endif
 
 #ifdef _WIN32
@@ -70,9 +83,12 @@ static const WCHAR PATH_BACKSLASH_STR_W[] = { '\\', '\0' };
 #define PATH_SEPARATOR_STR_W PATH_SLASH_STR_W
 #endif
 
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 #include "../log.h"
 #define TAG WINPR_TAG("path")
+#endif
 
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 /*
  * PathCchAddBackslash
  */
@@ -243,6 +259,8 @@ HRESULT PathCchRemoveBackslashExW(WINPR_ATTR_UNUSED PWSTR pszPath, WINPR_ATTR_UN
 #undef CUR_PATH_SEPARATOR_CHR
 #undef PATH_CCH_ADD_EXTENSION
 
+#endif
+
 /* Unix-style Paths */
 
 #define DEFINE_UNICODE FALSE
@@ -284,7 +302,7 @@ HRESULT PathCchRemoveBackslashExW(WINPR_ATTR_UNUSED PWSTR pszPath, WINPR_ATTR_UN
  */
 
 /* Windows-style Paths */
-
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 #define DEFINE_UNICODE FALSE
 #define CUR_PATH_SEPARATOR_CHR PATH_BACKSLASH_CHR
 #define CUR_PATH_SEPARATOR_STR PATH_BACKSLASH_STR
@@ -327,6 +345,7 @@ HRESULT PathCchRemoveBackslashExW(WINPR_ATTR_UNUSED PWSTR pszPath, WINPR_ATTR_UN
 #undef CUR_PATH_SEPARATOR_STR
 #undef PATH_CCH_APPEND
 
+#endif
 /* Native-style Paths */
 
 #define DEFINE_UNICODE FALSE
@@ -349,6 +368,7 @@ HRESULT PathCchRemoveBackslashExW(WINPR_ATTR_UNUSED PWSTR pszPath, WINPR_ATTR_UN
 #undef CUR_PATH_SEPARATOR_STR
 #undef PATH_CCH_APPEND
 
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 /*
  * PathCchAppendEx
  */
@@ -367,23 +387,158 @@ HRESULT PathCchAppendExW(WINPR_ATTR_UNUSED PWSTR pszPath, WINPR_ATTR_UNUSED size
 	return E_NOTIMPL;
 }
 
+#endif
+
+#if !defined(_WIN32)
+
+#if !defined(WITH_CWALK)
+static void replace(char* str, size_t slen, const char* pattern)
+{
+	const size_t len = strlen(pattern);
+	while (TRUE)
+	{
+		char* cur = strstr(str, pattern);
+		if (!cur)
+			return;
+
+		const char* src = &cur[len];
+		/* Ensure terminating '\0' is moved as well */
+		const size_t rem = strnlen(src, slen) + 1;
+		memmove(&cur[1], src, rem);
+	}
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL replace_dotdot(char* str, size_t slen)
+{
+	const char pattern[] = "/../";
+	const size_t len = strlen(pattern);
+	while (TRUE)
+	{
+		char* cur = strstr(str, pattern);
+		if (!cur)
+			return TRUE;
+
+		char* start = cur;
+		const char* end = &cur[len];
+		while (start > str)
+		{
+			start--;
+			if (*start == '/')
+				break;
+		}
+		if (*start != '/')
+			return FALSE;
+
+		/* Ensure terminating '\0' is moved as well */
+		const size_t rem = strnlen(end, slen) + 1;
+		memmove(&start[1], end, rem);
+	}
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL replace_trailing_dotdot(char* str, size_t slen)
+{
+	const size_t len = strnlen(str, slen);
+	if (len < 3)
+		return TRUE;
+
+	if (strcmp(&str[len - 3], "/..") != 0)
+		return TRUE;
+
+	char* start = &str[len - 4];
+	while (start >= str)
+	{
+		if (*start == '/')
+		{
+			start[1] = '\0';
+			return TRUE;
+		}
+		start--;
+	}
+	return FALSE;
+}
+
+#endif
+
+WINPR_ATTR_NODISCARD
+char* winpr_PathCanonicalize(const char* path)
+{
+	WINPR_ASSERT(path);
+
+	const size_t len = strlen(path);
+#if defined(WITH_CWALK)
+	char* str = calloc(len + 1, sizeof(char));
+	if (!str)
+		return nullptr;
+	(void)cwk_path_normalize(path, str, len + 1);
+	return str;
+#else
+	char* str = strndup(path, len);
+	if (!str)
+		return nullptr;
+	replace(str, len, "/./");
+	replace(str, len, "//");
+	if (!replace_dotdot(str, len) || !replace_trailing_dotdot(str, len))
+	{
+		free(str);
+		return nullptr;
+	}
+
+	size_t slen = 0;
+	while ((slen = strnlen(str, len)) > 1)
+	{
+		if ((str[slen - 1] == '.') || (str[slen - 1] == '/'))
+			str[slen - 1] = '\0';
+		else
+			break;
+	}
+
+	return str;
+#endif
+}
+
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 /*
  * PathCchCanonicalize
  */
 
-HRESULT PathCchCanonicalizeA(WINPR_ATTR_UNUSED PSTR pszPathOut, WINPR_ATTR_UNUSED size_t cchPathOut,
-                             WINPR_ATTR_UNUSED PCSTR pszPathIn)
+HRESULT PathCchCanonicalizeA(PSTR pszPathOut, size_t cchPathOut, PCSTR pszPathIn)
 {
-	WLog_ERR(TAG, "not implemented");
-	return E_NOTIMPL;
+	char* out = winpr_PathCanonicalize(pszPathIn);
+	if (!out)
+		return E_OUTOFMEMORY;
+	const size_t len = strnlen(out, cchPathOut);
+	if (len >= cchPathOut)
+	{
+		free(out);
+		return E_INVALIDARG;
+	}
+	strncpy(pszPathOut, out, cchPathOut);
+	free(out);
+	return S_OK;
 }
 
-HRESULT PathCchCanonicalizeW(WINPR_ATTR_UNUSED PWSTR pszPathOut,
-                             WINPR_ATTR_UNUSED size_t cchPathOut,
-                             WINPR_ATTR_UNUSED PCWSTR pszPathIn)
+HRESULT PathCchCanonicalizeW(PWSTR pszPathOut, size_t cchPathOut, PCWSTR pszPathIn)
 {
-	WLog_ERR(TAG, "not implemented");
-	return E_NOTIMPL;
+	if (!pszPathIn)
+		return E_OUTOFMEMORY;
+	char* str = ConvertWCharToUtf8Alloc(pszPathIn, nullptr);
+	if (!str)
+		return E_OUTOFMEMORY;
+
+	char* out = calloc(cchPathOut, sizeof(CHAR));
+	if (!out)
+	{
+		free(str);
+		return E_OUTOFMEMORY;
+	}
+
+	HRESULT hr = PathCchCanonicalizeA(out, cchPathOut, str);
+	free(str);
+	(void)ConvertUtf8NToWChar(out, cchPathOut, pszPathOut, cchPathOut);
+	free(out);
+	return hr;
 }
 
 /*
@@ -395,8 +550,9 @@ HRESULT PathCchCanonicalizeExA(WINPR_ATTR_UNUSED PSTR pszPathOut,
                                WINPR_ATTR_UNUSED PCSTR pszPathIn,
                                WINPR_ATTR_UNUSED unsigned long dwFlags)
 {
-	WLog_ERR(TAG, "not implemented");
-	return E_NOTIMPL;
+	if (dwFlags != 0)
+		WLog_WARN(TAG, "flags 0x%08lx not implemented", dwFlags);
+	return PathCchCanonicalizeA(pszPathOut, cchPathOut, pszPathIn);
 }
 
 HRESULT PathCchCanonicalizeExW(WINPR_ATTR_UNUSED PWSTR pszPathOut,
@@ -404,30 +560,52 @@ HRESULT PathCchCanonicalizeExW(WINPR_ATTR_UNUSED PWSTR pszPathOut,
                                WINPR_ATTR_UNUSED PCWSTR pszPathIn,
                                WINPR_ATTR_UNUSED unsigned long dwFlags)
 {
-	WLog_ERR(TAG, "not implemented");
-	return E_NOTIMPL;
+	if (dwFlags != 0)
+		WLog_WARN(TAG, "flags 0x%08lx not implemented", dwFlags);
+	return PathCchCanonicalizeW(pszPathOut, cchPathOut, pszPathIn);
 }
 
 /*
  * PathAllocCanonicalize
  */
 
-HRESULT PathAllocCanonicalizeA(WINPR_ATTR_UNUSED PCSTR pszPathIn,
-                               WINPR_ATTR_UNUSED unsigned long dwFlags,
-                               WINPR_ATTR_UNUSED PSTR* ppszPathOut)
+HRESULT PathAllocCanonicalizeA(PCSTR pszPathIn, unsigned long dwFlags, PSTR* ppszPathOut)
 {
-	WLog_ERR(TAG, "not implemented");
-	return E_NOTIMPL;
+	if (!ppszPathOut)
+		return E_INVALIDARG;
+	if (!pszPathIn)
+		return E_OUTOFMEMORY;
+	if (dwFlags != 0)
+		WLog_WARN(TAG, "flags 0x%08lx not implemented", dwFlags);
+	*ppszPathOut = winpr_PathCanonicalize(pszPathIn);
+	if (!*ppszPathOut)
+		return E_OUTOFMEMORY;
+	return S_OK;
 }
 
-HRESULT PathAllocCanonicalizeW(WINPR_ATTR_UNUSED PCWSTR pszPathIn,
-                               WINPR_ATTR_UNUSED unsigned long dwFlags,
-                               WINPR_ATTR_UNUSED PWSTR* ppszPathOut)
+HRESULT PathAllocCanonicalizeW(PCWSTR pszPathIn, unsigned long dwFlags, PWSTR* ppszPathOut)
 {
-	WLog_ERR(TAG, "not implemented");
-	return E_NOTIMPL;
+	if (!ppszPathOut)
+		return E_INVALIDARG;
+	if (!pszPathIn)
+		return E_OUTOFMEMORY;
+	char* str = ConvertWCharToUtf8Alloc(pszPathIn, nullptr);
+	if (!str)
+		return E_OUTOFMEMORY;
+
+	char* out = nullptr;
+	HRESULT hr = PathAllocCanonicalizeA(str, dwFlags, &out);
+	if (out)
+		*ppszPathOut = ConvertUtf8ToWCharAlloc(out, nullptr);
+	free(str);
+	free(out);
+	return hr;
 }
 
+#endif
+#endif
+
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 /*
  * PathCchCombine
  */
@@ -492,6 +670,8 @@ HRESULT PathCchCombineExW(WINPR_ATTR_UNUSED PWSTR pszPathOut, WINPR_ATTR_UNUSED 
 #undef CUR_PATH_SEPARATOR_STR
 #undef PATH_ALLOC_COMBINE
 
+#endif
+
 /* Unix-style Paths */
 
 #define DEFINE_UNICODE FALSE
@@ -535,6 +715,8 @@ HRESULT PathCchCombineExW(WINPR_ATTR_UNUSED PWSTR pszPathOut, WINPR_ATTR_UNUSED 
 #undef CUR_PATH_SEPARATOR_CHR
 #undef CUR_PATH_SEPARATOR_STR
 #undef PATH_ALLOC_COMBINE
+
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 
 /**
  * PathCchFindExtension
@@ -795,6 +977,7 @@ HRESULT PathCchRemoveFileSpecW(WINPR_ATTR_UNUSED PWSTR pszPath, WINPR_ATTR_UNUSE
 	WLog_ERR(TAG, "not implemented");
 	return E_NOTIMPL;
 }
+#endif
 
 /*
  * Path Portability Functions

@@ -3470,7 +3470,7 @@ static BOOL update_read_stream_bitmap_first_order(wStream* s,
 
 	Stream_Read_UINT16(s, stream_bitmap_first->bitmapType);   /* bitmapType (2 bytes) */
 	Stream_Read_UINT16(s, stream_bitmap_first->bitmapWidth);  /* bitmapWidth (2 bytes) */
-	Stream_Read_UINT16(s, stream_bitmap_first->bitmapHeight); /* bitmapHeigth (2 bytes) */
+	Stream_Read_UINT16(s, stream_bitmap_first->bitmapHeight); /* bitmapHeight (2 bytes) */
 
 	if (stream_bitmap_first->bitmapFlags & STREAM_BITMAP_V2)
 	{
@@ -4527,6 +4527,9 @@ BOOL update_recv_order(rdpUpdate* update, wStream* s)
 	BOOL rc = 0;
 	BYTE controlFlags = 0;
 	rdp_update_internal* up = update_cast(update);
+
+	if (!rdp_has_reached_state(update->context->rdp, CONNECTION_STATE_ACTIVE))
+		return FALSE;
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 1))
 		return FALSE;

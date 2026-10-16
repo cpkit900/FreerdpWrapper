@@ -9,6 +9,18 @@
 
 #define FREERDP_LIBRARY_PATH "."
 
+/**
+ * @brief GNU libexec install directory relative to BIN directory
+ * @since version 3.32.1
+ */
+#define FREERDP_LIBEXEC_REL_PATH "."
+
+/**
+ * @brief GNU libexec install directory without install prefix
+ * @since version 3.32.1
+ */
+#define FREERDP_LIBEXEC_PATH "."
+
 #define FREERDP_ADDIN_PATH "."
 
 #define FREERDP_SHARED_LIBRARY_SUFFIX ".dll"

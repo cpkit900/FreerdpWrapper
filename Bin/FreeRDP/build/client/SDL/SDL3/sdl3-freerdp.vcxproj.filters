@@ -34,6 +34,21 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_platform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_wayland.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_x11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_types.hpp">
@@ -70,6 +85,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_platform.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_window.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_wayland.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_x11.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

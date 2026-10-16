@@ -1,5 +1,5 @@
 include(CMakeFindDependencyMacro)
-find_dependency(WinPR 3.30.0)
+find_dependency(WinPR 3.32.2)
 
 
 ####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
@@ -28,8 +28,8 @@ endmacro()
 ####################################################################################
 
 set(WinPR-tools_VERSION_MAJOR "3")
-set(WinPR-tools_VERSION_MINOR "30")
-set(WinPR-tools_VERSION_REVISION "0")
+set(WinPR-tools_VERSION_MINOR "32")
+set(WinPR-tools_VERSION_REVISION "2")
 
 set_and_check(WinPR-tools_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/winpr3")
 

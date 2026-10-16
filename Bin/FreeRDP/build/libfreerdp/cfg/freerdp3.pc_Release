@@ -12,7 +12,7 @@ extensiondir=${plugindir}/extensions
 Name: FreeRDP
 Description: FreeRDP: A Remote Desktop Protocol Implementation
 URL: https://freerdp.com/
-Version: 3.30.0
+Version: 3.32.2
 Requires: winpr3
 Requires.private: 
 Libs: -L${libdir} ${libs}

@@ -108,14 +108,14 @@
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -139,7 +139,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\..\common\Release\freerdp-client3.lib;dialogs\res\Release\sdl3_client_res.lib;dialogs\Release\sdl3-dialogs.lib;..\common\aad\Release\sdl-common-aad-view.lib;..\common\Release\sdl-common-prefs.lib;dialogs\res\Release\sdl3_client_res.lib;..\common\res\Release\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3.lib;..\..\..\libfreerdp\Release\freerdp3.lib;..\..\..\winpr\libwinpr\Release\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\..\common\Release\freerdp-client3.lib;dialogs\res\Release\sdl3_client_res.lib;dialogs\Release\sdl3-dialogs.lib;..\common\Release\sdl-common-prefs.lib;dialogs\res\Release\sdl3_client_res.lib;..\common\res\Release\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3.lib;..\..\..\libfreerdp\Release\freerdp3.lib;..\..\..\winpr\libwinpr\Release\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -175,12 +175,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -204,7 +204,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\..\common\Debug\freerdp-client3.lib;dialogs\res\Debug\sdl3_client_res.lib;dialogs\Debug\sdl3-dialogs.lib;..\common\aad\Debug\sdl-common-aad-view.lib;..\common\Debug\sdl-common-prefs.lib;dialogs\res\Debug\sdl3_client_res.lib;..\common\res\Debug\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\SDL3.lib;..\..\..\libfreerdp\Debug\freerdp3.lib;..\..\..\winpr\libwinpr\Debug\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\..\common\Debug\freerdp-client3.lib;dialogs\res\Debug\sdl3_client_res.lib;dialogs\Debug\sdl3-dialogs.lib;..\common\Debug\sdl-common-prefs.lib;dialogs\res\Debug\sdl3_client_res.lib;..\common\res\Debug\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\debug\lib\SDL3.lib;..\..\..\libfreerdp\Debug\freerdp3.lib;..\..\..\winpr\libwinpr\Debug\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -239,14 +239,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -270,7 +270,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\..\common\MinSizeRel\freerdp-client3.lib;dialogs\res\MinSizeRel\sdl3_client_res.lib;dialogs\MinSizeRel\sdl3-dialogs.lib;..\common\aad\MinSizeRel\sdl-common-aad-view.lib;..\common\MinSizeRel\sdl-common-prefs.lib;dialogs\res\MinSizeRel\sdl3_client_res.lib;..\common\res\MinSizeRel\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3.lib;..\..\..\libfreerdp\MinSizeRel\freerdp3.lib;..\..\..\winpr\libwinpr\MinSizeRel\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\..\common\MinSizeRel\freerdp-client3.lib;dialogs\res\MinSizeRel\sdl3_client_res.lib;dialogs\MinSizeRel\sdl3-dialogs.lib;..\common\MinSizeRel\sdl-common-prefs.lib;dialogs\res\MinSizeRel\sdl3_client_res.lib;..\common\res\MinSizeRel\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3.lib;..\..\..\libfreerdp\MinSizeRel\freerdp3.lib;..\..\..\winpr\libwinpr\MinSizeRel\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -306,12 +306,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";NOMINMAX;_CRT_NONSTDC_NO_DEPRECATE;WITH_WIN_CONSOLE;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\common;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -335,7 +335,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>..\..\common\RelWithDebInfo\freerdp-client3.lib;dialogs\res\RelWithDebInfo\sdl3_client_res.lib;dialogs\RelWithDebInfo\sdl3-dialogs.lib;..\common\aad\RelWithDebInfo\sdl-common-aad-view.lib;..\common\RelWithDebInfo\sdl-common-prefs.lib;dialogs\res\RelWithDebInfo\sdl3_client_res.lib;..\common\res\RelWithDebInfo\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3.lib;..\..\..\libfreerdp\RelWithDebInfo\freerdp3.lib;..\..\..\winpr\libwinpr\RelWithDebInfo\winpr3.lib;crypt32.lib;shlwapi.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>..\..\common\RelWithDebInfo\freerdp-client3.lib;dialogs\res\RelWithDebInfo\sdl3_client_res.lib;dialogs\RelWithDebInfo\sdl3-dialogs.lib;..\common\RelWithDebInfo\sdl-common-prefs.lib;dialogs\res\RelWithDebInfo\sdl3_client_res.lib;..\common\res\RelWithDebInfo\sdl-common-client-res.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3_ttf.lib;C:\Users\Junnu\vcpkg\installed\x64-windows\lib\SDL3.lib;..\..\..\libfreerdp\RelWithDebInfo\freerdp3.lib;..\..\..\winpr\libwinpr\RelWithDebInfo\winpr3.lib;crypt32.lib;shlwapi.lib;pathcch.lib;ncrypt.lib;dbghelp.lib;ws2_32.lib;rpcrt4.lib;ntdsapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -375,6 +375,16 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_clip.cpp" />
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.hpp" />
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_platform.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_platform.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_window.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_window.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_wayland.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_wayland.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_x11.hpp" />
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_x11.cpp" />
     <ResourceCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\version.rc" />
   </ItemGroup>
   <ItemGroup />
@@ -386,10 +396,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\freerdp-client.vcxproj">
       <Project>{2E3E0DEA-3724-3297-906F-7EF74C4CB318}</Project>
       <Name>freerdp-client</Name>
-    </ProjectReference>
-    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\aad\sdl-common-aad-view.vcxproj">
-      <Project>{CD659616-D220-328C-BB76-974849330C94}</Project>
-      <Name>sdl-common-aad-view</Name>
     </ProjectReference>
     <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\common\res\sdl-common-client-res.vcxproj">
       <Project>{26CA153E-9679-39A7-912B-B296060F8D82}</Project>

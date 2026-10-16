@@ -998,7 +998,7 @@ static BOOL request_file_range_async(CliprdrFileContext* file_context, CliprdrFu
 	// NOLINTBEGIN(clang-analyzer-unix.Malloc)
 	DEBUG_CLIPRDR(
 	    file_context->log,
-	    "Requested file range (%zu Bytes at offset %lu) for file \"%s\" with stream id %u",
+	    "Requested file range (%zu Bytes at offset %ld) for file \"%s\" with stream id %u",
 	    requested_size, offset, fuse_file->filename, fuse_request->stream_id);
 
 	return TRUE;
@@ -1104,7 +1104,7 @@ static void cliprdr_file_fuse_readdir(fuse_req_t fuse_req, fuse_ino_t fuse_ino, 
 		return;
 	}
 
-	DEBUG_CLIPRDR(file_context->log, "Reading directory \"%s\" at offset %lu",
+	DEBUG_CLIPRDR(file_context->log, "Reading directory \"%s\" at offset %ld",
 	              fuse_file->filename_with_root, offset);
 
 	if ((offset < 0) || ((size_t)offset >= ArrayList_Count(fuse_file->children)))
@@ -1282,7 +1282,8 @@ static UINT cliprdr_file_context_server_file_contents_response(
 		DEBUG_CLIPRDR(file_context->log, "Received file size for file \"%s\" with stream id %u",
 		              fuse_request->fuse_file->filename, file_contents_response->streamId);
 
-		fuse_request->fuse_file->size = *((const UINT64*)file_contents_response->requestedData);
+		fuse_request->fuse_file->size =
+		    *(WINPR_PACKED_ALIGN_CAST(const UINT64*, file_contents_response->requestedData));
 		fuse_request->fuse_file->has_size = TRUE;
 
 		entry.ino = fuse_request->fuse_file->ino;
@@ -2318,22 +2319,28 @@ static BOOL cliprdr_local_stream_update(CliprdrLocalStream* stream, const char* 
 	if (!copy)
 		return FALSE;
 
+	char* dname = nullptr;
 	char* saveptr = nullptr;
 	char* ptr = strtok_s(copy, "\r\n", &saveptr);
 	while (ptr)
 	{
-		const char* name = ptr;
+		const char* cname = ptr;
 		if (strncmp("file:///", ptr, 8) == 0)
-			name = &ptr[7];
+			cname = &ptr[7];
 		else if (strncmp("file:/", ptr, 6) == 0)
-			name = &ptr[5];
+			cname = &ptr[5];
 
-		if (!append_entry(stream, name))
+		const size_t nlen = strnlen(cname, size);
+		free(dname);
+		dname = winpr_str_url_decode(cname, nlen);
+		if (!dname)
+			goto fail;
+		if (!append_entry(stream, dname))
 			goto fail;
 
-		if (is_directory(name))
+		if (is_directory(dname))
 		{
-			const BOOL res = add_directory(stream, name);
+			const BOOL res = add_directory(stream, dname);
 			if (!res)
 				goto fail;
 		}
@@ -2342,6 +2349,7 @@ static BOOL cliprdr_local_stream_update(CliprdrLocalStream* stream, const char* 
 
 	rc = TRUE;
 fail:
+	free(dname);
 	free(copy);
 	return rc;
 }

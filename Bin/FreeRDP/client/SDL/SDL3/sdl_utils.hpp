@@ -45,6 +45,7 @@ enum
 	SDL_EVENT_USER_POINTER_DEFAULT,
 	SDL_EVENT_USER_POINTER_POSITION,
 	SDL_EVENT_USER_POINTER_SET,
+	SDL_EVENT_USER_RAIL_MOVE,
 	SDL_EVENT_USER_QUIT,
 	SDL_EVENT_USER_CERT_DIALOG,
 	SDL_EVENT_USER_SHOW_DIALOG,
@@ -101,6 +102,11 @@ namespace sdl::utils
 	};
 
 	[[nodiscard]] HighDpiScaleMode platformScaleMode();
+
+	/* True on the Wayland backend (toplevel windows can not be positioned or queried). */
+	[[nodiscard]] bool isWaylandDriver();
+	/* True on the X11 backend. */
+	[[nodiscard]] bool isX11Driver();
 
 	[[nodiscard]] std::string windowTitle(const rdpSettings* settings);
 
@@ -174,6 +180,7 @@ namespace sdl::error
 		CONNECT_LOGON_TYPE_NOT_GRANTED = 158,
 		CONNECT_NO_OR_MISSING_CREDENTIALS = 159,
 		CONNECT_TARGET_BOOTING = 160,
+		CONNECT_HYBRID_REQUIRED_BY_SERVER = 161,
 
 		UNKNOWN = 255,
 	};

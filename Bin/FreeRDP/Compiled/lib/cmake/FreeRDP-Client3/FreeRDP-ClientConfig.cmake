@@ -1,6 +1,6 @@
 include(CMakeFindDependencyMacro)
-find_dependency(WinPR 3.30.0)
-find_dependency(FreeRDP 3.30.0)
+find_dependency(WinPR 3.32.2)
+find_dependency(FreeRDP 3.32.2)
 if("ON")
 	find_dependency(ZLIB)
 endif()
@@ -32,8 +32,8 @@ endmacro()
 ####################################################################################
 
 set(FreeRDP-Client_VERSION_MAJOR "3")
-set(FreeRDP-Client_VERSION_MINOR "30")
-set(FreeRDP-Client_VERSION_REVISION "0")
+set(FreeRDP-Client_VERSION_MINOR "32")
+set(FreeRDP-Client_VERSION_REVISION "2")
 
 set_and_check(FreeRDP-Client_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/freerdp3/")
 

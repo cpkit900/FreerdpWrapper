@@ -7,7 +7,7 @@ libs=-lwinpr3
 Name: WinPR
 Description: WinPR: Windows Portable Runtime
 URL: https://freerdp.com/
-Version: 3.30.0
+Version: 3.32.2
 Requires:
 Requires.private: 
 Libs: -L${libdir} ${libs}

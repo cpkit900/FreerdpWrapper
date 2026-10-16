@@ -1,5 +1,6 @@
 # CMake generation dependency list for this directory.
 C:/Program Files/CMake/share/cmake-4.0/Modules/BasicConfigVersion-SameMajorVersion.cmake.in
+C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakePackageConfigHelpers.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCCompilerFlag.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCSourceCompiles.cmake
@@ -8,6 +9,8 @@ C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFile.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFileCXX.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIncludeFiles.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLinkerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/CheckSourceCompiles.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckStructHasMember.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckSymbolExists.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CheckTypeSize.cmake
@@ -17,10 +20,13 @@ C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageHandleStandardArgs.cma
 C:/Program Files/CMake/share/cmake-4.0/Modules/FindPackageMessage.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/GNUInstallDirs.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckFlagCommonConfig.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckLinkerFlag.cmake
+C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/TestBigEndian.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/WriteBasicConfigVersionFile.cmake
 C:/Users/Junnu/Freerdp Wrapper/.git/HEAD
-C:/Users/Junnu/Freerdp Wrapper/.git/refs/heads/main
+C:/Users/Junnu/Freerdp Wrapper/.git/logs/refs/heads/main
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/cmake.verify_globs
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/CMakeFiles/git-data/grabRef.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/CFlagsToVar.cmake
@@ -30,6 +36,7 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/FindFeature.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/GetGitRevisionDescription.cmake.in
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/GetProjectVersion.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/InstallFreeRDPMan.cmake
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/PkgConfigAddThreads.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/SetFreeRDPCMakeInstallDir.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/pkg-config-install-prefix.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/cmake/today.cmake

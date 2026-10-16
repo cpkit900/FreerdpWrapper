@@ -877,7 +877,7 @@ fail:
 {
 	INT32 optval = 0;
 	socklen_t optlen = sizeof(optval);
-	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) >= 0)
+	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (void*)&optval, &optlen) >= 0)
 	{
 		if (optval != 0)
 		{
@@ -1013,6 +1013,15 @@ BOOL freerdp_tcp_set_keep_alive_mode(const rdpSettings* settings, int sockfd)
 	const BOOL keepalive = (freerdp_settings_get_bool(settings, FreeRDP_TcpKeepAlive));
 	UINT32 optval = 0;
 	socklen_t optlen = 0;
+	BOOL isTcp = FALSE;
+
+	int xoptval = 0;
+	socklen_t xoptlen = sizeof(xoptval);
+	const int rc = getsockopt(sockfd, SOL_SOCKET, SO_TYPE, (void*)&xoptval, &xoptlen);
+
+	if (rc == 0)
+		isTcp = xoptval == SOCK_STREAM;
+
 	optval = keepalive ? 1 : 0;
 	optlen = sizeof(optval);
 
@@ -1020,6 +1029,9 @@ BOOL freerdp_tcp_set_keep_alive_mode(const rdpSettings* settings, int sockfd)
 	{
 		WLog_WARN(TAG, "setsockopt() SOL_SOCKET, SO_KEEPALIVE");
 	}
+
+	if (!isTcp)
+		return TRUE;
 
 #ifndef _WIN32
 #ifdef TCP_KEEPIDLE
@@ -1229,8 +1241,8 @@ static void log_connection_address(const char* hostname, struct addrinfo* addr)
 {
 	WINPR_ASSERT(addr);
 
-	char* peerAddress =
-	    freerdp_tcp_address_to_string((const struct sockaddr_storage*)addr->ai_addr, nullptr);
+	char* peerAddress = freerdp_tcp_address_to_string(
+	    WINPR_PACKED_ALIGN_CAST(const struct sockaddr_storage*, addr->ai_addr), nullptr);
 	if (peerAddress)
 		WLog_DBG(TAG, "resolved %s: try to connect to %s", hostname, peerAddress);
 	free(peerAddress);

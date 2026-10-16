@@ -99,14 +99,14 @@
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="Release"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\audin\client\..;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -140,12 +140,12 @@
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\audin\client\..;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -178,14 +178,14 @@
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\audin\client\..;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -219,12 +219,12 @@
       <SupportJustMyCode></SupportJustMyCode>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE="/var/db/zoneinfo";CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WITH_VAAPI_H264_ENCODING;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINPR_DEFINE_ATTR_NODISCARD;NONAMELESSUNION;WITH_SMARTCARD_EMULATE;UNICODE;_UNICODE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;_WINSOCK_DEPRECATED_NO_WARNINGS;WINVER=0x0601;_WIN32_WINNT=0x0601;FREERDP_EXPORTS;WITH_OPENSSL;WITH_VERBOSE_WINPR_ASSERT;WINPR_TIMEZONE_FILE=\"/var/db/zoneinfo\";CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\audin\client\..;C:\Users\Junnu\vcpkg\installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>

@@ -36,6 +36,12 @@
 #define MIN(a, b) (a) < (b) ? (a) : (b)
 #endif
 
+#if __has_feature(objc_arc)
+#define COND_AUTORELEASE(x) x
+#else
+#define COND_AUTORELEASE(x) [x autorelease]
+#endif
+
 #include "../log.h"
 #define TAG WINPR_TAG("unicode")
 
@@ -57,9 +63,9 @@ int int_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCSTR lpMultiByteStr,
 		cbMultiByte = (int)len + 1;
 	}
 
-	NSString *utf = [[NSString alloc] initWithBytes:lpMultiByteStr
-	                                         length:cbMultiByte
-	                                       encoding:NSUTF8StringEncoding];
+	NSString *utf = COND_AUTORELEASE([[NSString alloc] initWithBytes:lpMultiByteStr
+	                                                          length:cbMultiByte
+	                                                        encoding:NSUTF8StringEncoding]);
 	if (!utf)
 	{
 		WLog_WARN(TAG, "[NSString alloc] NSUTF8StringEncoding failed [%d] '%s'", cbMultiByte,
@@ -67,8 +73,8 @@ int int_MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCSTR lpMultiByteStr,
 		return -1;
 	}
 
-	const WCHAR *utf16 =
-	    (const WCHAR *)[utf cStringUsingEncoding:NSUTF16LittleEndianStringEncoding];
+	const WCHAR *utf16 = WINPR_PACKED_ALIGN_CAST(
+	    const WCHAR *, [utf cStringUsingEncoding:NSUTF16LittleEndianStringEncoding]);
 	const size_t utf16ByteLen = [utf lengthOfBytesUsingEncoding:NSUTF16LittleEndianStringEncoding];
 	const size_t utf16CharLen = utf16ByteLen / sizeof(WCHAR);
 	if (!utf16)
@@ -115,7 +121,8 @@ int int_WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWSTR lpWideCharStr,
 		cchWideChar = (int)len + 1;
 	}
 
-	NSString *utf = [[NSString alloc] initWithCharacters:lpWideCharStr length:cchWideChar];
+	NSString *utf = COND_AUTORELEASE([[NSString alloc] initWithCharacters:lpWideCharStr
+	                                                               length:cchWideChar]);
 	if (!utf)
 	{
 		WLog_WARN(TAG, "[NSString alloc] initWithCharacters failed [%d] 'XXX'", cchWideChar);

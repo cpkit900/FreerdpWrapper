@@ -51,7 +51,7 @@ HGDI_BITMAP gdi_create_bitmap(rdpGdi* gdi, UINT32 nWidth, UINT32 nHeight, UINT32
 		return nullptr;
 
 	nDstStep = nWidth * FreeRDPGetBytesPerPixel(gdi->dstFormat);
-	pDstData = winpr_aligned_malloc(1ull * nHeight * nDstStep, 16);
+	pDstData = winpr_aligned_calloc(nHeight, nDstStep, 16);
 
 	if (!pDstData)
 		return nullptr;
@@ -181,9 +181,12 @@ static BOOL gdi_Bitmap_Decompress(rdpContext* context, rdpBitmap* bitmap, const 
 		return FALSE;
 	}
 
-	const UINT32 stride = DstWidth * FreeRDPGetBytesPerPixel(bitmap->format);
+	const DWORD xbpp = FreeRDPGetBytesPerPixel(bitmap->format);
+
+	WINPR_ASSERT(!bitmap->data);
+	const UINT32 stride = DstWidth * xbpp;
 	bitmap->length = stride * DstHeight;
-	bitmap->data = (BYTE*)winpr_aligned_malloc(bitmap->length, 16);
+	bitmap->data = (BYTE*)winpr_aligned_calloc(stride, DstHeight, 16);
 
 	if (!bitmap->data)
 		return FALSE;
@@ -214,6 +217,12 @@ static BOOL gdi_Bitmap_Decompress(rdpContext* context, rdpBitmap* bitmap, const 
 			default:
 				if (bpp < 32)
 				{
+					/* Bitmap has an alpha channel, source does not necessarily have one.
+					 * Prefill the alpha channel to 0xff
+					 */
+					if (FreeRDPColorHasAlpha(bitmap->format))
+						memset(bitmap->data, 0xff, bitmap->length);
+
 					if (!interleaved_decompress(context->codecs->interleaved, pSrcData, SrcSize,
 					                            DstWidth, DstHeight, bpp, bitmap->data,
 					                            bitmap->format, stride, 0, 0, DstWidth, DstHeight,

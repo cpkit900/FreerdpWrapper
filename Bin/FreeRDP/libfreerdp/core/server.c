@@ -76,19 +76,24 @@ static rdpPeerChannel* wts_get_dvc_channel_by_id(WTSVirtualChannelManager* vcm, 
 	return HashTable_GetItemValue(vcm->dynamicVirtualChannels, &ChannelId);
 }
 
-static BOOL wts_queue_receive_data(rdpPeerChannel* channel, const BYTE* Buffer1, UINT32 Length1,
-                                   const BYTE* Buffer2, UINT32 Length2)
+static BOOL wts_queue_receive_data(rdpPeerChannel* channel, const BYTE* Buffer1, size_t Length1,
+                                   const BYTE* Buffer2, size_t Length2)
 {
 	WINPR_ASSERT(channel);
 
-	wtsChannelMessage* messageCtx =
-	    (wtsChannelMessage*)malloc(sizeof(wtsChannelMessage) + Length1 + Length2);
+	if (Length1 > UINT32_MAX - sizeof(wtsChannelMessage))
+		return FALSE;
+	if (Length2 > UINT32_MAX - sizeof(wtsChannelMessage) - Length1)
+		return FALSE;
+	const size_t len = Length1 + Length2;
+	const size_t tlen = sizeof(wtsChannelMessage) + len;
+	wtsChannelMessage* messageCtx = (wtsChannelMessage*)malloc(tlen);
 	if (!messageCtx)
 		return FALSE;
 
 	WINPR_ASSERT(channel->channelId <= UINT16_MAX);
 	messageCtx->channelId = WINPR_ASSERTING_INT_CAST(UINT16, channel->channelId);
-	messageCtx->length = Length1 + Length2;
+	messageCtx->length = WINPR_ASSERTING_INT_CAST(UINT32, len);
 	messageCtx->offset = 0;
 	BYTE* buffer = (BYTE*)(&messageCtx[1]);
 	CopyMemory(buffer, Buffer1, Length1);
@@ -150,17 +155,18 @@ static unsigned wts_read_variable_uint(wStream* s, int cbLen, UINT32* val)
 	}
 }
 
-static BOOL wts_read_drdynvc_capabilities_response(rdpPeerChannel* channel, UINT32 length)
+static BOOL wts_read_drdynvc_capabilities_response(rdpPeerChannel* channel, wStream* s)
 {
 	UINT16 Version = 0;
 
 	WINPR_ASSERT(channel);
 	WINPR_ASSERT(channel->vcm);
+	const size_t length = Stream_GetRemainingLength(s);
 	if (length < 3)
 		return FALSE;
 
-	Stream_Seek_UINT8(channel->receiveData); /* Pad (1 byte) */
-	Stream_Read_UINT16(channel->receiveData, Version);
+	Stream_Seek_UINT8(s); /* Pad (1 byte) */
+	Stream_Read_UINT16(s, Version);
 	DEBUG_DVC("Version: %" PRIu16 "", Version);
 
 	if (Version < 1)
@@ -178,14 +184,15 @@ static BOOL wts_read_drdynvc_capabilities_response(rdpPeerChannel* channel, UINT
 	return SetEvent(MessageQueue_Event(vcm->queue));
 }
 
-static BOOL wts_read_drdynvc_create_response(rdpPeerChannel* channel, wStream* s, UINT32 length)
+static BOOL wts_read_drdynvc_create_response(rdpPeerChannel* channel, wStream* s)
 {
 	UINT32 CreationStatus = 0;
 	BOOL status = TRUE;
 
 	WINPR_ASSERT(channel);
 	WINPR_ASSERT(s);
-	if (length < 4)
+	const size_t length = Stream_GetRemainingLength(s);
+	if ((length < 4) || (length > UINT32_MAX))
 		return FALSE;
 
 	Stream_Read_UINT32(s, CreationStatus);
@@ -211,46 +218,52 @@ static BOOL wts_read_drdynvc_create_response(rdpPeerChannel* channel, wStream* s
 	return status;
 }
 
-static BOOL wts_read_drdynvc_data_first(rdpPeerChannel* channel, wStream* s, int cbLen,
-                                        UINT32 length)
+static BOOL wts_read_drdynvc_data_first(rdpPeerChannel* channel, wStream* s, int cbLen)
 {
 	WINPR_ASSERT(channel);
 	WINPR_ASSERT(s);
+
 	const UINT32 value = wts_read_variable_uint(s, cbLen, &channel->dvc_total_length);
 
-	if (value == 0)
+	if ((value == 0) || (channel->dvc_total_length == 0))
 		return FALSE;
-	if (value > length)
-		length = 0;
-	else
-		length -= value;
 
+	const size_t length = Stream_GetRemainingLength(s);
 	if (length > channel->dvc_total_length)
 		return FALSE;
 
 	Stream_ResetPosition(channel->receiveData);
 
-	if (!Stream_EnsureRemainingCapacity(channel->receiveData, channel->dvc_total_length))
+	if (!Stream_EnsureRemainingCapacity(channel->receiveData, length))
 		return FALSE;
 
 	Stream_Write(channel->receiveData, Stream_ConstPointer(s), length);
 	return TRUE;
 }
 
-static BOOL wts_read_drdynvc_data(rdpPeerChannel* channel, wStream* s, UINT32 length)
+static BOOL wts_read_drdynvc_data(rdpPeerChannel* channel, wStream* s)
 {
 	BOOL ret = FALSE;
 
 	WINPR_ASSERT(channel);
 	WINPR_ASSERT(s);
+
+	const size_t length = Stream_GetRemainingLength(s);
 	if (channel->dvc_total_length > 0)
 	{
-		if (Stream_GetPosition(channel->receiveData) + length > channel->dvc_total_length)
+		const size_t pos = Stream_GetPosition(channel->receiveData);
+		if (pos > SIZE_MAX - length)
+			return FALSE;
+
+		if (pos + length > channel->dvc_total_length)
 		{
 			channel->dvc_total_length = 0;
 			WLog_ERR(TAG, "incorrect fragment data, discarded.");
 			return FALSE;
 		}
+
+		if (!Stream_EnsureRemainingCapacity(channel->receiveData, length))
+			return FALSE;
 
 		Stream_Write(channel->receiveData, Stream_ConstPointer(s), length);
 
@@ -279,120 +292,137 @@ static void wts_read_drdynvc_close_response(rdpPeerChannel* channel)
 	MessageQueue_PostQuit(channel->queue, 0);
 }
 
-static BOOL wts_read_drdynvc_pdu(rdpPeerChannel* channel)
+WINPR_ATTR_NODISCARD
+static BOOL wts_read_drdynvc_pdu_ready_guarded(wStream* s, UINT8 Cmd, UINT8 Sp, UINT32 ChannelId,
+                                               rdpPeerChannel* dvc)
 {
-	UINT8 Cmd = 0;
-	UINT8 Sp = 0;
-	UINT8 cbChId = 0;
+	switch (Cmd)
+	{
+		case CREATE_REQUEST_PDU:
+			return wts_read_drdynvc_create_response(dvc, s);
+
+		case DATA_FIRST_PDU:
+			if (dvc->dvc_open_state != DVC_OPEN_STATE_SUCCEEDED)
+			{
+				WLog_ERR(TAG,
+				         "ChannelId %" PRIu32 " did not open successfully. "
+				         "Ignoring DYNVC_DATA_FIRST PDU",
+				         ChannelId);
+				return TRUE;
+			}
+
+			return wts_read_drdynvc_data_first(dvc, s, Sp);
+
+		case DATA_PDU:
+			if (dvc->dvc_open_state != DVC_OPEN_STATE_SUCCEEDED)
+			{
+				WLog_ERR(TAG,
+				         "ChannelId %" PRIu32 " did not open successfully. "
+				         "Ignoring DYNVC_DATA PDU",
+				         ChannelId);
+				return TRUE;
+			}
+
+			return wts_read_drdynvc_data(dvc, s);
+
+		case CLOSE_REQUEST_PDU:
+			wts_read_drdynvc_close_response(dvc);
+			break;
+
+		case DATA_FIRST_COMPRESSED_PDU:
+		case DATA_COMPRESSED_PDU:
+			WLog_ERR(TAG, "Compressed data not handled");
+			break;
+
+		case SOFT_SYNC_RESPONSE_PDU:
+			WLog_ERR(TAG, "SoftSync response not handled yet(and rather strange to receive "
+			              "that packet as our code doesn't send SoftSync requests");
+			break;
+
+		case SOFT_SYNC_REQUEST_PDU:
+			WLog_ERR(TAG, "Not expecting a SoftSyncRequest on the server");
+			return FALSE;
+
+		default:
+			WLog_ERR(TAG, "Cmd %d not recognized.", Cmd);
+			break;
+	}
+	return TRUE;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL wts_read_drdynvc_pdu_ready(rdpPeerChannel* channel, wStream* s, UINT8 Cmd, UINT8 Sp,
+                                       UINT8 cbChId)
+{
+	WINPR_ASSERT(channel);
+
+	BOOL haveChannelId = 0;
+	switch (Cmd)
+	{
+		case SOFT_SYNC_REQUEST_PDU:
+		case SOFT_SYNC_RESPONSE_PDU:
+			haveChannelId = FALSE;
+			break;
+		default:
+			haveChannelId = TRUE;
+			break;
+	}
+
 	UINT32 ChannelId = 0;
 	rdpPeerChannel* dvc = nullptr;
+	wHashTable* table = nullptr;
+	if (haveChannelId)
+	{
+		const unsigned val = wts_read_variable_uint(s, cbChId, &ChannelId);
+		if (val == 0)
+			return FALSE;
 
+		DEBUG_DVC("Cmd %s ChannelId %" PRIu32 " length %" PRIuz "", drdynvc_get_packet_type(Cmd),
+		          ChannelId, Stream_GetRemainingLength(s));
+		table = channel->vcm->dynamicVirtualChannels;
+		if (!table)
+			return FALSE;
+		HashTable_Lock(table);
+		dvc = wts_get_dvc_channel_by_id(channel->vcm, ChannelId);
+		if (!dvc)
+		{
+			DEBUG_DVC("ChannelId %" PRIu32 " does not exist.", ChannelId);
+			HashTable_Unlock(table);
+			return TRUE;
+		}
+	}
+
+	const BOOL rc = wts_read_drdynvc_pdu_ready_guarded(s, Cmd, Sp, ChannelId, dvc);
+	if (table)
+		HashTable_Unlock(table);
+	return rc;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL wts_read_drdynvc_pdu(rdpPeerChannel* channel)
+{
 	WINPR_ASSERT(channel);
 	WINPR_ASSERT(channel->vcm);
 
-	size_t length = Stream_GetPosition(channel->receiveData);
-
-	if ((length < 1) || (length > UINT32_MAX))
+	const size_t slength = Stream_GetPosition(channel->receiveData);
+	if ((slength < 1) || (slength > UINT32_MAX))
 		return FALSE;
 
 	Stream_ResetPosition(channel->receiveData);
-	const UINT8 value = Stream_Get_UINT8(channel->receiveData);
-	length--;
-	Cmd = (value & 0xf0) >> 4;
-	Sp = (value & 0x0c) >> 2;
-	cbChId = (value & 0x03) >> 0;
+	wStream buffer = WINPR_C_ARRAY_INIT;
+	wStream* s = Stream_StaticConstInit(&buffer, Stream_Buffer(channel->receiveData), slength);
+	const UINT8 value = Stream_Get_UINT8(s);
+	const UINT8 Cmd = (value & 0xf0) >> 4;
+	const UINT8 Sp = (value & 0x0c) >> 2;
+	const UINT8 cbChId = (value & 0x03) >> 0;
 
 	if (Cmd == CAPABILITY_REQUEST_PDU)
-		return wts_read_drdynvc_capabilities_response(channel, (UINT32)length);
+		return wts_read_drdynvc_capabilities_response(channel, s);
 
 	if (channel->vcm->drdynvc_state == DRDYNVC_STATE_READY)
-	{
-		BOOL haveChannelId = 0;
-		switch (Cmd)
-		{
-			case SOFT_SYNC_REQUEST_PDU:
-			case SOFT_SYNC_RESPONSE_PDU:
-				haveChannelId = FALSE;
-				break;
-			default:
-				haveChannelId = TRUE;
-				break;
-		}
-
-		if (haveChannelId)
-		{
-			const unsigned val = wts_read_variable_uint(channel->receiveData, cbChId, &ChannelId);
-			if (val == 0)
-				return FALSE;
-
-			length -= val;
-
-			DEBUG_DVC("Cmd %s ChannelId %" PRIu32 " length %" PRIuz "",
-			          drdynvc_get_packet_type(Cmd), ChannelId, length);
-			dvc = wts_get_dvc_channel_by_id(channel->vcm, ChannelId);
-			if (!dvc)
-			{
-				DEBUG_DVC("ChannelId %" PRIu32 " does not exist.", ChannelId);
-				return TRUE;
-			}
-		}
-
-		switch (Cmd)
-		{
-			case CREATE_REQUEST_PDU:
-				return wts_read_drdynvc_create_response(dvc, channel->receiveData, (UINT32)length);
-
-			case DATA_FIRST_PDU:
-				if (dvc->dvc_open_state != DVC_OPEN_STATE_SUCCEEDED)
-				{
-					WLog_ERR(TAG,
-					         "ChannelId %" PRIu32 " did not open successfully. "
-					         "Ignoring DYNVC_DATA_FIRST PDU",
-					         ChannelId);
-					return TRUE;
-				}
-
-				return wts_read_drdynvc_data_first(dvc, channel->receiveData, Sp, (UINT32)length);
-
-			case DATA_PDU:
-				if (dvc->dvc_open_state != DVC_OPEN_STATE_SUCCEEDED)
-				{
-					WLog_ERR(TAG,
-					         "ChannelId %" PRIu32 " did not open successfully. "
-					         "Ignoring DYNVC_DATA PDU",
-					         ChannelId);
-					return TRUE;
-				}
-
-				return wts_read_drdynvc_data(dvc, channel->receiveData, (UINT32)length);
-
-			case CLOSE_REQUEST_PDU:
-				wts_read_drdynvc_close_response(dvc);
-				break;
-
-			case DATA_FIRST_COMPRESSED_PDU:
-			case DATA_COMPRESSED_PDU:
-				WLog_ERR(TAG, "Compressed data not handled");
-				break;
-
-			case SOFT_SYNC_RESPONSE_PDU:
-				WLog_ERR(TAG, "SoftSync response not handled yet(and rather strange to receive "
-				              "that packet as our code doesn't send SoftSync requests");
-				break;
-
-			case SOFT_SYNC_REQUEST_PDU:
-				WLog_ERR(TAG, "Not expecting a SoftSyncRequest on the server");
-				return FALSE;
-
-			default:
-				WLog_ERR(TAG, "Cmd %d not recognized.", Cmd);
-				break;
-		}
-	}
+		return wts_read_drdynvc_pdu_ready(channel, s, Cmd, Sp, cbChId);
 	else
-	{
 		WLog_ERR(TAG, "received Cmd %d but channel is not ready.", Cmd);
-	}
 
 	return TRUE;
 }
@@ -452,7 +482,7 @@ static BOOL WTSProcessChannelData(rdpPeerChannel* channel, UINT16 channelId, con
                                   size_t s, UINT32 flags, size_t t)
 {
 	BOOL ret = TRUE;
-	const size_t size = s;
+	size_t size = s;
 	const size_t totalSize = t;
 
 	WINPR_ASSERT(channel);
@@ -461,13 +491,41 @@ static BOOL WTSProcessChannelData(rdpPeerChannel* channel, UINT16 channelId, con
 
 	if (channel->channelFlags & CHANNEL_OPTION_SHOW_PROTOCOL)
 	{
-		const CHANNEL_PDU_HEADER header = {
-			.length = WINPR_ASSERTING_INT_CAST(UINT32, size),
-			.flags = flags,
-		};
+		BOOL firstPass = TRUE;
 
-		return wts_queue_receive_data(channel, (const BYTE*)&header, sizeof(header), data,
-		                              header.length);
+		while (size)
+		{
+			const UINT32 payloadLen = (size > CHANNEL_CHUNK_LENGTH)
+			                              ? CHANNEL_CHUNK_LENGTH
+			                              : WINPR_ASSERTING_INT_CAST(UINT32, size);
+			size -= payloadLen;
+
+			/* here we skip other flags than CHANNEL_FLAG_FIRST and CHANNEL_FLAG_LAST
+			 * as it's the only ones treated by ChannelPduTracker.
+			 */
+			UINT32 newFlags = 0;
+			if (firstPass)
+			{
+				firstPass = FALSE;
+				if (flags & CHANNEL_FLAG_FIRST)
+					newFlags = CHANNEL_FLAG_FIRST;
+			}
+
+			if (!size && (flags & CHANNEL_FLAG_LAST))
+				newFlags |= CHANNEL_FLAG_LAST;
+
+			const CHANNEL_PDU_HEADER header = {
+				.length = payloadLen,
+				.flags = newFlags,
+			};
+
+			if (!wts_queue_receive_data(channel, (const BYTE*)&header, sizeof(header), data,
+			                            payloadLen))
+				return FALSE;
+
+			data += payloadLen;
+		}
+		return TRUE;
 	}
 
 	if ((flags & CHANNEL_FLAG_FIRST) != 0)
@@ -483,9 +541,7 @@ static BOOL WTSProcessChannelData(rdpPeerChannel* channel, UINT16 channelId, con
 	if ((flags & CHANNEL_FLAG_LAST) != 0)
 	{
 		if (Stream_GetPosition(channel->receiveData) != totalSize)
-		{
-			WLog_ERR(TAG, "read error");
-		}
+			return FALSE;
 
 		if (channel == channel->vcm->drdynvc_channel)
 		{
@@ -497,12 +553,14 @@ static BOOL WTSProcessChannelData(rdpPeerChannel* channel, UINT16 channelId, con
 			if (pos > UINT32_MAX)
 				ret = FALSE;
 			else
-				ret = wts_queue_receive_data(channel, Stream_Buffer(channel->receiveData),
-				                             WINPR_ASSERTING_INT_CAST(UINT32, pos), nullptr, 0);
+				ret = wts_queue_receive_data(channel, Stream_Buffer(channel->receiveData), pos,
+				                             nullptr, 0);
 		}
 
 		Stream_ResetPosition(channel->receiveData);
 	}
+	else if (Stream_GetPosition(channel->receiveData) >= totalSize)
+		return FALSE;
 
 	return ret;
 }
@@ -1073,7 +1131,7 @@ HANDLE WINAPI FreeRDP_WTSOpenServerA(LPSTR pServerName)
 {
 	wObject queueCallbacks = WINPR_C_ARRAY_INIT;
 
-	rdpContext* context = (rdpContext*)pServerName;
+	rdpContext* context = WINPR_PACKED_ALIGN_CAST(rdpContext*, pServerName);
 
 	if (!setup() || !context)
 		return INVALID_HANDLE_VALUE;

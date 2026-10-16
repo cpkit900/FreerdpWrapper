@@ -287,9 +287,6 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/ALL_BUILD
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/CMakeFiles/sdl-common-prefs.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/CMakeFiles/INSTALL.dir
-C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/aad/CMakeFiles/sdl-common-aad-view.dir
-C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/aad/CMakeFiles/PACKAGE.dir
-C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/aad/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/res/CMakeFiles/ct-11fffd38.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/res/CMakeFiles/ct-b8110160.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/res/CMakeFiles/sdl-common-client-res.dir

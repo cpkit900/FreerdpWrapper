@@ -754,7 +754,7 @@ static BOOL releaseFlagStates(rdpInput *input, UINT32 aKbdModFlags)
 
 			const char *data = [formatString cStringUsingEncoding:NSUTF8StringEncoding];
 			const size_t dataLen = [formatString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-			formatId = ClipboardRegisterFormat(mfc->clipboard, "text/plain");
+			formatId = ClipboardRegisterFormat(mfc->clipboard, "text/plain;charset=utf-8");
 			ClipboardSetData(mfc->clipboard, formatId, data, dataLen + 1);
 			[formatString release];
 
@@ -1161,7 +1161,7 @@ DWORD mac_verify_certificate_ex(freerdp *instance, const char *host, UINT16 port
 	if (flags & VERIFY_CERT_FLAG_REDIRECT)
 		type = "RDP-Redirect";
 
-	sprintf_s(hostname, sizeof(hostname), "%s %s:%" PRIu16, type, host, port);
+	(void)sprintf_s(hostname, sizeof(hostname), "%s %s:%" PRIu16, type, host, port);
 	dialog.serverHostname = [NSString stringWithCString:hostname encoding:NSUTF8StringEncoding];
 	dialog.commonName = [NSString stringWithCString:common_name encoding:NSUTF8StringEncoding];
 	dialog.subject = [NSString stringWithCString:subject encoding:NSUTF8StringEncoding];
@@ -1198,7 +1198,7 @@ DWORD mac_verify_changed_certificate_ex(freerdp *instance, const char *host, UIN
 	if (flags & VERIFY_CERT_FLAG_REDIRECT)
 		type = "RDP-Redirect";
 
-	sprintf_s(hostname, sizeof(hostname), "%s %s:%" PRIu16, type, host, port);
+	(void)sprintf_s(hostname, sizeof(hostname), "%s %s:%" PRIu16, type, host, port);
 	dialog.serverHostname = [NSString stringWithCString:hostname encoding:NSUTF8StringEncoding];
 	dialog.commonName = [NSString stringWithCString:common_name encoding:NSUTF8StringEncoding];
 	dialog.subject = [NSString stringWithCString:subject encoding:NSUTF8StringEncoding];

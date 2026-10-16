@@ -60,7 +60,7 @@ add_library(winpr SHARED IMPORTED)
 
 set_target_properties(winpr PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/winpr3"
-  INTERFACE_LINK_LIBRARIES "crypt32;shlwapi;ncrypt;dbghelp;ws2_32;ws2_32;ws2_32;rpcrt4;ntdsapi"
+  INTERFACE_LINK_LIBRARIES "crypt32;shlwapi;pathcch;ncrypt;dbghelp;ws2_32;ws2_32;ws2_32;rpcrt4;ntdsapi"
 )
 
 # Create imported target winpr-makecert

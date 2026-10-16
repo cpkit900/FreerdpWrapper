@@ -19,6 +19,12 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\smartcard_cli.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\aad_helper.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\oauth2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\client\tables.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,6 +39,9 @@
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\cmdline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\common\oauth2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\channels\client\tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -40,6 +49,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\aad_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\client\ainput.h">

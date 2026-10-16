@@ -918,6 +918,12 @@
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\primitives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\private\proxy_client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\private\proxy_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\rail.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -377,8 +377,8 @@ CHANNEL_VIDEO_CLIENT:BOOL=ON
 //Build video DYNAMIC channel server
 CHANNEL_VIDEO_SERVER:BOOL=OFF
 
-//Path to a program.
-CLANG_FORMAT:FILEPATH=CLANG_FORMAT-NOTFOUND
+//maximum recursive folder depth supported
+CLIPBOARD_FILE_MAX_RECURSION:STRING=512
 
 //Path to a program.
 CMAKE_AR:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/lib.exe
@@ -563,16 +563,16 @@ CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 CMAKE_PROJECT_NAME:STATIC=FreeRDP
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION:STATIC=3.30.0
+CMAKE_PROJECT_VERSION:STATIC=3.32.2
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_MAJOR:STATIC=3
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION_MINOR:STATIC=30
+CMAKE_PROJECT_VERSION_MINOR:STATIC=32
 
 //Value Computed by CMake
-CMAKE_PROJECT_VERSION_PATCH:STATIC=0
+CMAKE_PROJECT_VERSION_PATCH:STATIC=2
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION_TWEAK:STATIC=
@@ -645,8 +645,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELEASE:STRING=
 // during RELWITHDEBINFO builds.
 CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//No help, variable specified on the command line.
-CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=C:/Users/Junnu/vcpkg/scripts/buildsystems/vcpkg.cmake
+//The CMake toolchain file
+CMAKE_TOOLCHAIN_FILE:FILEPATH=C:/Users/Junnu/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 //verbose CMake makefile
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
@@ -684,6 +684,11 @@ CPACK_SOURCE_ZIP:BOOL=ON
 //ON
 CTEST_OUTPUT_ON_FAILURE:BOOL=OFF
 
+//[experimental,dangerous,unsupported] Build for unknown systems
+// or such missing essential features (unaligned memory access,
+// ...)
+DISABLE_SUPPORTED_ARCH_CHECKS:BOOL=OFF
+
 //enable -Werror for compile
 ENABLE_WARNING_ERROR:BOOL=OFF
 
@@ -703,7 +708,7 @@ FFMPEG_INCLUDE_DIRS:STRING=C:/Users/Junnu/vcpkg/installed/x64-windows/include
 FFMPEG_LIBRARIES:STRING=C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avcodec.lib;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avdevice.lib;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avformat.lib;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avfilter.lib;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avutil.lib;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/swscale.lib;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/swresample.lib
 
 //INTERNAL
-FREERDP_DEFAULT_PROJECT_VERSION:STRING=3.30.0
+FREERDP_DEFAULT_PROJECT_VERSION:STRING=3.32.2
 
 //Build WinPR, uwac, RdTk and FreeRDP in one go
 FREERDP_UNIFIED_BUILD:BOOL=ON
@@ -818,6 +823,10 @@ SSL_EAY_RELEASE:FILEPATH=C:/Users/Junnu/vcpkg/installed/x64-windows/lib/libssl.l
 //Define and export SSPI API symbols for usage as a Windows SSPI
 // DLL replacement
 SSPI_DLL:BOOL=OFF
+
+//Size limit in bytes enforced for streams returned to the pool.
+// Larger streams are shrunk
+STREAMPOOL_SIZE_LIMIT:STRING=0x1000000
 
 //The SWRESAMPLE CFLAGS.
 SWRESAMPLE_DEFINITIONS:STRING=
@@ -991,6 +1000,12 @@ WITH_CLIENT_WINDOWS:BOOL=ON
 //Dump mouse cursor data to binary directory
 WITH_CURSOR_DUMP:BOOL=OFF
 
+//Compile with CWalk path sanitation
+WITH_CWALK:BOOL=OFF
+
+//Enable feature dav1d for codec
+WITH_DAV1D:BOOL=OFF
+
 //Print all debug messages.
 WITH_DEBUG_ALL:BOOL=OFF
 
@@ -1066,6 +1081,9 @@ WITH_DEBUG_SDL_KBD_EVENTS:BOOL=OFF
 //Print rdpsnd debug messages
 WITH_DEBUG_SND:BOOL=OFF
 
+//build with extensive streampool logging
+WITH_DEBUG_STREAMPOOL:BOOL=OFF
+
 //Print static virtual channel debug messages.
 WITH_DEBUG_SVC:BOOL=OFF
 
@@ -1116,6 +1134,9 @@ WITH_FDK_AAC:BOOL=OFF
 
 //Enable FFMPEG for audio/video encoding/decoding
 WITH_FFMPEG:BOOL=ON
+
+//[experimental] Use FFMPEG hardware acceleration
+WITH_FFMPEG_HWACCEL:BOOL=OFF
 
 //Build FreeRDP deprecated symbols
 WITH_FREERDP_DEPRECATED:BOOL=OFF
@@ -1233,6 +1254,10 @@ WITH_PROFILER:BOOL=OFF
 // 2008 R2+)
 WITH_PROGRESS_BAR:BOOL=ON
 
+//Build the out-of-process Qt-based AAD auth helper (used for AAD
+// login popups)
+WITH_QT_AAD_AUTH_HELPER:BOOL=OFF
+
 //Use resource versioning
 WITH_RESOURCE_VERSIONING:BOOL=OFF
 
@@ -1275,9 +1300,6 @@ WITH_SMARTCARD_PCSC:BOOL=ON
 //Enable feature soxr for codec
 WITH_SOXR:BOOL=OFF
 
-//build with extensive streampool logging
-WITH_STREAMPOOL_DEBUG:BOOL=OFF
-
 //Use SWScale image library for screen resizing
 WITH_SWSCALE:BOOL=ON
 
@@ -1302,17 +1324,15 @@ WITH_TIMEZONE_ICU:BOOL=OFF
 //Build C# tzextract
 WITH_TIMEZONE_UPDATER:BOOL=OFF
 
+//Enforce TLS AEAD data limit (RFC 8446 5.5): rekey on TLS 1.3,
+// cut if a TLS 1.3 rekey fails
+WITH_TLS_DATA_LIMIT:BOOL=OFF
+
 //Use built-in Unicode conversion (don't use system-provided libraries)
 WITH_UNICODE_BUILTIN:BOOL=OFF
 
 //use uriparser library to handle URIs
 WITH_URIPARSER:BOOL=OFF
-
-//[experimental] Use FFMPEG VAAPI
-WITH_VAAPI:BOOL=OFF
-
-//[experimental] Use FFMPEG VAAPI hardware H264 encoding
-WITH_VAAPI_H264_ENCODING:BOOL=ON
 
 //Compile with valgrind helpers.
 WITH_VALGRIND_MEMCHECK:BOOL=OFF
@@ -1323,8 +1343,9 @@ WITH_VERBOSE_WINPR_ASSERT:BOOL=ON
 //Use FFMPEG for video encoding/decoding
 WITH_VIDEO_FFMPEG:BOOL=ON
 
-//Build with WebView support for AAD login popup browser
-WITH_WEBVIEW:BOOL=OFF
+//Build the out-of-process webview-based AAD auth helper (used
+// for AAD login popups)
+WITH_WEBVIEW_AAD_AUTH_HELPER:BOOL=OFF
 
 //Use Windows 8 libraries
 WITH_WIN8:BOOL=OFF
@@ -1358,6 +1379,9 @@ X_VCPKG_APPLOCAL_DEPS_INSTALL:BOOL=OFF
 //(experimental) Add USES_TERMINAL to VCPKG_APPLOCAL_DEPS to force
 // serialization.
 X_VCPKG_APPLOCAL_DEPS_SERIALIZED:BOOL=OFF
+
+//YUV decoder per thread tile width/height
+YUV_TILE_SIZE:STRING=512
 
 //Path to a file.
 ZLIB_INCLUDE_DIR:PATH=C:/Users/Junnu/vcpkg/installed/x64-windows/include
@@ -1600,7 +1624,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=126
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=125
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //noop for ranlib
@@ -1703,18 +1727,26 @@ FIND_PACKAGE_MESSAGE_DETAILS_ZLIB:INTERNAL=[optimized;C:/Users/Junnu/vcpkg/insta
 FREERDP_CLIENT_PC_LIBRARY_PRIVATE:INTERNAL=urbdrc-common;remdesk-common;rdpsnd-common;dl;pthread
 //dependencies
 FREERDP_CLIENT_PC_REQUIRES_PRIVATE:INTERNAL=libusb-1.0;freerdp3
+//Test FREERDP_CXX_FILESYSTEM_LINKS_WITHOUT_LIB
+FREERDP_CXX_FILESYSTEM_LINKS_WITHOUT_LIB:INTERNAL=1
 //Have function getmntent_r
 FREERDP_HAVE_GETMNTENT_R:INTERNAL=
 //dependencies
 FREERDP_PC_LIBRARY_PRIVATE:INTERNAL=
 //dependencies
 FREERDP_PC_REQUIRES_PRIVATE:INTERNAL= libswscale; zlib; libssl; libssl; libavfilter; libavformat; libavcodec; libavutil; libswresample; openh264; libavfilter; libavformat; libavcodec; libavutil; winpr3
+//Have function getexecpath
+GETEXECPATH:INTERNAL=
 //ADVANCED property for variable: GIT_EXECUTABLE
 GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 //Have symbol VMADDR_FLAG_TO_HOST
 HAVE_AF_VSOCK_H:INTERNAL=
 //Have library m
 HAVE_LIB_M:INTERNAL=
+//Test HAVE_LIB_m
+HAVE_LIB_m:INTERNAL=
+//Test HAVE_LIB_rt
+HAVE_LIB_rt:INTERNAL=
 //Result of TRY_COMPILE
 HAVE_SSIZE_T:INTERNAL=FALSE
 //Have include stddef.h
@@ -1824,10 +1856,12 @@ VCPKG_VERBOSE-ADVANCED:INTERNAL=1
 WARN_EXPERIMENTAL_LIST_PRIVATE:INTERNAL=SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF
 //dependencies
 WARN_UNMAINTAINED_LIST_PRIVATE:INTERNAL=
+//Test WINPR_HAVE_ACCEPT4
+WINPR_HAVE_ACCEPT4:INTERNAL=
 //Have includes aio.h
 WINPR_HAVE_AIO_H:INTERNAL=
-//Have includes execinfo.h
-WINPR_HAVE_EXECINFO_HEADER:INTERNAL=
+//Test WINPR_HAVE_EXECINFO_H
+WINPR_HAVE_EXECINFO_H:INTERNAL=
 //Have include fcntl.h
 WINPR_HAVE_FCNTL_H:INTERNAL=1
 //Have function getlogin_r
@@ -1836,21 +1870,21 @@ WINPR_HAVE_GETLOGIN_R:INTERNAL=
 WINPR_HAVE_GETPWUID_R:INTERNAL=
 //Have include inttypes.h
 WINPR_HAVE_INTTYPES_H:INTERNAL=1
-//Have symbol regcomp
+//Have includes linux/msdos_fs.h
+WINPR_HAVE_LINUX_MSDOS_FS_H:INTERNAL=
+//Test WINPR_HAVE_PIPE2
+WINPR_HAVE_PIPE2:INTERNAL=
+//Test WINPR_HAVE_REGCOMP
 WINPR_HAVE_REGCOMP:INTERNAL=
-//Have symbol regexec
-WINPR_HAVE_REGEXEC:INTERNAL=
-//Have symbol regfree
-WINPR_HAVE_REGFREE:INTERNAL=
 //Have include stdbool.h
 WINPR_HAVE_STDBOOL_H:INTERNAL=1
 //Have include stdint.h
 WINPR_HAVE_STDINT_H:INTERNAL=1
 //Have function strerror_r
 WINPR_HAVE_STRERROR_R:INTERNAL=
-//Have symbol strndup
+//Test WINPR_HAVE_STRNDUP
 WINPR_HAVE_STRNDUP:INTERNAL=
-//Have symbol strnstr
+//Test WINPR_HAVE_STRNSTR
 WINPR_HAVE_STRNSTR:INTERNAL=
 //Have includes syslog.h
 WINPR_HAVE_SYSLOG_H:INTERNAL=
@@ -1864,6 +1898,8 @@ WINPR_HAVE_SYS_SELECT_H:INTERNAL=
 WINPR_HAVE_SYS_SOCKIO_H:INTERNAL=
 //Have includes sys/timerfd.h
 WINPR_HAVE_SYS_TIMERFD_H:INTERNAL=
+//Test WINPR_HAVE_SYS_XATTR_H
+WINPR_HAVE_SYS_XATTR_H:INTERNAL=
 //Test WINPR_HAVE_TM_GMTOFF
 WINPR_HAVE_TM_GMTOFF:INTERNAL=
 //Have includes unistd.h
@@ -1878,6 +1914,8 @@ WIN_SSIZE_T:INTERNAL=8
 WITH_SSO_MIB:INTERNAL=OFF
 //internal
 WITH_WINPR_JSON:INTERNAL=ON
+//unsupported platform
+WITH_XDG_AAD_AUTH_HELPER:INTERNAL=OFF
 //ADVANCED property for variable: ZLIB_INCLUDE_DIR
 ZLIB_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ZLIB_LIBRARY_DEBUG

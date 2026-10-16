@@ -7,7 +7,7 @@ libs=-lfreerdp-client3
 Name: FreeRDP client
 Description: FreeRDP: A Remote Desktop Protocol Implementation
 URL: https://freerdp.com/
-Version: 3.30.0
+Version: 3.32.2
 Requires: freerdp3
 Requires.private: 
 Libs: -L${libdir} ${libs}

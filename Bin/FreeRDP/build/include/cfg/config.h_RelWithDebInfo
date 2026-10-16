@@ -39,6 +39,7 @@
 /* #undef WITH_PULSE */
 /* #undef WITH_IOSAUDIO */
 /* #undef WITH_OPENSLES */
+/* #undef WITH_AAUDIO */
 /* #undef WITH_GSM */
 /* #undef WITH_LAME */
 /** If defined Opus codec support is available.
@@ -60,8 +61,7 @@
 /* #undef WITH_MEDIACODEC */
 /* #undef WITH_GFX_AV1 */
 
-/* #undef WITH_VAAPI */
-/* #undef WITH_VIDEOTOOLBOX */
+/* #undef WITH_FFMPEG_HWACCEL */
 
 #define WITH_CHANNELS
 #define WITH_CLIENT_CHANNELS
@@ -247,5 +247,14 @@
  * @since version 3.20.0
  */
 /* #undef WITH_WCHAR_FILE_DIRECTORY_INFORMATION */
+
+/** Enforce the TLS AEAD cryptographic data limit (RFC 8446 §5.5): on a TLS 1.3
+ *  connection the traffic keys are rekeyed in place once a per-direction byte
+ *  threshold is reached; if the rekey fails the connection is cut. On non-TLS-1.3
+ *  connections a rekey is not possible and the connection is left as is. When
+ *  undefined the whole feature is compiled out.
+ * @since version 3.31.0
+ */
+/* #undef WITH_TLS_DATA_LIMIT */
 
 #endif /* FREERDP_CONFIG_H */

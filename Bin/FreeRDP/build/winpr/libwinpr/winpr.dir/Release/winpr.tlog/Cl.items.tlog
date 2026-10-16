@@ -98,6 +98,7 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\apc.c;C:\Users\
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\argv.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\argv.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\process.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\process.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\processor.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\processor.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\procthreadattr.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\procthreadattr.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\thread.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\thread.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\tls.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\tls.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\winsock\winsock.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\winsock.obj

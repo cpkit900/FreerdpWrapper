@@ -34,7 +34,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/aad/cmake_install.cmake")
   include("C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/common/res/cmake_install.cmake")
 
 endif()
