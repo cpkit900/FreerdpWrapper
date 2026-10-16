@@ -186,6 +186,9 @@ VCPKG_TARGET_TRIPLET:STRING=x64-windows
 //Trace calls to find_package()
 VCPKG_TRACE_FIND_PACKAGE:BOOL=OFF
 
+//Use applocal.ps1 instead of vcpkg z-applocal.
+VCPKG_USE_LEGACY_APPLOCAL:BOOL=OFF
+
 //Enables messages from the VCPKG toolchain for debugging purposes.
 VCPKG_VERBOSE:BOOL=OFF
 

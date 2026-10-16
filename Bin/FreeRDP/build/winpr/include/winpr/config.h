@@ -29,7 +29,7 @@
 /* #undef WINPR_HAVE_ACCEPT4 */
 /* #undef WINPR_HAVE_UNWIND_H */
 /* #undef WINPR_HAVE_SSIZE_T */
-#define WINPR_HAVE_WIN_SSIZE_T
+/* #undef WINPR_HAVE_WIN_SSIZE_T */
 /* #undef WINPR_WITH_PNG */
 
 /* #undef WINPR_HAVE_STRERROR_R */

@@ -901,6 +901,9 @@ VCPKG_TARGET_TRIPLET:STRING=x64-windows
 //Trace calls to find_package()
 VCPKG_TRACE_FIND_PACKAGE:BOOL=OFF
 
+//Use applocal.ps1 instead of vcpkg z-applocal.
+VCPKG_USE_LEGACY_APPLOCAL:BOOL=OFF
+
 //Enables messages from the VCPKG toolchain for debugging purposes.
 VCPKG_VERBOSE:BOOL=OFF
 
@@ -1392,12 +1395,6 @@ ZLIB_LIBRARY_DEBUG:FILEPATH=C:/Users/Junnu/vcpkg/installed/x64-windows/debug/lib
 //Path to a library.
 ZLIB_LIBRARY_RELEASE:FILEPATH=C:/Users/Junnu/vcpkg/installed/x64-windows/lib/z.lib
 
-//Path to a program.
-Z_VCPKG_BUILTIN_POWERSHELL_PATH:FILEPATH=C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
-
-//Path to a program.
-Z_VCPKG_PWSH_PATH:FILEPATH=Z_VCPKG_PWSH_PATH-NOTFOUND
-
 //The directory which contains the installed libraries for each
 // triplet
 _VCPKG_INSTALLED_DIR:PATH=C:/Users/Junnu/vcpkg/installed
@@ -1716,7 +1713,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_FFmpeg:INTERNAL=[C:/Users/Junnu/vcpkg/installed/x64
 //Details about finding OpenH264
 FIND_PACKAGE_MESSAGE_DETAILS_OpenH264:INTERNAL=[C:/Users/Junnu/vcpkg/installed/x64-windows/lib/openh264.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/include][v()]
 //Details about finding OpenSSL
-FIND_PACKAGE_MESSAGE_DETAILS_OpenSSL:INTERNAL=[optimized;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/libcrypto.lib;debug;C:/Users/Junnu/vcpkg/installed/x64-windows/debug/lib/libcrypto.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/include][ ][v3.6.2()]
+FIND_PACKAGE_MESSAGE_DETAILS_OpenSSL:INTERNAL=[optimized;C:/Users/Junnu/vcpkg/installed/x64-windows/lib/libcrypto.lib;debug;C:/Users/Junnu/vcpkg/installed/x64-windows/debug/lib/libcrypto.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/include][ ][v3.6.5()]
 //Details about finding PkgConfig
 FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[C:/Users/Junnu/vcpkg/installed/x64-windows/share/ffmpeg/../../../x64-windows/tools/pkgconf/pkgconf.exe][v2.5.1()]
 //Details about finding Threads
@@ -1756,7 +1753,7 @@ HAVE_STDINT_H:INTERNAL=1
 //Have include sys/types.h
 HAVE_SYS_TYPES_H:INTERNAL=1
 //Result of TRY_COMPILE
-HAVE_WIN_SSIZE_T:INTERNAL=TRUE
+HAVE_WIN_SSIZE_T:INTERNAL=FALSE
 //ADVANCED property for variable: LIBSYSTEMD_INCLUDE_DIR
 LIBSYSTEMD_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: LIBSYSTEMD_LIBRARY
@@ -1908,8 +1905,8 @@ WINPR_HAVE_UNISTD_H:INTERNAL=
 WINPR_HAVE_UNWIND_H:INTERNAL=
 //dependencies
 WINPR_PC_REQUIRES_PRIVATE:INTERNAL=libssl;json-c
-//CHECK_TYPE_SIZE: sizeof(SSIZE_T)
-WIN_SSIZE_T:INTERNAL=8
+//CHECK_TYPE_SIZE: SSIZE_T unknown
+WIN_SSIZE_T:INTERNAL=
 //unsupported platform
 WITH_SSO_MIB:INTERNAL=OFF
 //internal
@@ -1924,8 +1921,6 @@ ZLIB_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 ZLIB_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //Making sure VCPKG_MANIFEST_MODE doesn't change
 Z_VCPKG_CHECK_MANIFEST_MODE:INTERNAL=OFF
-//The path to the PowerShell implementation to use.
-Z_VCPKG_POWERSHELL_PATH:INTERNAL=C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
 //Vcpkg root directory
 Z_VCPKG_ROOT_DIR:INTERNAL=C:/Users/Junnu/vcpkg
 _CAIRO_CFLAGS:INTERNAL=-IC:/Users/Junnu/vcpkg/installed/x64-windows/include/cairo;-IC:/Users/Junnu/vcpkg/installed/x64-windows/include;-IC:/Users/Junnu/vcpkg/installed/x64-windows/include/libpng16;-IC:/Users/Junnu/vcpkg/installed/x64-windows/include/pixman-1

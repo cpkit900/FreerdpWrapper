@@ -34,7 +34,7 @@ FreeRDP Base : 3.32.2 (SDL3 client, D3D11 renderer)
 
 ### Updated FreeRDP to 3.32.2
 - Upgraded FreeRDP base from 3.30.0 to official 3.32.2 release.
-- Rebuilt with OpenSSL 3.6.2 and vcpkg toolchain.
+- Rebuilt with OpenSSL 3.6.5 and vcpkg toolchain.
 - Up-to-date sdl3-freerdp, sdl2-freerdp, and wfreerdp binaries.
 
 ### Native SDL3 Parent-Window Embedding (NEW)

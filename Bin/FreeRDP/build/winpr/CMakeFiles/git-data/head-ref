@@ -1,2 +1,1 @@
-edee333b78853cfea47f8453a7d2805a7eacee70 4c803292aa84184d3211c024d2540dc677d277cf cpavan <cpavankumar.it@gmail.com> 1786696214 +0530	commit: Update build scripts to include SDL3 client and commit updated binaries
-4c803292aa84184d3211c024d2540dc677d277cf c4f3ca0950f71e7fffd947911647f2c8f552b0ff cpavan <cpavankumar.it@gmail.com> 1788197857 +0530	commit: Add entire FreeRDP source and build directory under Bin/FreeRDP
+d4f20036bd7346780da3ffa181543dc9aa92f703
