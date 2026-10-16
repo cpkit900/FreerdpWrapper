@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$version   = "v3.1.0"
+$version   = "v3.2.0"
 $baseDir   = "c:\Users\Junnu\Freerdp Wrapper"
 $releaseDir = "$baseDir\FreeRdpWrapper_Release"
 $publishDir = "$baseDir\PublishOutput"
@@ -31,6 +31,11 @@ Release Date : 2026-10-16
 FreeRDP Base : 3.32.2 (SDL3 client, D3D11 renderer)
 
 ## Changes in $version
+
+### Updated FreeRDP to 3.32.2
+- Upgraded FreeRDP base from 3.30.0 to official 3.32.2 release.
+- Rebuilt with OpenSSL 3.6.2 and vcpkg toolchain.
+- Up-to-date sdl3-freerdp, sdl2-freerdp, and wfreerdp binaries.
 
 ### Native SDL3 Parent-Window Embedding (NEW)
 - FreeRDP's sdl3-freerdp.exe now correctly supports /parent-window:N.
