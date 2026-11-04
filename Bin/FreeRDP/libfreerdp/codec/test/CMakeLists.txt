@@ -29,6 +29,10 @@ if(WITH_GFX_AV1)
   list(APPEND TESTS TestFreeRDPCodecAV1.c)
 endif()
 
+if(WITH_OPUS AND NOT WITH_DSP_FFMPEG)
+  list(APPEND TESTS TestFreeRDPCodecDsp.c)
+endif()
+
 if(BUILD_TESTING_INTERNAL)
   list(APPEND TESTS TestFreeRDPCodecMppc.c TestFreeRDPCodecNCrush.c TestFreeRDPCodecXCrush.c)
 endif()
@@ -79,7 +83,7 @@ set_target_properties(${MODULE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TEST
 
 foreach(test ${TESTS})
   get_filename_component(TestName ${test} NAME_WE)
-  add_test(${TestName} ${TESTING_OUTPUT_DIRECTORY}/${MODULE_NAME} ${TestName})
+  add_test(NAME ${TestName} COMMAND ${MODULE_NAME} ${TestName})
 endforeach()
 
 set_property(TARGET ${MODULE_NAME} PROPERTY FOLDER "FreeRDP/Test")

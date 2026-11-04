@@ -54,12 +54,16 @@
 #cmakedefine WITH_OPENH264
 #cmakedefine WITH_OPENH264_LOADING
 #cmakedefine WITH_VIDEO_FFMPEG
+#cmakedefine WITH_APPLE_VIDEOTOOLBOX
+#cmakedefine WITH_H264_WEBCODECS
 #cmakedefine WITH_DSP_EXPERIMENTAL
 #cmakedefine WITH_DSP_FFMPEG
 #cmakedefine WITH_OPENCL
 #cmakedefine WITH_MEDIA_FOUNDATION
 #cmakedefine WITH_MEDIACODEC
 #cmakedefine WITH_GFX_AV1
+#cmakedefine WITH_GFX_AZURE
+#cmakedefine WITH_RDPEUDP
 
 #cmakedefine WITH_FFMPEG_HWACCEL
 

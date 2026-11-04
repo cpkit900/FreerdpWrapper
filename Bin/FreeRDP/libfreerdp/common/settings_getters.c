@@ -573,6 +573,9 @@ BOOL freerdp_settings_get_bool(WINPR_ATTR_UNUSED const rdpSettings* settings,
 		case FreeRDP_SupportMultitransport:
 			return settings->SupportMultitransport;
 
+		case FreeRDP_SupportMultitransportUdp:
+			return settings->SupportMultitransportUdp;
+
 		case FreeRDP_SupportSSHAgentChannel:
 			return settings->SupportSSHAgentChannel;
 
@@ -1359,6 +1362,10 @@ BOOL freerdp_settings_set_bool(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->SupportMultitransport = cnv.c;
 			break;
 
+		case FreeRDP_SupportMultitransportUdp:
+			settings->SupportMultitransportUdp = cnv.c;
+			break;
+
 		case FreeRDP_SupportSSHAgentChannel:
 			settings->SupportSSHAgentChannel = cnv.c;
 			break;
@@ -1899,6 +1906,9 @@ UINT32 freerdp_settings_get_uint32(WINPR_ATTR_UNUSED const rdpSettings* settings
 		case FreeRDP_RdpVersion:
 			return settings->RdpVersion;
 
+		case FreeRDP_RdstlsEnabledModes:
+			return settings->RdstlsEnabledModes;
+
 		case FreeRDP_ReceivedCapabilitiesSize:
 			return settings->ReceivedCapabilitiesSize;
 
@@ -2030,13 +2040,19 @@ UINT32 freerdp_settings_get_uint32(WINPR_ATTR_UNUSED const rdpSettings* settings
 
 #if !defined(WITHOUT_FREERDP_3x_DEPRECATED)
 		// API Compatibility section, remove with FreeRDP 4.x
+			WINPR_PRAGMA_DIAG_PUSH
+			WINPR_PRAGMA_DIAG("-Wswitch")
 		case (FreeRDP_Settings_Keys_UInt32)FreeRDP_MonitorLocalShiftX:
 			return (UINT32)settings->MonitorLocalShiftX;
 
-		// API Compatibility section, remove with FreeRDP 4.x
+			WINPR_PRAGMA_DIAG_POP
+			// API Compatibility section, remove with FreeRDP 4.x
+			WINPR_PRAGMA_DIAG_PUSH
+			WINPR_PRAGMA_DIAG("-Wswitch")
 		case (FreeRDP_Settings_Keys_UInt32)FreeRDP_MonitorLocalShiftY:
 			return (UINT32)settings->MonitorLocalShiftY;
 
+			WINPR_PRAGMA_DIAG_POP
 #endif
 		default:
 			WLog_ERR(TAG, "Invalid key index %d [%s|%s]", id, freerdp_settings_get_name_for_key(id),
@@ -2398,6 +2414,10 @@ BOOL freerdp_settings_set_uint32(WINPR_ATTR_UNUSED rdpSettings* settings,
 			settings->RdpVersion = cnv.c;
 			break;
 
+		case FreeRDP_RdstlsEnabledModes:
+			settings->RdstlsEnabledModes = cnv.c;
+			break;
+
 		case FreeRDP_ReceivedCapabilitiesSize:
 			settings->ReceivedCapabilitiesSize = cnv.c;
 			break;
@@ -2572,15 +2592,21 @@ BOOL freerdp_settings_set_uint32(WINPR_ATTR_UNUSED rdpSettings* settings,
 
 #if !defined(WITHOUT_FREERDP_3x_DEPRECATED)
 		// API Compatibility section, remove with FreeRDP 4.x
+			WINPR_PRAGMA_DIAG_PUSH
+			WINPR_PRAGMA_DIAG("-Wswitch")
 		case FreeRDP_MonitorLocalShiftX:
 			settings->MonitorLocalShiftX = (int32_t)cnv.c;
 			break;
 
-		// API Compatibility section, remove with FreeRDP 4.x
+			WINPR_PRAGMA_DIAG_POP
+			// API Compatibility section, remove with FreeRDP 4.x
+			WINPR_PRAGMA_DIAG_PUSH
+			WINPR_PRAGMA_DIAG("-Wswitch")
 		case FreeRDP_MonitorLocalShiftY:
 			settings->MonitorLocalShiftY = (int32_t)cnv.c;
 			break;
 
+			WINPR_PRAGMA_DIAG_POP
 #endif
 		default:
 			WLog_ERR(TAG, "Invalid key index %d [%s|%s]", id, freerdp_settings_get_name_for_key(id),
@@ -2758,6 +2784,9 @@ const char* freerdp_settings_get_string(WINPR_ATTR_UNUSED const rdpSettings* set
 	{
 		case FreeRDP_AadAuthHelper:
 			return settings->AadAuthHelper;
+
+		case FreeRDP_AadAuthUserAgent:
+			return settings->AadAuthUserAgent;
 
 		case FreeRDP_AadServerHostname:
 			return settings->AadServerHostname;
@@ -3102,6 +3131,9 @@ char* freerdp_settings_get_string_writable(rdpSettings* settings, FreeRDP_Settin
 	{
 		case FreeRDP_AadAuthHelper:
 			return settings->AadAuthHelper;
+
+		case FreeRDP_AadAuthUserAgent:
+			return settings->AadAuthUserAgent;
 
 		case FreeRDP_AadServerHostname:
 			return settings->AadServerHostname;
@@ -3458,6 +3490,9 @@ BOOL freerdp_settings_set_string_(WINPR_ATTR_UNUSED rdpSettings* settings,
 	{
 		case FreeRDP_AadAuthHelper:
 			return update_string_(&settings->AadAuthHelper, cnv.c, len);
+
+		case FreeRDP_AadAuthUserAgent:
+			return update_string_(&settings->AadAuthUserAgent, cnv.c, len);
 
 		case FreeRDP_AadServerHostname:
 			return update_string_(&settings->AadServerHostname, cnv.c, len);
@@ -3828,6 +3863,9 @@ BOOL freerdp_settings_set_string_copy_(WINPR_ATTR_UNUSED rdpSettings* settings,
 	{
 		case FreeRDP_AadAuthHelper:
 			return update_string_copy_(&settings->AadAuthHelper, cnv.cc, len, cleanup);
+
+		case FreeRDP_AadAuthUserAgent:
+			return update_string_copy_(&settings->AadAuthUserAgent, cnv.cc, len, cleanup);
 
 		case FreeRDP_AadServerHostname:
 			return update_string_copy_(&settings->AadServerHostname, cnv.cc, len, cleanup);

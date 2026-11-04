@@ -334,6 +334,9 @@ int win_shadow_dxgi_init_duplication(winShadowSubsystem* subsystem)
 
 	while (dxgiAdapter->lpVtbl->EnumOutputs(dxgiAdapter, i, &pOutput) != DXGI_ERROR_NOT_FOUND)
 	{
+		if (!pOutput)
+			break;
+
 		pOutputDesc = &outputDesc;
 
 		hr = pOutput->lpVtbl->GetDesc(pOutput, pOutputDesc);
@@ -348,6 +351,7 @@ int win_shadow_dxgi_init_duplication(winShadowSubsystem* subsystem)
 			dTop = i;
 
 		pOutput->lpVtbl->Release(pOutput);
+		pOutput = nullptr;
 		i++;
 	}
 
@@ -507,8 +511,21 @@ int win_shadow_dxgi_fetch_frame_data(winShadowSubsystem* subsystem, BYTE** ppDst
 	if ((width * height) < 1)
 		return 0;
 
-	Box.top = x;
-	Box.left = y;
+	{
+		/* The shadow surface may be a pixel larger than the desktop image
+		 * (exclusive vs inclusive rect edges); clamp the requested region to
+		 * the source texture, otherwise the out-of-bounds copy trips
+		 * DXGI_ERROR_DEVICE_REMOVED and capture silently dies. */
+		D3D11_TEXTURE2D_DESC srcDesc;
+		subsystem->dxgiDesktopImage->lpVtbl->GetDesc(subsystem->dxgiDesktopImage, &srcDesc);
+		if (x + width > (int)srcDesc.Width)
+			width = (int)srcDesc.Width - x;
+		if (y + height > (int)srcDesc.Height)
+			height = (int)srcDesc.Height - y;
+	}
+
+	Box.top = y;
+	Box.left = x;
 	Box.right = x + width;
 	Box.bottom = y + height;
 	Box.front = 0;
@@ -517,6 +534,12 @@ int win_shadow_dxgi_fetch_frame_data(winShadowSubsystem* subsystem, BYTE** ppDst
 	subsystem->dxgiDeviceContext->lpVtbl->CopySubresourceRegion(
 	    subsystem->dxgiDeviceContext, (ID3D11Resource*)subsystem->dxgiStage, 0, 0, 0, 0,
 	    (ID3D11Resource*)subsystem->dxgiDesktopImage, 0, &Box);
+
+	if (subsystem->dxgiSurface)
+	{
+		subsystem->dxgiSurface->lpVtbl->Release(subsystem->dxgiSurface);
+		subsystem->dxgiSurface = nullptr;
+	}
 
 	hr = subsystem->dxgiStage->lpVtbl->QueryInterface(subsystem->dxgiStage, &IID_IDXGISurface,
 	                                                  (void**)&(subsystem->dxgiSurface));
@@ -586,12 +609,44 @@ int win_shadow_dxgi_release_frame_data(winShadowSubsystem* subsystem)
 	return 1;
 }
 
+/* A new duplication of the output, on the calling thread's desktop: after a
+ * switch between the user's desktop and the secure one (logon, lock screen,
+ * UAC), or when an earlier attempt failed. The device is kept when there is
+ * one. */
+int win_shadow_dxgi_restart_duplication(winShadowSubsystem* subsystem)
+{
+	if (!subsystem->dxgiDevice)
+		return win_shadow_dxgi_init(subsystem);
+
+	(void)win_shadow_dxgi_release_frame_data(subsystem);
+
+	if (subsystem->dxgiDesktopImage)
+	{
+		subsystem->dxgiDesktopImage->lpVtbl->Release(subsystem->dxgiDesktopImage);
+		subsystem->dxgiDesktopImage = nullptr;
+	}
+
+	if (subsystem->dxgiOutputDuplication)
+	{
+		subsystem->dxgiOutputDuplication->lpVtbl->Release(subsystem->dxgiOutputDuplication);
+		subsystem->dxgiOutputDuplication = nullptr;
+	}
+
+	if (subsystem->dxgiStage)
+	{
+		subsystem->dxgiStage->lpVtbl->Release(subsystem->dxgiStage);
+		subsystem->dxgiStage = nullptr;
+	}
+
+	return win_shadow_dxgi_init_duplication(subsystem);
+}
+
 int win_shadow_dxgi_get_next_frame(winShadowSubsystem* subsystem)
 {
 	UINT i = 0;
 	int status;
 	HRESULT hr = 0;
-	UINT timeout = 15;
+	UINT timeout = 1;
 	UINT DataBufferSize = 0;
 	BYTE* DataBuffer = nullptr;
 
@@ -697,7 +752,7 @@ int win_shadow_dxgi_get_invalid_region(winShadowSubsystem* subsystem)
 	RECT* pDirtyRectsBuffer;
 	DXGI_OUTDUPL_MOVE_RECT* pMoveRect;
 	DXGI_OUTDUPL_MOVE_RECT* pMoveRectBuffer;
-	rdpShadowSurface* surface = subsystem->server->surface;
+	rdpShadowSurface* surface = subsystem->base.server->surface;
 
 	if (subsystem->dxgiFrameInfo.AccumulatedFrames == 0)
 		return 0;

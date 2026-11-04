@@ -24,8 +24,6 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\rand.c;C:\Users
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\cipher.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\cipher.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\cert.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\cert.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\crypto.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\crypto.obj
-C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\registry_reg.obj
-C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\registry.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\path\path.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\path.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\path\shell.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\path\shell.c.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\io\device.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\device.obj
@@ -39,6 +37,7 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\shell\shell.c;C:\Users
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\json\json-c.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\json-c.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\json\json.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\json.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\atexit.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\atexit.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\i18n.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\i18n.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ini.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\ini.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\sam.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\sam.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ntlm.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\utils\ntlm.c.obj
@@ -50,6 +49,7 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\debug.c;C:\Users
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\winpr.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\winpr.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\cmdline.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\cmdline.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ssl.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\ssl.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\config-readers.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\config-readers.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\windows\debug.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\utils\windows\debug.c.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\Object.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\Object.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\collections\Queue.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\Queue.obj
@@ -101,6 +101,8 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\processor.c;C:\
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\procthreadattr.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\procthreadattr.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\thread.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\thread.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\tls.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\tls.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\registry_reg.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\registry.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\winsock\winsock.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\winsock.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\CredSSP\credssp.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\credssp.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\NTLM\ntlm_av_pairs.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\ntlm_av_pairs.obj
@@ -131,6 +133,7 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\dsparse\dsparse.c;C:\U
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\smartcard.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_pcsc.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\smartcard_pcsc.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_windows.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\smartcard_windows.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\ndr\ndr.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\ndr.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\nt\nt.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\nt.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\nt\ntstatus.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\ntstatus.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\clipboard\synthetic.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\winpr\libwinpr\winpr.dir\Release\synthetic.obj

@@ -42,6 +42,7 @@
 /* #undef WITH_INTERNAL_MD5 */
 
 #define WITH_WINPR_JSON /** @since version 3.6.0 */
+/* #undef WITH_WINPR_I18N */
 
 /* #undef WITH_DEBUG_NTLM */
 /* #undef WITH_DEBUG_THREADS */

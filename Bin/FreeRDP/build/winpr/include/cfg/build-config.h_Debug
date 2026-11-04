@@ -7,6 +7,7 @@
 
 #define WINPR_INSTALL_PREFIX "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled"
 #define WINPR_INSTALL_SYSCONFDIR "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/etc"
+#define WINPR_INSTALL_LOCALEDIR "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/share/locale"
 
 #define WINPR_LIBRARY_PATH ""
 

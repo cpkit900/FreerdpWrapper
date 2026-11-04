@@ -13,4 +13,5 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail.cpp;C:\Users
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_platform.cpp;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\sdl3-freerdp.dir\Release\sdl_rail_platform.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail_window.cpp;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\sdl3-freerdp.dir\Release\sdl_rail_window.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_wayland.cpp;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\sdl3-freerdp.dir\Release\sdl_wayland.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_win32.cpp;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\sdl3-freerdp.dir\Release\sdl_win32.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_x11.cpp;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL3\sdl3-freerdp.dir\Release\sdl_x11.obj

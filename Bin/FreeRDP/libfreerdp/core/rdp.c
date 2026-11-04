@@ -762,6 +762,9 @@ static BOOL rdp_security_stream_out(rdpRdp* rdp, wStream* s, size_t length, UINT
 				if (*pad == 8)
 					*pad = 0;
 
+				if (!Stream_CheckAndLogRequiredCapacityWLog(rdp->log, s, length + *pad))
+					return FALSE;
+
 				if (*pad)
 					memset(data + length, 0, *pad);
 
@@ -1570,6 +1573,9 @@ BOOL rdp_decrypt(rdpRdp* rdp, wStream* s, UINT16* pLength, UINT16 securityFlags)
 		goto unlock;
 	}
 
+	if (!Stream_CheckAndLogRequiredLengthWLog(rdp->log, s, *pLength))
+		goto unlock;
+
 	if (rdp->settings->EncryptionMethods == ENCRYPTION_METHOD_FIPS)
 	{
 		if (!Stream_CheckAndLogRequiredLengthWLog(rdp->log, s, 12))
@@ -1597,6 +1603,17 @@ BOOL rdp_decrypt(rdpRdp* rdp, wStream* s, UINT16* pLength, UINT16 securityFlags)
 		if ((length <= 0) || (padLength <= 0) || (padLength > UINT16_MAX))
 		{
 			WLog_Print(rdp->log, WLOG_ERROR, "FATAL: invalid pad length %" PRId32, padLength);
+			goto unlock;
+		}
+
+		/* The 3DES CBC context has padding disabled and lives for the whole connection: an
+		 * incomplete block would be kept in it and prepended to the data of the next PDU, which
+		 * then decrypts to more bytes than it has. The sender pads to whole blocks (padlen). */
+		if ((length % 8) != 0)
+		{
+			WLog_Print(rdp->log, WLOG_ERROR,
+			           "FATAL: FIPS data length %" PRId32 " is not a multiple of 3DES block size",
+			           length);
 			goto unlock;
 		}
 
@@ -1948,11 +1965,17 @@ static state_run_t rdp_client_exchange_monitor_layout(rdpRdp* rdp, wStream* s)
 		{
 			if (!rdp_finalize_is_flag_set(rdp, FINALIZE_SC_SYNCHRONIZE_PDU))
 				return STATE_RUN_FAILED;
+			else if (!rdp_client_transition_to_state(rdp,
+			                                         CONNECTION_STATE_FINALIZATION_CLIENT_SYNC))
+				return STATE_RUN_FAILED;
+			else
+				return STATE_RUN_TRY_AGAIN;
 		}
 
-		status = rdp_client_connect_finalize(rdp);
-		if (state_run_success(status) && !rdp->monitor_layout_pdu)
-			status = STATE_RUN_TRY_AGAIN;
+		/* The Monitor Layout PDU was consumed, wait for the server Synchronize PDU next.
+		 * Do not try again: the layout PDU must not be processed a second time. */
+		if (!rdp_client_transition_to_state(rdp, CONNECTION_STATE_FINALIZATION_CLIENT_SYNC))
+			return STATE_RUN_FAILED;
 	}
 	return status;
 }
@@ -2348,6 +2371,9 @@ int rdp_check_fds(rdpRdp* rdp)
 	else
 		status = freerdp_timer_poll(rdp->timer);
 
+	if ((status >= 0) && !multitransport_check(rdp->multitransport))
+		status = -1;
+
 	return status;
 }
 
@@ -2576,6 +2602,7 @@ BOOL rdp_reset(rdpRdp* rdp)
 	WINPR_ASSERT(settings);
 
 	bulk_reset(rdp->bulk);
+	multitransport_reset(rdp->multitransport);
 
 	rdp_reset_free(rdp);
 
@@ -2628,7 +2655,7 @@ void rdp_free(rdpRdp* rdp)
 		autodetect_free(rdp->autodetect);
 		heartbeat_free(rdp->heartbeat);
 		multitransport_free(rdp->multitransport);
-		bulk_free(rdp->bulk);
+		freerdp_bulk_free(rdp->bulk);
 		free(rdp->io);
 		PubSub_Free(rdp->pubSub);
 		if (rdp->abortEvent)
@@ -2931,10 +2958,11 @@ static BOOL option_is_experimental(WINPR_ATTR_UNUSED wLog* log, WINPR_ATTR_UNUSE
                                    const char* tok)
 {
 	const char* experimental[] = { STR(WITH_DSP_EXPERIMENTAL), STR(WITH_FFMPEG_HWACCEL),
-		                           STR(WITH_GFX_AV1),          STR(WITH_MEDIACODEC),
-		                           STR(WITH_CLIENT_SDL2),      STR(WITH_OPENCL),
-		                           STR(WITH_LIBRESSL),         STR(WITH_MBEDTLS),
-		                           STR(WITH_MEDIA_FOUNDATION), STR(WITH_KRB5_HEIMDAL) };
+		                           STR(WITH_GFX_AV1),          STR(WITH_GFX_AZURE),
+		                           STR(WITH_MEDIACODEC),       STR(WITH_CLIENT_SDL2),
+		                           STR(WITH_OPENCL),           STR(WITH_LIBRESSL),
+		                           STR(WITH_MBEDTLS),          STR(WITH_MEDIA_FOUNDATION),
+		                           STR(WITH_KRB5_HEIMDAL),     STR(WITH_RDPEUDP) };
 	for (size_t x = 0; x < ARRAYSIZE(experimental); x++)
 	{
 		const char* opt = experimental[x];
@@ -3264,10 +3292,12 @@ size_t rdp_get_event_handles(rdpRdp* rdp, HANDLE* handles, uint32_t count)
 	if (nCount == 0)
 		return 0;
 
-	if (count < nCount + 2UL)
+	/* room for the abort, timer and multitransport events */
+	if ((nCount > count) || (count - nCount < 3))
 		return 0;
 
 	handles[nCount++] = utils_get_abort_event(rdp);
 	handles[nCount++] = freerdp_timer_get_event(rdp->timer);
+	handles[nCount++] = multitransport_get_event_handle(rdp->multitransport);
 	return nCount;
 }

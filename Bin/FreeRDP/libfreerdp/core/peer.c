@@ -327,6 +327,7 @@ static BOOL freerdp_peer_check_fds(freerdp_peer* peer)
 	return (status >= 0);
 }
 
+WINPR_ATTR_NODISCARD
 static state_run_t peer_recv_data_pdu(freerdp_peer* client, wStream* s,
                                       WINPR_ATTR_UNUSED UINT16 totalLength)
 {
@@ -1223,6 +1224,17 @@ static BOOL freerdp_peer_close(freerdp_peer* client)
 	SelectedProtocol = nego_get_selected_protocol(context->rdp->nego);
 
 	if (SelectedProtocol & PROTOCOL_FAILED_NEGO)
+		return TRUE;
+
+	/** The disconnection sequence below (Deactivate All + MCS Disconnect
+	 *  Provider Ultimatum) only applies to sessions where MCS has been
+	 *  established. If the connection never got past negotiation or NLA
+	 *  authentication (e.g. a malformed X.224 request, or wrong
+	 *  credentials), sending these PDUs emits an out-of-order X.224 DATA
+	 *  TPDU that strict clients (e.g. Windows App on macOS) cannot handle,
+	 *  leaving them hanging at "securing the connection" instead of
+	 *  failing fast. Just drop the TCP connection in that case. */
+	if (rdp_get_state(context->rdp) < CONNECTION_STATE_MCS_ATTACH_USER_CONFIRM)
 		return TRUE;
 
 	/**

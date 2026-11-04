@@ -386,6 +386,7 @@ static void rts_free_auth_verifier(auth_verifier_co_t* auth)
 	if (!auth)
 		return;
 	free(auth->auth_value);
+	memset(auth, 0, sizeof(auth_verifier_co_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -452,7 +453,7 @@ static void rts_free_supported_versions(p_rt_versions_supported_t* versions)
 	if (!versions)
 		return;
 	free(versions->p_protocols);
-	versions->p_protocols = nullptr;
+	memset(versions, 0, sizeof(p_rt_versions_supported_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -511,6 +512,7 @@ static void rts_free_port_any(port_any_t* port)
 	if (!port)
 		return;
 	free(port->port_spec);
+	memset(port, 0, sizeof(port_any_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -549,13 +551,12 @@ static BOOL rts_write_uuid(wStream* s, const p_uuid_t* uuid)
 	return TRUE;
 }
 
-static void rts_syntax_id_free(p_syntax_id_t* ptr)
+void rts_syntax_id_free(p_syntax_id_t* ptr)
 {
 	free(ptr);
 }
 
-WINPR_ATTR_MALLOC(rts_syntax_id_free, 1)
-static p_syntax_id_t* rts_syntax_id_new(size_t count)
+p_syntax_id_t* rts_syntax_id_new(size_t count)
 {
 	return calloc(count, sizeof(p_syntax_id_t));
 }
@@ -596,6 +597,7 @@ static void rts_context_elem_free(p_cont_elem_t* ptr)
 {
 	if (!ptr)
 		return;
+
 	rts_syntax_id_free(ptr->transfer_syntaxes);
 	free(ptr);
 }
@@ -625,6 +627,7 @@ static BOOL rts_read_context_elem(wStream* s, p_cont_elem_t* element, BOOL silen
 
 	if (element->n_transfer_syn > 0)
 	{
+		rts_syntax_id_free(element->transfer_syntaxes);
 		element->transfer_syntaxes = rts_syntax_id_new(element->n_transfer_syn);
 		if (!element->transfer_syntaxes)
 			return FALSE;
@@ -695,6 +698,7 @@ static void rts_free_context_list(p_cont_list_t* list)
 	if (!list)
 		return;
 	rts_context_elem_free(list->p_cont_elem);
+	memset(list, 0, sizeof(p_cont_list_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -720,8 +724,6 @@ static BOOL rts_write_context_list(wStream* s, const p_cont_list_t* list)
 
 static void rts_result_free(p_result_t* results)
 {
-	if (!results)
-		return;
 	free(results);
 }
 
@@ -818,6 +820,7 @@ static void rts_free_result_list(p_result_list_t* list)
 		rts_free_result(result);
 	}
 	rts_result_free(list->p_results);
+	memset(list, 0, sizeof(p_result_list_t));
 }
 
 static void rts_free_pdu_alter_context(rpcconn_alter_context_hdr_t* ctx)
@@ -827,6 +830,7 @@ static void rts_free_pdu_alter_context(rpcconn_alter_context_hdr_t* ctx)
 
 	rts_free_context_list(&ctx->p_context_elem);
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_alter_context_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -891,6 +895,7 @@ static void rts_free_pdu_alter_context_response(rpcconn_alter_context_response_h
 	rts_free_port_any(&ctx->sec_addr);
 	rts_free_result_list(&ctx->p_result_list);
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_alter_context_response_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -921,6 +926,7 @@ static void rts_free_pdu_bind(rpcconn_bind_hdr_t* ctx)
 		return;
 	rts_free_context_list(&ctx->p_context_elem);
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_bind_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -955,6 +961,7 @@ static void rts_free_pdu_bind_ack(rpcconn_bind_ack_hdr_t* ctx)
 	rts_free_port_any(&ctx->sec_addr);
 	rts_free_result_list(&ctx->p_result_list);
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_bind_ack_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -976,6 +983,7 @@ static void rts_free_pdu_bind_nak(rpcconn_bind_nak_hdr_t* ctx)
 		return;
 
 	rts_free_supported_versions(&ctx->versions);
+	memset(ctx, 0, sizeof(rpcconn_bind_nak_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -998,6 +1006,7 @@ static void rts_free_pdu_auth3(rpcconn_rpc_auth_3_hdr_t* ctx)
 	if (!ctx)
 		return;
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_rpc_auth_3_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -1023,6 +1032,7 @@ static void rts_free_pdu_fault(rpcconn_fault_hdr_t* ctx)
 	if (!ctx)
 		return;
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_fault_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -1042,6 +1052,7 @@ static void rts_free_pdu_cancel_ack(rpcconn_cancel_hdr_t* ctx)
 	if (!ctx)
 		return;
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_cancel_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -1061,6 +1072,7 @@ static void rts_free_pdu_orphaned(rpcconn_orphaned_hdr_t* ctx)
 	if (!ctx)
 		return;
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_orphaned_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -1086,6 +1098,7 @@ static void rts_free_pdu_request(rpcconn_request_hdr_t* ctx)
 	if (!ctx)
 		return;
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_request_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -1113,6 +1126,7 @@ static void rts_free_pdu_response(rpcconn_response_hdr_t* ctx)
 	if (!ctx)
 		return;
 	rts_free_auth_verifier(&ctx->auth_verifier);
+	memset(ctx, 0, sizeof(rpcconn_response_hdr_t));
 }
 
 WINPR_ATTR_NODISCARD
@@ -1133,6 +1147,7 @@ static BOOL rts_read_pdu_rts(wStream* s, rpcconn_rts_hdr_t* ctx, BOOL silent)
 static void rts_free_pdu_rts(rpcconn_rts_hdr_t* ctx)
 {
 	WINPR_UNUSED(ctx);
+	memset(ctx, 0, sizeof(rpcconn_rts_hdr_t));
 }
 
 void rts_free_pdu_header(rpcconn_hdr_t* header, BOOL allocated)

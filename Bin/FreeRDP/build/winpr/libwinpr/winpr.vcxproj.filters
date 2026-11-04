@@ -79,12 +79,6 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\crypto.c">
       <Filter>crypto</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.c">
-      <Filter>registry</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry.c">
-      <Filter>registry</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\path\path.c">
       <Filter>path</Filter>
     </ClCompile>
@@ -124,6 +118,9 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\atexit.c">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\i18n.c">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ini.c">
       <Filter>utils</Filter>
     </ClCompile>
@@ -155,6 +152,9 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\ssl.c">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\config-readers.c">
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\utils\windows\debug.c">
@@ -310,6 +310,12 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\tls.c">
       <Filter>thread</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.c">
+      <Filter>registry</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry.c">
+      <Filter>registry</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\winsock\winsock.c">
       <Filter>winsock</Filter>
     </ClCompile>
@@ -400,6 +406,9 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\smartcard\smartcard_windows.c">
       <Filter>smartcard</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\ndr\ndr.c">
+      <Filter>ndr</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\nt\nt.c">
       <Filter>nt</Filter>
     </ClCompile>
@@ -431,9 +440,6 @@
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\crypto\crypto.h">
       <Filter>crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.h">
-      <Filter>registry</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\io\io.h">
       <Filter>io</Filter>
@@ -512,6 +518,9 @@
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\thread\thread.h">
       <Filter>thread</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\registry\registry_reg.h">
+      <Filter>registry</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\sspi\CredSSP\credssp.h">
       <Filter>sspi</Filter>
@@ -618,6 +627,9 @@
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\comm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\config-readers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\cred.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -651,6 +663,9 @@
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\i18n.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -679,6 +694,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\ncrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\ndr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\include\winpr\nt.h">
@@ -846,6 +864,9 @@
     </Filter>
     <Filter Include="ncrypt">
       <UniqueIdentifier>{D0DD90BB-0EA4-3AA8-98C2-9E3235CFE792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ndr">
+      <UniqueIdentifier>{74D7D1C9-54EF-3437-B93F-DACB6B17908A}</UniqueIdentifier>
     </Filter>
     <Filter Include="nt">
       <UniqueIdentifier>{900C0350-0FAD-3662-9C76-6304ECC41FA0}</UniqueIdentifier>

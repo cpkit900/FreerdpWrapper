@@ -6,6 +6,7 @@
  * contains the converted file 'OpenSans-VariableFont_wdth,wght.ttf'
  */
 
+#include <winpr/platform.h>
 #include <vector>
 #include "OpenSans_VariableFont_wdth_wght_ttf.hpp"
 
@@ -16,6 +17,8 @@ std::string OpenSans_VariableFont_wdth_wght_ttf::type() noexcept {
 	return "fonts";
 }
 
+WINPR_PRAGMA_DIAG_PUSH
+WINPR_PRAGMA_DIAG("-Wglobal-constructors")
 // NOLINTNEXTLINE(clang-diagnostic-global-constructors)
 const SDLResourceFile OpenSans_VariableFont_wdth_wght_ttf::_initializer(type(), name(), init());
 
@@ -25,4 +28,5 @@ std::vector<unsigned char> OpenSans_VariableFont_wdth_wght_ttf::init() noexcept 
 	};
 	return std::vector<unsigned char>(data, data + sizeof(data));
 }
+WINPR_PRAGMA_DIAG_POP
 

@@ -65,6 +65,9 @@ static const BYTE enc_base64url[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 WINPR_ATTR_NODISCARD
+static BOOL format_is_utf8(wClipboard* clipboard, UINT32 formatId);
+
+WINPR_ATTR_NODISCARD
 static inline char* b64_encode(const BYTE* WINPR_RESTRICT data, size_t length, size_t* plen)
 {
 	WINPR_ASSERT(plen);
@@ -166,8 +169,8 @@ static void* clipboard_synthesize_cf_locale(WINPR_ATTR_UNUSED wClipboard* clipbo
 		default:
 		{
 			const UINT32 formatIdText = ClipboardRegisterFormat(clipboard, mime_text_plain);
-			const UINT32 formatIdUtf = ClipboardRegisterFormat(clipboard, mime_text_plain);
-			if ((clipboard->formatId != formatIdText) && (clipboard->formatId != formatIdUtf))
+			if ((clipboard->formatId != formatIdText) &&
+			    !format_is_utf8(clipboard, clipboard->formatId))
 			{
 				WLog_ERR(TAG,
 				         "Unuspported source format %s [0x%04" PRIx32
@@ -187,7 +190,20 @@ static void* clipboard_synthesize_cf_locale(WINPR_ATTR_UNUSED wClipboard* clipbo
 		return nullptr;
 
 	*pDstData = 0x0409; /* English - United States */
+	*pSize = sizeof(UINT32);
 	return (void*)pDstData;
+}
+
+/* text/plain is platform dependent: UTF-8 on Windows, where e.g. SDL treats it as such, and
+ * ASCII with \u escapes for all other characters elsewhere. */
+BOOL format_is_utf8(wClipboard* clipboard, UINT32 formatId)
+{
+#if defined(_WIN32)
+	if (formatId == ClipboardGetFormatId(clipboard, mime_text_plain))
+		return TRUE;
+#endif
+	return (formatId == ClipboardGetFormatId(clipboard, mime_text_utf8)) ||
+	       (formatId == ClipboardGetFormatId(clipboard, mime_text_UTF8_STRING));
 }
 
 /**
@@ -215,6 +231,14 @@ static void* clipboard_synthesize_string(wClipboard* clipboard, UINT32 dstFormat
 		const size_t rc = ConvertLineEndingToLF(utf8, size);
 		utf8len = rc;
 	}
+	else if (format_is_utf8(clipboard, clipboard->formatId))
+	{
+		const size_t size = *pSize;
+		utf8 = strndup(data, size);
+		if (!utf8)
+			return nullptr;
+		utf8len = strlen(utf8);
+	}
 	else if ((clipboard->formatId == CF_TEXT) || (clipboard->formatId == CF_OEMTEXT) ||
 	         (clipboard->formatId == ClipboardGetFormatId(clipboard, mime_text_plain)))
 	{
@@ -233,15 +257,6 @@ static void* clipboard_synthesize_string(wClipboard* clipboard, UINT32 dstFormat
 			return nullptr;
 		}
 		utf8len = (size_t)res;
-	}
-	else if ((clipboard->formatId == ClipboardGetFormatId(clipboard, mime_text_utf8)) ||
-	         (clipboard->formatId == ClipboardGetFormatId(clipboard, mime_text_UTF8_STRING)))
-	{
-		const size_t size = *pSize;
-		utf8 = strndup(data, size);
-		if (!utf8)
-			return nullptr;
-		utf8len = size;
 	}
 	else
 	{
@@ -291,8 +306,7 @@ static void* clipboard_synthesize_string(wClipboard* clipboard, UINT32 dstFormat
 			return escaped;
 		}
 		default:
-			if ((dstFormatId == ClipboardGetFormatId(clipboard, mime_text_utf8)) ||
-			    (dstFormatId == ClipboardGetFormatId(clipboard, mime_text_UTF8_STRING)))
+			if (format_is_utf8(clipboard, dstFormatId))
 			{
 				if (utf8len >= UINT32_MAX)
 				{
@@ -453,6 +467,25 @@ static BOOL format_is_image(wClipboard* clipboard, UINT32 formatId)
 	}
 }
 
+WINPR_ATTR_NODISCARD
+static UINT32 image_format(WINPR_ATTR_UNUSED wClipboard* clipboard,
+                           WINPR_ATTR_UNUSED UINT32 formatId)
+{
+#if defined(WINPR_UTILS_IMAGE_PNG)
+	if (formatId == ClipboardRegisterFormat(clipboard, mime_png))
+		return WINPR_IMAGE_PNG;
+#endif
+#if defined(WINPR_UTILS_IMAGE_JPEG)
+	if (formatId == ClipboardRegisterFormat(clipboard, mime_jpeg))
+		return WINPR_IMAGE_JPEG;
+#endif
+#if defined(WINPR_UTILS_IMAGE_WEBP)
+	if (formatId == ClipboardRegisterFormat(clipboard, mime_webp))
+		return WINPR_IMAGE_WEBP;
+#endif
+	return WINPR_IMAGE_BITMAP;
+}
+
 WINPR_ATTR_MALLOC(free, 1)
 static void* clipboard_synthesize_image_dib_to_format(wClipboard* clipboard, UINT32 dstFormatId,
                                                       const void* data, UINT32* pSize)
@@ -482,20 +515,7 @@ static void* clipboard_synthesize_image_dib_to_format(wClipboard* clipboard, UIN
 		return nullptr;
 	}
 
-	UINT32 format = WINPR_IMAGE_BITMAP;
-#if defined(WINPR_UTILS_IMAGE_PNG)
-	if (dstFormatId == ClipboardRegisterFormat(clipboard, mime_png))
-		format = WINPR_IMAGE_PNG;
-#endif
-#if defined(WINPR_UTILS_IMAGE_JPEG)
-	if (dstFormatId == ClipboardRegisterFormat(clipboard, mime_jpeg))
-		format = WINPR_IMAGE_JPEG;
-#endif
-#if defined(WINPR_UTILS_IMAGE_WEBP)
-	if (dstFormatId == ClipboardRegisterFormat(clipboard, mime_webp))
-		format = WINPR_IMAGE_WEBP;
-#endif
-
+	const UINT32 format = image_format(clipboard, dstFormatId);
 	size_t dsize = 0;
 	void* result = nullptr;
 
@@ -610,6 +630,57 @@ fail:
 }
 
 /**
+ * "image/png" <-> "image/bmp" <-> "image/jpeg" ...:
+ *
+ * Image file formats WinPR can read and write, converted into each other directly.
+ */
+WINPR_ATTR_MALLOC(free, 1)
+static void* clipboard_synthesize_image_format_to_format(wClipboard* clipboard, UINT32 dstFormatId,
+                                                         const void* data, UINT32* pSize)
+{
+	WINPR_ASSERT(clipboard);
+	WINPR_ASSERT(data);
+	WINPR_ASSERT(pSize);
+
+	if (!format_is_image(clipboard, clipboard->formatId) ||
+	    !format_is_image(clipboard, dstFormatId))
+	{
+		WLog_ERR(TAG, "Unsupported conversion from %s [0x%04" PRIx32 "] to %s [0x%04" PRIx32 "]",
+		         ClipboardGetFormatName(clipboard, clipboard->formatId), clipboard->formatId,
+		         ClipboardGetFormatName(clipboard, dstFormatId), dstFormatId);
+		return nullptr;
+	}
+
+	void* result = nullptr;
+	size_t size = 0;
+	const UINT32 SrcSize = *pSize;
+	*pSize = 0;
+
+	wImage* image = winpr_image_new();
+	if (!image)
+		goto fail;
+
+	if (winpr_image_read_buffer(image, data, SrcSize) <= 0)
+		goto fail;
+
+	result = winpr_image_write_buffer(image, image_format(clipboard, dstFormatId), &size);
+	if (result)
+	{
+		if (size <= UINT32_MAX)
+			*pSize = (UINT32)size;
+		else
+		{
+			free(result);
+			result = nullptr;
+		}
+	}
+
+fail:
+	winpr_image_free(image, TRUE);
+	return result;
+}
+
+/**
  * "HTML Format":
  *
  * HTML clipboard format: msdn.microsoft.com/en-us/library/windows/desktop/ms649015/
@@ -650,7 +721,7 @@ static void* clipboard_synthesize_ms_html_format(wClipboard* clipboard, UINT32 f
 	WINPR_ASSERT(clipboard);
 	WINPR_ASSERT(pSize);
 
-	if (formatId == ClipboardGetFormatId(clipboard, mime_html))
+	if (formatId == ClipboardGetFormatId(clipboard, mime_ms_html))
 	{
 		const size_t SrcSize = (size_t)*pSize;
 		const size_t DstSize = SrcSize + 200;
@@ -978,7 +1049,7 @@ static void* clipboard_synthesize_html_format(wClipboard* clipboard, UINT32 form
 
 	char* pDstData = nullptr;
 
-	if (formatId == ClipboardGetFormatId(clipboard, mime_ms_html))
+	if (formatId == ClipboardGetFormatId(clipboard, mime_html))
 	{
 		const char* str = (const char*)data;
 		const size_t SrcSize = *pSize;
@@ -1101,6 +1172,26 @@ BOOL ClipboardInitSynthesizers(wClipboard* clipboard)
 		                                    clipboard_synthesize_image_format_to_cf_dib))
 			return FALSE;
 #endif
+	}
+
+	for (size_t x = 0; x < ARRAYSIZE(mime_images); x++)
+	{
+		const char* mime = mime_images[x];
+		if (strcmp(mime, mime_tiff) == 0) /* WinPR can not read or write TIFF */
+			continue;
+		const UINT32 formatId = ClipboardRegisterFormat(clipboard, mime);
+		for (size_t y = 0; y < ARRAYSIZE(mime_images); y++)
+		{
+			const char* altMime = mime_images[y];
+			if ((x == y) || (strcmp(altMime, mime_tiff) == 0))
+				continue;
+			const UINT32 altFormatId = ClipboardRegisterFormat(clipboard, altMime);
+			if ((formatId == 0) || (altFormatId == 0))
+				continue;
+			if (!ClipboardRegisterSynthesizerEx(clipboard, formatId, altFormatId,
+			                                    clipboard_synthesize_image_format_to_format))
+				return FALSE;
+		}
 	}
 
 	/**

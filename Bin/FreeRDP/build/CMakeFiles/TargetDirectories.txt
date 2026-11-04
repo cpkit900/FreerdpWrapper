@@ -29,8 +29,6 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/environment/CMak
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/environment/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/crypto/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/crypto/CMakeFiles/INSTALL.dir
-C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/registry/CMakeFiles/PACKAGE.dir
-C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/registry/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/path/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/path/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/io/CMakeFiles/PACKAGE.dir
@@ -57,6 +55,8 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/handle/CMakeFile
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/handle/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/thread/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/thread/CMakeFiles/INSTALL.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/registry/CMakeFiles/PACKAGE.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/registry/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/winsock/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/winsock/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/sspi/CMakeFiles/PACKAGE.dir
@@ -75,6 +75,8 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/dsparse/CMakeFil
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/dsparse/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/smartcard/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/smartcard/CMakeFiles/INSTALL.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/ndr/CMakeFiles/PACKAGE.dir
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/ndr/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/nt/CMakeFiles/PACKAGE.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/nt/CMakeFiles/INSTALL.dir
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/winpr/libwinpr/clipboard/CMakeFiles/PACKAGE.dir

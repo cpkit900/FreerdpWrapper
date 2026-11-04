@@ -1,18 +1,5 @@
 include(CMakeFindDependencyMacro)
 
-if(NOT "ON")
-	if(NOT "OFF")
-	    if("" AND NOT "OFF")
-	        find_dependency(JSONC)
-	    elseif("")
-	        find_dependency(cJSON)
-	    endif()
-	endif()
-
-	if("OFF")
-		find_dependency(uriparser)
-	endif()
-endif()
 
 
 ####### Expanded from @PACKAGE_INIT@ by configure_package_config_file() #######
@@ -41,8 +28,8 @@ endmacro()
 ####################################################################################
 
 set(WinPR_VERSION_MAJOR "3")
-set(WinPR_VERSION_MINOR "32")
-set(WinPR_VERSION_REVISION "2")
+set(WinPR_VERSION_MINOR "33")
+set(WinPR_VERSION_REVISION "0")
 set(WITH_WINPR_JSON "ON")
 
 set_and_check(WinPR_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/winpr3")

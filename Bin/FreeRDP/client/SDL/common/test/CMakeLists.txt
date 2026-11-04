@@ -4,6 +4,9 @@ set(MODULE_PREFIX "TEST_SDL")
 set(${MODULE_PREFIX}_DRIVER ${MODULE_NAME}.cpp)
 
 set(${MODULE_PREFIX}_TESTS TestSDLPrefs.cpp TestSDLAadHelper.cpp)
+if(WITH_CLIENT_SDL3)
+  list(APPEND ${MODULE_PREFIX}_TESTS TestSDLRailWindowStyle.cpp)
+endif()
 
 disable_warnings_for_directory(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -33,7 +36,7 @@ add_compile_definitions(TEST_BIN_AREA="${TEST_BIN_AREA}")
 
 foreach(test ${${MODULE_PREFIX}_TESTS})
   get_filename_component(TestName ${test} NAME_WE)
-  add_test(${TestName} ${TESTING_OUTPUT_DIRECTORY}/${MODULE_NAME} ${TestName})
+  add_test(NAME ${TestName} COMMAND ${MODULE_NAME} ${TestName})
 endforeach()
 
 set_property(TARGET ${MODULE_NAME} PROPERTY FOLDER "FreeRDP/Client/Test")

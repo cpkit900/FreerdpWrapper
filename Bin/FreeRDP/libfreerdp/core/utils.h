@@ -78,6 +78,7 @@ WINPR_ATTR_NODISCARD FREERDP_LOCAL char* utils_redir_flags_to_string(UINT32 flag
 
 WINPR_ATTR_NODISCARD FREERDP_LOCAL BOOL utils_reload_channels(rdpContext* context);
 
+#if !defined(WITHOUT_FREERDP_3x_DEPRECATED)
 /** @brief generate a registry key string of format 'someting\\%s\\foo'
  *
  *  @param fmt A format string that must contain a single '%s' being replaced by the
@@ -89,6 +90,7 @@ WINPR_ATTR_NODISCARD FREERDP_LOCAL BOOL utils_reload_channels(rdpContext* contex
 WINPR_ATTR_MALLOC(free, 1)
 FREERDP_LOCAL
 char* freerdp_getApplicatonDetailsRegKey(WINPR_FORMAT_ARG const char* fmt);
+#endif
 
 /** @brief generate a 'vendor/product' string with desired separator
  *
@@ -116,6 +118,15 @@ FREERDP_LOCAL const char* guid2str(const GUID* guid, char* buffer, size_t len);
 
 WINPR_ATTR_NODISCARD
 FREERDP_LOCAL BOOL utils_is_valid_ip(const char* ipAddress);
+
+WINPR_ATTR_NODISCARD
+FREERDP_LOCAL BOOL utils_is_valid_ipV6(const char* ipAddress);
+
+WINPR_ATTR_NODISCARD
+FREERDP_LOCAL BOOL utils_is_valid_ipN(const char* ipAddress, size_t len);
+
+WINPR_ATTR_NODISCARD
+FREERDP_LOCAL BOOL utils_is_valid_ipV6N(const char* ipAddress, size_t len);
 
 WINPR_ATTR_NODISCARD
 FREERDP_LOCAL BOOL utils_compare_ip_strings(const char* ipAddressA, size_t lenA,

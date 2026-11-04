@@ -701,7 +701,9 @@ static UINT urb_select_interface(IUDEVICE* pdev, GENERIC_CHANNEL_CALLBACK* callb
 		return ERROR_INVALID_DATA;
 
 	const UINT32 InterfaceId = ((STREAM_ID_PROXY << 30) | pdev->get_ReqCompletion(pdev));
-	const UINT32 ConfigurationHandle = Stream_Get_UINT32(s);
+	// Currently unused, so just skip the data
+	// const UINT32 ConfigurationHandle = Stream_Get_UINT32(s);
+	Stream_Seek_UINT32(s);
 	MSUSB_INTERFACE_DESCRIPTOR* MsInterface = msusb_msinterface_read(s);
 
 	if (!Stream_CheckAndLogRequiredLength(TAG, s, 4) || !MsInterface)
@@ -905,13 +907,19 @@ static UINT urb_bulk_or_interrupt_transfer(IUDEVICE* pdev, GENERIC_CHANNEL_CALLB
 	return (uint32_t)rc;
 }
 
-static void urb_isoch_transfer_cb(WINPR_ATTR_UNUSED IUDEVICE* pdev,
-                                  GENERIC_CHANNEL_CALLBACK* callback, wStream* out,
+static void urb_isoch_transfer_cb(IUDEVICE* pdev, GENERIC_CHANNEL_CALLBACK* callback, wStream* out,
                                   UINT32 InterfaceId, BOOL noAck, UINT32 MessageId,
                                   UINT32 RequestId, UINT32 NumberOfPackets, UINT32 status,
                                   UINT32 StartFrame, UINT32 ErrorCount, UINT32 OutputBufferSize,
                                   int transferDir)
 {
+	/* The channel (and with it the callback) is gone, nobody to report to. */
+	if (pdev->isChannelClosed(pdev))
+	{
+		Stream_Free(out, TRUE);
+		return;
+	}
+
 	if (!noAck)
 	{
 		UINT32 packetSize = (status == 0) ? NumberOfPackets * 12 : 0;
@@ -2049,6 +2057,18 @@ UINT urbdrc_process_udev_data_transfer(GENERIC_CHANNEL_CALLBACK* callback, URBDR
 
 	/* Device has been removed, ignore this request. */
 	if (pdev->isChannelClosed(pdev))
+	{
+		error = ERROR_SUCCESS;
+		goto fail;
+	}
+
+	/* Whatever channel the request arrived on, answer on the channel the device is bound to: a
+	 * pending transfer keeps the callback of that channel and closing it drains the device before
+	 * the callback is freed. Any other channel may go away while the transfer is still pending. */
+	callback = pdev->get_channelCallback(pdev);
+
+	/* Device has not been announced yet, ignore this request. */
+	if (callback == nullptr)
 	{
 		error = ERROR_SUCCESS;
 		goto fail;

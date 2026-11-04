@@ -20,7 +20,7 @@
 #pragma once
 
 static const char SDL_CLIENT_NAME[] = "sdl3-freerdp";
-static const char SDL_CLIENT_VERSION[] = "3.32.2 (3.32.2)";
+static const char SDL_CLIENT_VERSION[] = "3.33.0 (3.33.0)";
 static const char SDL_CLIENT_VENDOR[] = "FreeRDP";
 static const char SDL_CLIENT_UUID[] = "com.freerdp.client.sdl3";
 static const char SDL_CLIENT_COPYRIGHT[] = "FreeRDP project";

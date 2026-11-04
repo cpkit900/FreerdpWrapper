@@ -113,11 +113,8 @@ typedef struct
 {
 	TRANSFER_ENCODING httpTransferEncoding;
 	BOOL isWebsocketTransport;
-	union context
-	{
-		http_encoding_chunked_context chunked;
-		websocket_context* websocket;
-	} context;
+	http_encoding_chunked_context chunked;
+	websocket_context* websocket;
 } rdg_http_encoding_context;
 
 struct rdp_rdg
@@ -141,6 +138,11 @@ struct rdp_rdg
 
 	SmartcardCertInfo* smartcard;
 	wLog* log;
+
+	/* The header of the next packet, as much of it as has arrived: a read that would block returns
+	 * without losing it, and the next read goes on from there (rdg_read_data_packet). */
+	BYTE nextHeader[8];
+	size_t nextHeaderLengthRead;
 };
 
 enum
@@ -366,8 +368,8 @@ WINPR_ATTR_NODISCARD
 static BOOL rdg_write_packet(rdpRdg* rdg, wStream* sPacket)
 {
 	if (rdg->transferEncoding.isWebsocketTransport)
-		return websocket_context_write_wstream(rdg->transferEncoding.context.websocket,
-		                                       rdg->tlsOut->bio, sPacket, WebsocketBinaryOpcode);
+		return websocket_context_write_wstream(rdg->transferEncoding.websocket, rdg->tlsOut->bio,
+		                                       sPacket, WebsocketBinaryOpcode);
 
 	return rdg_write_chunked(rdg->tlsIn->bio, sPacket);
 }
@@ -381,7 +383,7 @@ static int rdg_socket_read(BIO* bio, rdpContext* context, BYTE* pBuffer, size_t 
 		return -1;
 
 	if (encodingContext->isWebsocketTransport)
-		return websocket_context_read(encodingContext->context.websocket, bio, pBuffer, size);
+		return websocket_context_read(encodingContext->websocket, bio, pBuffer, size);
 
 	switch (encodingContext->httpTransferEncoding)
 	{
@@ -389,9 +391,10 @@ static int rdg_socket_read(BIO* bio, rdpContext* context, BYTE* pBuffer, size_t 
 			ERR_clear_error();
 			return BIO_read(bio, pBuffer, (int)size);
 		case TransferEncodingChunked:
-			return http_chuncked_read(bio, context, pBuffer, size,
-			                          &encodingContext->context.chunked);
+			return http_chuncked_read(bio, context, pBuffer, size, &encodingContext->chunked);
 		default:
+			WLog_ERR(TAG, "Unknown HTTP transfer encoding %u, aborting",
+			         encodingContext->httpTransferEncoding);
 			return -1;
 	}
 }
@@ -425,7 +428,7 @@ static BOOL rdg_read_all(rdpContext* context, rdpTls* tls, wStream* s, size_t si
 			if (!BIO_should_retry(tls->bio))
 				return FALSE;
 
-			Sleep(10);
+			BIO_wait_read(tls->bio, 50);
 			continue;
 		}
 
@@ -1627,7 +1630,7 @@ static BOOL rdg_establish_data_connection(rdpRdg* rdg, rdpTls* tls, const char* 
 			}
 
 			rdg->transferEncoding.isWebsocketTransport = TRUE;
-			if (!websocket_context_reset(rdg->transferEncoding.context.websocket))
+			if (!websocket_context_reset(rdg->transferEncoding.websocket))
 				return FALSE;
 
 			if (rdg->extAuth == HTTP_EXTENDED_AUTH_SSPI_NTLM)
@@ -1649,9 +1652,9 @@ static BOOL rdg_establish_data_connection(rdpRdg* rdg, rdpTls* tls, const char* 
 		if (encoding == TransferEncodingChunked)
 		{
 			rdg->transferEncoding.httpTransferEncoding = TransferEncodingChunked;
-			rdg->transferEncoding.context.chunked.nextOffset = 0;
-			rdg->transferEncoding.context.chunked.headerFooterPos = 0;
-			rdg->transferEncoding.context.chunked.state = ChunkStateLenghHeader;
+			rdg->transferEncoding.chunked.nextOffset = 0;
+			rdg->transferEncoding.chunked.headerFooterPos = 0;
+			rdg->transferEncoding.chunked.state = ChunkStateLenghHeader;
 		}
 		if (!rdg_skip_seed_payload(rdg->context, tls, bodyLength, &rdg->transferEncoding))
 		{
@@ -2046,28 +2049,36 @@ static int rdg_read_data_packet(rdpRdg* rdg, BYTE* buffer, size_t size)
 		// NOLINTNEXTLINE(bugprone-sizeof-expression)
 		WINPR_ASSERT(sizeof(RdgPacketHeader) < INT_MAX);
 
-		while (readCount < sizeof(RdgPacketHeader))
+		while (rdg->nextHeaderLengthRead < sizeof(RdgPacketHeader))
 		{
 			if (rdg_shall_abort(rdg))
 				return -1;
 
-			status = rdg_socket_read(rdg->tlsOut->bio, rdg->context, (BYTE*)(&header) + readCount,
-			                         sizeof(RdgPacketHeader) - readCount, &rdg->transferEncoding);
+			status = rdg_socket_read(
+			    rdg->tlsOut->bio, rdg->context, &rdg->nextHeader[rdg->nextHeaderLengthRead],
+			    sizeof(RdgPacketHeader) - rdg->nextHeaderLengthRead, &rdg->transferEncoding);
 
 			if (status <= 0)
 			{
-				if (!BIO_should_retry(rdg->tlsOut->bio))
-					return -1;
-
-				BIO_wait_read(rdg->tlsOut->bio, 50);
-				continue;
+				/* bio_rdp_tls_read always returns -1 if no read succeeded.
+				 * but if a retry reason was given pass that on as no data read to the upper layers.
+				 */
+				if (status < 0)
+				{
+					if (BIO_should_retry(rdg->tlsOut->bio))
+						return 0;
+				}
+				return status;
 			}
 
-			readCount += (size_t)status;
-
-			if (readCount > INT_MAX)
+			if ((size_t)status > sizeof(RdgPacketHeader) - rdg->nextHeaderLengthRead)
 				return -1;
+			rdg->nextHeaderLengthRead += (size_t)status;
 		}
+
+		WINPR_STATIC_ASSERT(sizeof(RdgPacketHeader) == sizeof(rdg->nextHeader));
+		if (rdg->nextHeaderLengthRead == sizeof(RdgPacketHeader))
+			memcpy(&header, rdg->nextHeader, sizeof(header));
 
 		if (header.type != PKT_TYPE_DATA)
 		{
@@ -2076,6 +2087,7 @@ static int rdg_read_data_packet(rdpRdg* rdg, BYTE* buffer, size_t size)
 			if (!status)
 				return -1;
 
+			rdg->nextHeaderLengthRead = 0;
 			return 0;
 		}
 
@@ -2100,6 +2112,8 @@ static int rdg_read_data_packet(rdpRdg* rdg, BYTE* buffer, size_t size)
 
 			readCount += (size_t)status;
 		}
+
+		rdg->nextHeaderLengthRead = 0;
 	}
 
 	readSize = (rdg->packetRemainingCount < size) ? rdg->packetRemainingCount : size;
@@ -2411,8 +2425,8 @@ rdpRdg* rdg_new(rdpContext* context)
 	rdg->transferEncoding.httpTransferEncoding = TransferEncodingIdentity;
 	rdg->transferEncoding.isWebsocketTransport = FALSE;
 
-	rdg->transferEncoding.context.websocket = websocket_context_new();
-	if (!rdg->transferEncoding.context.websocket)
+	rdg->transferEncoding.websocket = websocket_context_new();
+	if (!rdg->transferEncoding.websocket)
 		goto rdg_alloc_error;
 
 	return rdg;
@@ -2441,7 +2455,7 @@ void rdg_free(rdpRdg* rdg)
 
 	smartcardCertInfo_Free(rdg->smartcard);
 
-	websocket_context_free(rdg->transferEncoding.context.websocket);
+	websocket_context_free(rdg->transferEncoding.websocket);
 
 	free(rdg);
 }

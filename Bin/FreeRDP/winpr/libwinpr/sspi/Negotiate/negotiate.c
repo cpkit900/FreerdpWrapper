@@ -25,9 +25,13 @@
 #include <winpr/assert.h>
 #include <winpr/sspi.h>
 #include <winpr/tchar.h>
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 #include <winpr/registry.h>
+#endif
 #include <winpr/build-config.h>
 #include <winpr/asn1.h>
+#include <winpr/path.h>
+#include <winpr/config-readers.h>
 
 #include "negotiate.h"
 
@@ -39,7 +43,9 @@
 #include "../../log.h"
 #define TAG WINPR_TAG("negotiate")
 
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 #define NEGO_REG_KEY "Software\\%s\\SSPI\\Negotiate"
+#endif
 
 static const char PACKAGE_NAME_DISABLE_ALL[] = "none";
 static const char PACKAGE_NAME_NTLM[] = "ntlm";
@@ -239,6 +245,7 @@ static PSecHandle negotiate_FindCredential(MechCred* creds, const Mech* mech)
 	return nullptr;
 }
 
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 static BOOL negotiate_get_dword(HKEY hKey, const char* subkey, DWORD* pdwValue)
 {
 	DWORD dwValue = 0;
@@ -254,6 +261,7 @@ static BOOL negotiate_get_dword(HKEY hKey, const char* subkey, DWORD* pdwValue)
 	*pdwValue = dwValue;
 	return TRUE;
 }
+#endif
 
 static BOOL negotiate_get_config_from_auth_package_list(void* pAuthData, BOOL* kerberos, BOOL* ntlm,
                                                         BOOL* u2u)
@@ -318,8 +326,6 @@ fail:
 
 static BOOL negotiate_get_config(void* pAuthData, BOOL* kerberos, BOOL* ntlm, BOOL* u2u)
 {
-	HKEY hKey = nullptr;
-
 	WINPR_ASSERT(kerberos);
 	WINPR_ASSERT(ntlm);
 	WINPR_ASSERT(u2u);
@@ -342,15 +348,22 @@ static BOOL negotiate_get_config(void* pAuthData, BOOL* kerberos, BOOL* ntlm, BO
 		return TRUE; // use explicit authentication package list
 	}
 
+	const char config[] = "negotiate.json";
+
+#if !defined(WITHOUT_WINPR_3x_DEPRECATED)
 	{
 		char* key = winpr_getApplicatonDetailsRegKey(NEGO_REG_KEY);
 		if (key)
 		{
+			HKEY hKey = nullptr;
 			const LONG rc =
 			    RegOpenKeyExA(HKEY_LOCAL_MACHINE, key, 0, KEY_READ | KEY_WOW64_64KEY, &hKey);
 			free(key);
 			if (rc == ERROR_SUCCESS)
 			{
+				WLog_WARN(TAG, "HKLM.reg is deprecated since 3.33.0. ATTENTION: Use %s instead!",
+				          config);
+
 				DWORD dwValue = 0;
 
 				if (negotiate_get_dword(hKey, PACKAGE_NAME_KERBEROS, &dwValue))
@@ -360,13 +373,25 @@ static BOOL negotiate_get_config(void* pAuthData, BOOL* kerberos, BOOL* ntlm, BO
 					*u2u = (dwValue != 0);
 
 #if !defined(WITH_KRB5_NO_NTLM_FALLBACK)
-		if (negotiate_get_dword(hKey, PACKAGE_NAME_NTLM, &dwValue))
-			*ntlm = (dwValue != 0);
+				if (negotiate_get_dword(hKey, PACKAGE_NAME_NTLM, &dwValue))
+					*ntlm = (dwValue != 0);
 #endif
 
-		RegCloseKey(hKey);
+				RegCloseKey(hKey);
 			}
 		}
+	}
+#endif
+
+	WINPR_JSON* json = winpr_GetJSONConfigFile(TRUE, config);
+	if (json)
+	{
+		winpr_config_apply_bool(config, json, PACKAGE_NAME_KERBEROS, kerberos);
+		winpr_config_apply_bool(config, json, PACKAGE_NAME_KERBEROS_U2U, u2u);
+#if !defined(WITH_KRB5_NO_NTLM_FALLBACK)
+		winpr_config_apply_bool(config, json, PACKAGE_NAME_NTLM, ntlm);
+#endif
+		WINPR_JSON_Delete(json);
 	}
 
 	return TRUE;

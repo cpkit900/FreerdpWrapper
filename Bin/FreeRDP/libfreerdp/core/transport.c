@@ -1340,6 +1340,34 @@ static BOOL transport_default_get_public_key(rdpTransport* transport, const BYTE
 	return TRUE;
 }
 
+BOOL transport_get_peer_address(rdpTransport* transport, struct sockaddr_storage* address,
+                                size_t* length)
+{
+	WINPR_ASSERT(transport);
+	WINPR_ASSERT(address);
+	WINPR_ASSERT(length);
+
+	if (transport->GatewayEnabled)
+		return FALSE;
+
+	int sockfd = -1;
+	if (transport->frontBio)
+		(void)BIO_get_fd(transport->frontBio, &sockfd);
+	if ((sockfd < 0) && transport->tls && transport->tls->underlying)
+		(void)BIO_get_fd(transport->tls->underlying, &sockfd);
+	if (sockfd < 0)
+	{
+		WLog_Print(transport->log, WLOG_DEBUG, "no socket found for the peer address");
+		return FALSE;
+	}
+
+	socklen_t len = sizeof(*address);
+	if (getpeername(sockfd, (struct sockaddr*)address, &len) != 0)
+		return FALSE;
+	*length = len;
+	return TRUE;
+}
+
 DWORD transport_get_event_handles(rdpTransport* transport, HANDLE* events, DWORD count)
 {
 	DWORD nCount = 0; /* always the reread Event */
@@ -1464,7 +1492,11 @@ int transport_drain_output_buffer(rdpTransport* transport)
 	WINPR_ASSERT(transport->frontBio);
 	if (BIO_write_blocked(transport->frontBio))
 	{
-		if (BIO_flush(transport->frontBio) < 1)
+		/* flushing writes to the output BIO, serialize it with transport_write */
+		EnterCriticalSection(&(transport->WriteLock));
+		const int flushed = BIO_flush(transport->frontBio);
+		LeaveCriticalSection(&(transport->WriteLock));
+		if (flushed < 1)
 			return -1;
 
 		const long rc = BIO_write_blocked(transport->frontBio);
@@ -2169,8 +2201,20 @@ static long transport_layer_bio_ctrl(BIO* bio, int cmd, long arg1, void* arg2)
 			status = 1;
 			break;
 
-		default:
+		case BIO_CTRL_PUSH:
+		case BIO_CTRL_POP:
 			status = 0;
+			break;
+
+		case BIO_C_GET_FD:
+		case BIO_C_SET_FD:
+			status = -1;
+			break;
+
+		default:
+			WLog_ERR(TAG, "Unsupported BIO_CTRL %d", cmd);
+			winpr_log_backtrace(TAG, WLOG_ERROR, 20);
+			status = -1;
 			break;
 	}
 

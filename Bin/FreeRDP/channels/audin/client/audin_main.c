@@ -181,6 +181,23 @@ static UINT audin_send_incoming_data_pdu(AUDIN_CHANNEL_CALLBACK* callback)
 	return callback->channel->Write(callback->channel, 1, out_data, nullptr);
 }
 
+static UINT audin_close_device(AUDIN_PLUGIN* audin)
+{
+	WINPR_ASSERT(audin);
+	if (audin->device)
+	{
+		UINT error = CHANNEL_RC_OK;
+		IFCALLRET(audin->device->Close, error, audin->device);
+
+		if (error != CHANNEL_RC_OK)
+		{
+			WLog_ERR(TAG, "Close failed with errorcode %" PRIu32 "", error);
+			return error;
+		}
+	}
+	return CHANNEL_RC_OK;
+}
+
 /**
  * Function description
  *
@@ -208,6 +225,10 @@ static UINT audin_process_formats(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* c
 	}
 
 	Stream_Seek_UINT32(s); /* cbSizeFormatsPacket */
+
+	const UINT error2 = audin_close_device(audin);
+	if (error2 != CHANNEL_RC_OK)
+		return error2;
 
 	audin->format = nullptr;
 	audio_formats_free(callback->formats, callback->formats_count);
@@ -350,25 +371,10 @@ static UINT audin_send_open_reply_pdu(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBAC
  *
  * @return 0 on success, otherwise a Win32 error code
  */
-static UINT audin_receive_wave_data(const AUDIO_FORMAT* format, const BYTE* data, size_t size,
-                                    void* user_data)
+static UINT audin_send_wave_data(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* callback,
+                                 const AUDIO_FORMAT* format, const BYTE* data, size_t size,
+                                 BOOL encode)
 {
-	WINPR_ASSERT(format);
-
-	UINT error = ERROR_INTERNAL_ERROR;
-	AUDIN_CHANNEL_CALLBACK* callback = (AUDIN_CHANNEL_CALLBACK*)user_data;
-
-	if (!callback)
-		return CHANNEL_RC_BAD_CHANNEL_HANDLE;
-
-	AUDIN_PLUGIN* audin = (AUDIN_PLUGIN*)callback->plugin;
-
-	if (!audin)
-		return CHANNEL_RC_BAD_CHANNEL_HANDLE;
-
-	if (!audin->attached)
-		return CHANNEL_RC_OK;
-
 	Stream_ResetPosition(audin->data);
 
 	if (!Stream_EnsureRemainingCapacity(audin->data, 1))
@@ -376,8 +382,7 @@ static UINT audin_receive_wave_data(const AUDIO_FORMAT* format, const BYTE* data
 
 	Stream_Write_UINT8(audin->data, MSG_SNDIN_DATA);
 
-	const BOOL compatible = audio_format_compatible(format, audin->format);
-	if (compatible && audin->device->FormatSupported(audin->device, audin->format))
+	if (!encode)
 	{
 		if (!Stream_EnsureRemainingCapacity(audin->data, size))
 			return CHANNEL_RC_NO_MEMORY;
@@ -398,13 +403,59 @@ static UINT audin_receive_wave_data(const AUDIO_FORMAT* format, const BYTE* data
 	WLog_Print(audin->log, WLOG_TRACE, "[%" PRIuz "/%" PRIuz "]", size,
 	           Stream_GetPosition(audin->data) - 1);
 
-	if ((error = audin_send_incoming_data_pdu(callback)))
+	const UINT error = audin_send_incoming_data_pdu(callback);
+	if (error)
 	{
 		WLog_Print(audin->log, WLOG_ERROR, "audin_send_incoming_data_pdu failed!");
 		return error;
 	}
 
 	return audin_channel_write_and_free(callback, audin->data, FALSE);
+}
+
+static UINT audin_receive_wave_data(const AUDIO_FORMAT* format, const BYTE* data, size_t size,
+                                    void* user_data)
+{
+	WINPR_ASSERT(format);
+
+	AUDIN_CHANNEL_CALLBACK* callback = (AUDIN_CHANNEL_CALLBACK*)user_data;
+
+	if (!callback)
+		return CHANNEL_RC_BAD_CHANNEL_HANDLE;
+
+	AUDIN_PLUGIN* audin = (AUDIN_PLUGIN*)callback->plugin;
+
+	if (!audin)
+		return CHANNEL_RC_BAD_CHANNEL_HANDLE;
+
+	if (!audin->attached)
+		return CHANNEL_RC_OK;
+
+	const BOOL compatible = audio_format_compatible(format, audin->format);
+	if (compatible && audin->device->FormatSupported(audin->device, audin->format))
+		return audin_send_wave_data(audin, callback, format, data, size, FALSE);
+
+	/* Encode at most one packet of input at a time and send each packet on its own: the
+	 * device may deliver any amount, and codecs that collect samples into packets (Opus)
+	 * would otherwise fall behind. */
+	const size_t frame_bytes = 1ull * format->nChannels * format->wBitsPerSample / 8;
+	size_t chunk = size;
+	if ((frame_bytes > 0) && (audin->FramesPerPacket > 0) && (audin->format->nSamplesPerSec > 0))
+	{
+		const size_t frames =
+		    1ull * audin->FramesPerPacket * format->nSamplesPerSec / audin->format->nSamplesPerSec;
+		if (frames > 0)
+			chunk = frames * frame_bytes;
+	}
+
+	for (size_t offset = 0; offset < size; offset += chunk)
+	{
+		const UINT error = audin_send_wave_data(audin, callback, format, &data[offset],
+		                                        MIN(chunk, size - offset), TRUE);
+		if (error)
+			return error;
+	}
+	return CHANNEL_RC_OK;
 }
 
 static BOOL audin_open_device(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* callback)
@@ -507,8 +558,15 @@ static UINT audin_process_open(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* call
 	audin->FramesPerPacket = FramesPerPacket;
 	audin->format = &callback->formats[initialFormat];
 
+	error = audin_close_device(audin);
+	if (error != CHANNEL_RC_OK)
+		return error;
+
 	if (!audin_open_device(audin, callback))
+	{
+		audin->format = nullptr;
 		return ERROR_INTERNAL_ERROR;
+	}
 
 	if ((error = audin_send_format_change_pdu(audin, callback, initialFormat)))
 	{
@@ -527,6 +585,27 @@ static UINT audin_process_open(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* call
  *
  * @return 0 on success, otherwise a Win32 error code
  */
+/* Two formats of the same stream: same codec, channels, sample rate, sample size, block alignment
+ * and codec data. Only the bit rate (nAvgBytesPerSec) may differ. */
+static BOOL audin_same_stream(const AUDIO_FORMAT* a, const AUDIO_FORMAT* b)
+{
+	if (!a || !b)
+		return FALSE;
+
+	if ((a->wFormatTag != b->wFormatTag) || (a->nChannels != b->nChannels) ||
+	    (a->nSamplesPerSec != b->nSamplesPerSec) || (a->nBlockAlign != b->nBlockAlign) ||
+	    (a->wBitsPerSample != b->wBitsPerSample) || (a->cbSize != b->cbSize))
+		return FALSE;
+
+	if (a->cbSize == 0)
+		return TRUE;
+
+	if (!a->data || !b->data)
+		return FALSE;
+
+	return memcmp(a->data, b->data, a->cbSize) == 0;
+}
+
 static UINT audin_process_format_change(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLBACK* callback,
                                         wStream* s)
 {
@@ -546,21 +625,30 @@ static UINT audin_process_format_change(AUDIN_PLUGIN* audin, AUDIN_CHANNEL_CALLB
 		return ERROR_INVALID_DATA;
 	}
 
+	const AUDIO_FORMAT* previous = audin->format;
 	audin->format = &callback->formats[NewFormat];
 
-	if (audin->device)
+	/* The server follows the line by changing the bit rate of the same codec (Windows offers eight
+	 * AAC formats that differ only there), several times a second on a busy session. Closing and
+	 * opening the device and resetting the encoder for each change dropped the audio queued in
+	 * both, and the microphone came through with gaps: within the same stream the capture and the
+	 * encoder go on. */
+	if (audin->device && audin_same_stream(previous, audin->format))
 	{
-		IFCALLRET(audin->device->Close, error, audin->device);
-
+		WLog_Print(audin->log, WLOG_DEBUG, "only the bit rate changed, the capture goes on");
+	}
+	else
+	{
+		error = audin_close_device(audin);
 		if (error != CHANNEL_RC_OK)
-		{
-			WLog_ERR(TAG, "Close failed with errorcode %" PRIu32 "", error);
 			return error;
+
+		if (!audin_open_device(audin, callback))
+		{
+			audin->format = nullptr;
+			return ERROR_INTERNAL_ERROR;
 		}
 	}
-
-	if (!audin_open_device(audin, callback))
-		return ERROR_INTERNAL_ERROR;
 
 	if ((error = audin_send_format_change_pdu(audin, callback, NewFormat)))
 		WLog_ERR(TAG, "audin_send_format_change_pdu failed!");
@@ -636,13 +724,7 @@ static UINT audin_on_close(IWTSVirtualChannelCallback* pChannelCallback)
 	UINT error = CHANNEL_RC_OK;
 	WLog_Print(audin->log, WLOG_TRACE, "...");
 
-	if (audin->device)
-	{
-		IFCALLRET(audin->device->Close, error, audin->device);
-
-		if (error != CHANNEL_RC_OK)
-			WLog_Print(audin->log, WLOG_ERROR, "Close failed with errorcode %" PRIu32 "", error);
-	}
+	(void)audin_close_device(audin);
 
 	audin->format = nullptr;
 	audio_formats_free(callback->formats, callback->formats_count);
@@ -1036,6 +1118,9 @@ FREERDP_ENTRY_POINT(UINT VCAPITYPE audin_DVCPluginEntry(IDRDYNVC_ENTRY_POINTS* p
 #endif
 #if defined(WITH_SNDIO)
 		{ "sndio", "default" },
+#endif
+#if defined(__EMSCRIPTEN__)
+		{ "emscripten", "" },
 #endif
 		{ nullptr, nullptr }
 	};

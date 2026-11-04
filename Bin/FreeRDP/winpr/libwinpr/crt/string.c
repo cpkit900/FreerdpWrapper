@@ -995,7 +995,7 @@ WCHAR* winpr_wcsnchr(const WCHAR* str, size_t charLen, WCHAR c)
 
 	while (p != end)
 	{
-		const WCHAR wc = winpr_Data_Get_UINT16(p);
+		const WCHAR wc = *p;
 		if (wc == c)
 		{
 			union
@@ -1028,10 +1028,146 @@ WCHAR* winpr_wcsnrchr(const WCHAR* str, size_t charLen, WCHAR c)
 	cnv.cw = nullptr;
 	while (p != end)
 	{
-		const WCHAR wc = winpr_Data_Get_UINT16(p);
+		const WCHAR wc = *p;
 		if (wc == c)
 			cnv.cw = p;
 		p++;
 	}
 	return cnv.w;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL validHostChar(char c)
+{
+	if ((c >= 'a') && (c <= 'z'))
+		return TRUE;
+	if ((c >= 'A') && (c <= 'Z'))
+		return TRUE;
+	if ((c >= '0') && (c <= '9'))
+		return TRUE;
+
+	switch (c)
+	{
+		case '-':
+		case '.':
+			return TRUE;
+		default:
+			return FALSE;
+	}
+}
+
+BOOL winpr_str_is_valid_hostname(const char* str)
+{
+	if (!str)
+		return FALSE;
+	/* do a limited strnlen with DNS max length + 1, so we can abort early.
+	 */
+	const size_t len = strnlen(str, 256);
+	return winpr_str_is_valid_hostnameN(str, len);
+}
+
+BOOL winpr_str_is_valid_hostnameN(const char* str, size_t len)
+{
+	if (!str || (len == 0))
+	{
+		WLog_VRB(TAG, "hostname %s [%" PRIuz "] is too short", str, len);
+		return FALSE;
+	}
+
+	if (len > 255)
+	{
+		WLog_VRB(TAG, "hostname %s [%" PRIuz "] is too long", str, len);
+		return FALSE;
+	}
+
+	// may not start or end with dot
+	if (str[0] == '.')
+	{
+		WLog_VRB(TAG, "hostname %s [%" PRIuz "] starts with a dot", str, len);
+		return FALSE;
+	}
+	if (str[len - 1] == '.')
+	{
+		WLog_VRB(TAG, "hostname %s [%" PRIuz "] starts ends a dot", str, len);
+		return FALSE;
+	}
+
+	size_t segmentCount = 1;
+	size_t segment = 0;
+	for (size_t x = 0; x < len; x++)
+	{
+		char c = str[x];
+		if (!validHostChar(c))
+		{
+			WLog_VRB(TAG, "hostname %s [%" PRIuz "] invalid character %c at %" PRIuz, str, len, c,
+			         x);
+			return FALSE;
+		}
+
+		if (c == '.')
+		{
+			segmentCount++;
+			segment = 0;
+
+			// may not start with dot
+			if (x == 0)
+			{
+				WLog_VRB(TAG, "hostname %s [%" PRIuz "] segment starts with a dot", str, len);
+				return FALSE;
+			}
+			// filter dotdot
+			else if (str[x - 1] == c)
+			{
+				WLog_VRB(TAG, "hostname %s [%" PRIuz "] segment contains dotdot", str, len);
+				return FALSE;
+			}
+			// segments may not end with a hyphen
+			else if (str[x - 1] == '-')
+			{
+				WLog_VRB(TAG, "hostname %s [%" PRIuz "] segment ends with a hyphen", str, len);
+				return FALSE;
+			}
+		}
+		else
+		{
+			segment++;
+			if (segment > 63)
+			{
+				WLog_VRB(TAG, "hostname %s [%" PRIuz "] segment longer than 63 characters", str,
+				         len);
+				return FALSE;
+			}
+
+			// - may not occur as first in segment
+			if (c == '-')
+			{
+				// segments may not start with a hyphen
+				if ((x == 0) || (str[x - 1] == '.'))
+				{
+					WLog_VRB(TAG, "hostname %s [%" PRIuz "] segment starts with a hyphen", str,
+					         len);
+					return FALSE;
+				}
+			}
+		}
+	}
+
+	// segments may not end with a hyphen
+	if (str[len - 1] == '-')
+	{
+		WLog_VRB(TAG, "hostname %s [%" PRIuz "] segment ends with a hyphen", str, len);
+		return FALSE;
+	}
+
+	// last segment may not contain a hyphen
+	if (segmentCount > 1)
+	{
+		if (segment < 2)
+		{
+			WLog_VRB(TAG, "hostname %s [%" PRIuz "] TLD segment too short", str, len);
+			return FALSE;
+		}
+	}
+
+	return TRUE;
 }

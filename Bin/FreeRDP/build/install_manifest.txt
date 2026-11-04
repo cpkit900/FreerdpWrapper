@@ -35,6 +35,7 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/clipboa
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/cmdline.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/collections.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/comm.h
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/config-readers.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/cred.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/crt.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/crypto.h
@@ -46,6 +47,7 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/environ
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/error.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/file.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/handle.h
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/i18n.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/image.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/ini.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/input.h
@@ -56,6 +58,7 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/json.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/library.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/memory.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/ncrypt.h
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/ndr.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/nt.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/ntlm.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/winpr3/winpr/pack.h
@@ -227,6 +230,7 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/lo
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/log.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/message.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/metrics.h
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/multitransport.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/peer.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/pointer.h
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/include/freerdp3//freerdp/primary.h

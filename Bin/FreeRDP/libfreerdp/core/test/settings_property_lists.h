@@ -174,6 +174,7 @@ static const size_t bool_list_indices[] = {
 	FreeRDP_SupportHeartbeatPdu,
 	FreeRDP_SupportMonitorLayoutPdu,
 	FreeRDP_SupportMultitransport,
+	FreeRDP_SupportMultitransportUdp,
 	FreeRDP_SupportSSHAgentChannel,
 	FreeRDP_SupportSkipChannelJoin,
 	FreeRDP_SupportStatusInfoPdu,
@@ -305,6 +306,7 @@ static const size_t uint32_list_indices[] = {
 	FreeRDP_PreconnectionId,
 	FreeRDP_ProxyType,
 	FreeRDP_RdpVersion,
+	FreeRDP_RdstlsEnabledModes,
 	FreeRDP_ReceivedCapabilitiesSize,
 	FreeRDP_RedirectedSessionId,
 	FreeRDP_RedirectionAcceptedCertLength,
@@ -367,6 +369,7 @@ static const size_t uint64_list_indices[] = {
 #define have_string_list_indices
 static const size_t string_list_indices[] = {
 	FreeRDP_AadAuthHelper,
+	FreeRDP_AadAuthUserAgent,
 	FreeRDP_AadServerHostname,
 	FreeRDP_AcceptedCert,
 	FreeRDP_ActionScript,

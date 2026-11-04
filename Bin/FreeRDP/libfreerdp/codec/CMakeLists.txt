@@ -55,6 +55,26 @@ if(WITH_GFX_AV1)
   include(WarnExperimental)
   warn_experimental("AV1 codec support for GFX channel" "-DWITH_GFX_AV1=OFF")
   list(APPEND CODEC_SRCS av1.c)
+  if(EMSCRIPTEN)
+    # in the browser, decode AV1 with WebCodecs (dav1d stays as the fallback)
+    option(WITH_AV1_WEBCODECS "Decode AV1 with the browser's WebCodecs API" ON)
+    if(WITH_AV1_WEBCODECS)
+      add_compile_definitions(WITH_AV1_WEBCODECS)
+      list(APPEND CODEC_SRCS av1_webcodecs.c av1_webcodecs.h)
+      # The JavaScript side, for the executable's link: a link item, so that it also reaches the
+      # executable through static libraries (link options of their private dependencies don't).
+      freerdp_library_add_public(
+        "--js-library=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${FREERDP_PLUGIN_PATH}>/av1_webcodecs.js"
+      )
+      # so that editing the JavaScript recompiles this file, and so relinks the executables
+      set_source_files_properties(
+        av1_webcodecs.c PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/av1_webcodecs.js
+      )
+      if(NOT BUILD_SHARED_LIBS)
+        install(FILES av1_webcodecs.js DESTINATION ${FREERDP_PLUGIN_PATH})
+      endif()
+    endif()
+  endif()
 endif()
 
 set(CODEC_SSE3_SRCS sse/rfx_sse2.c sse/rfx_sse2.h sse/nsc_sse2.c sse/nsc_sse2.h)
@@ -144,6 +164,31 @@ if(WITH_YUV AND YUV_FOUND)
   freerdp_pc_add_requires_private("yuv")
 endif()
 
+if(WITH_APPLE_VIDEOTOOLBOX)
+  list(APPEND CODEC_SRCS h264_videotoolbox.c)
+  find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox REQUIRED)
+  find_library(COREMEDIA_FRAMEWORK CoreMedia REQUIRED)
+  find_library(COREVIDEO_FRAMEWORK CoreVideo REQUIRED)
+  find_library(COREFOUNDATION_FRAMEWORK CoreFoundation REQUIRED)
+  list(APPEND CODEC_LIBS ${VIDEOTOOLBOX_FRAMEWORK} ${COREMEDIA_FRAMEWORK} ${COREVIDEO_FRAMEWORK}
+       ${COREFOUNDATION_FRAMEWORK}
+  )
+endif()
+
+if(WITH_H264_WEBCODECS)
+  list(APPEND CODEC_SRCS h264_webcodecs.c)
+  # The JavaScript side, for the executable's link: a link item, so that it also reaches the
+  # executable through static libraries (link options of their private dependencies don't).
+  freerdp_library_add_public(
+    "--js-library=$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${FREERDP_PLUGIN_PATH}>/h264_webcodecs.js"
+  )
+  # so that editing the JavaScript recompiles this file, and so relinks the executables
+  set_source_files_properties(h264_webcodecs.c PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/h264_webcodecs.js)
+  if(NOT BUILD_SHARED_LIBS)
+    install(FILES h264_webcodecs.js DESTINATION ${FREERDP_PLUGIN_PATH})
+  endif()
+endif()
+
 if(WITH_OPENH264)
   set(CODEC_SRCS ${CODEC_SRCS} h264_openh264.c)
   include_directories(SYSTEM ${OPENH264_INCLUDE_DIR})
@@ -197,6 +242,6 @@ add_library(freerdp-codecs OBJECT ${CODEC_SRCS})
 freerdp_library_add(${CODEC_LIBS})
 freerdp_object_library_add(freerdp-codecs)
 
-if(BUILD_TESTING_INTERNAL OR BUILD_TESTING)
+if(BUILD_TESTING)
   add_subdirectory(test)
 endif()

@@ -720,11 +720,11 @@ static size_t count_special_chars(const WCHAR* str, size_t charLen)
 	WINPR_ASSERT(str);
 	while ((start < end) && (*start))
 	{
-		const WCHAR sharp = '#';
-		const WCHAR questionmark = '?';
-		const WCHAR star = '*';
-		const WCHAR exclamationmark = '!';
-		const WCHAR percent = '%';
+		const WCHAR sharp = winpr_wchar_ToLE('#');
+		const WCHAR questionmark = winpr_wchar_ToLE('?');
+		const WCHAR star = winpr_wchar_ToLE('*');
+		const WCHAR exclamationmark = winpr_wchar_ToLE('!');
+		const WCHAR percent = winpr_wchar_ToLE('%');
 
 		if ((*start == sharp) || (*start == questionmark) || (*start == star) ||
 		    (*start == exclamationmark) || (*start == percent))
@@ -752,21 +752,70 @@ static const char* stop_at_special_chars(const char* str)
 	return nullptr;
 }
 
+/** @return TRUE if the descriptor is for an entry inside a copied folder (its name contains a
+ *  '\\'), FALSE for a top level file or folder */
+WINPR_ATTR_NODISCARD
+static BOOL descriptor_is_nested(wLog* log, const FILEDESCRIPTORW* dsc)
+{
+	WINPR_ASSERT(dsc);
+
+	/* only search the name: what follows its '\0' in cFileName is not guaranteed to be zeroed */
+	const size_t len = _wcsnlen(dsc->cFileName, ARRAYSIZE(dsc->cFileName));
+	const WCHAR* found = winpr_wcsnchr(dsc->cFileName, len, winpr_wchar_ToLE('\\'));
+
+	const DWORD level = WLOG_TRACE;
+	if (WLog_IsLevelActive(log, level))
+	{
+		char cFileName[260] = WINPR_C_ARRAY_INIT;
+		const int clen = sizeof(cFileName);
+		ConvertWCharNToUtf8(dsc->cFileName, ARRAYSIZE(dsc->cFileName), cFileName,
+		                    ARRAYSIZE(cFileName));
+		WLog_Print(log, level, "%.*s %s nested", clen, cFileName, found ? "is" : "is NOT");
+	}
+	return found != nullptr;
+}
+
+WINPR_ATTR_NODISCARD
+static FILETIME readft(wStream* s)
+{
+	FILETIME ft = WINPR_C_ARRAY_INIT;
+	ft.dwLowDateTime = Stream_Get_UINT32(s);
+	ft.dwHighDateTime = Stream_Get_UINT32(s);
+	return ft;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL read_descriptor(wStream* s, FILEDESCRIPTORW* dsc)
+{
+	WINPR_ASSERT(dsc);
+
+	if (!Stream_CheckAndLogRequiredLength(TAG, s, sizeof(FILEDESCRIPTORW)))
+		return FALSE;
+
+	dsc->dwFlags = Stream_Get_UINT32(s);
+	Stream_Read(s, &dsc->clsid, sizeof(dsc->clsid));
+	dsc->sizel.cx = Stream_Get_INT32(s);
+	dsc->sizel.cy = Stream_Get_INT32(s);
+	dsc->pointl.x = Stream_Get_INT32(s);
+	dsc->pointl.y = Stream_Get_INT32(s);
+	dsc->dwFileAttributes = Stream_Get_UINT32(s);
+	dsc->ftCreationTime = readft(s);
+	dsc->ftLastAccessTime = readft(s);
+	dsc->ftLastWriteTime = readft(s);
+	dsc->nFileSizeHigh = Stream_Get_UINT32(s);
+	dsc->nFileSizeLow = Stream_Get_UINT32(s);
+	Stream_Read(s, dsc->cFileName, sizeof(dsc->cFileName));
+	return TRUE;
+}
+
 /* The universal converter from filedescriptors to different file lists */
 WINPR_ATTR_MALLOC(free, 1)
-static void* convert_filedescriptors_to_file_list(wClipboard* clipboard, UINT32 formatId,
-                                                  const void* data, UINT32* pSize,
-                                                  const char* header, const char* lineprefix,
-                                                  const char* lineending, BOOL skip_last_lineending)
+static void* convert_filedescriptors_to_file_list(wClipboard* clipboard, const void* data,
+                                                  UINT32* pSize, const char* header,
+                                                  const char* lineprefix, const char* lineending,
+                                                  BOOL skip_last_lineending)
 {
-	union
-	{
-		char c[2];
-		WCHAR w;
-	} backslash;
-	backslash.c[0] = '\\';
-	backslash.c[1] = '\0';
-
+	wLog* log = WLog_Get(TAG);
 	UINT32 nrDescriptors = 0;
 	size_t baseLength = 0;
 	size_t header_len = strlen(header);
@@ -797,29 +846,35 @@ static void* convert_filedescriptors_to_file_list(wClipboard* clipboard, UINT32 
 	if ((count < 1) || (count != nrDescriptors))
 		return nullptr;
 
-	const FILEDESCRIPTORW* descriptors = Stream_ConstPointer(s);
-
-	if (formatId != ClipboardGetFormatId(clipboard, mime_FileGroupDescriptorW))
+	/* formatId is the destination format (see ClipboardRegisterSynthesizerEx), the descriptors
+	 * are the source data */
+	if (clipboard->formatId != ClipboardGetFormatId(clipboard, mime_FileGroupDescriptorW))
 		return nullptr;
 
 	/* Plus 1 for '/' between basepath and filename*/
 	const size_t decoration_len = lineprefix_len + lineending_len + baseLength + 1;
 	size_t alloc = header_len;
 
+	const size_t descriptorStartPos = Stream_GetPosition(s);
 	/* Get total size of file/folder names under first level folder only */
 	for (size_t x = 0; x < count; x++)
 	{
-		const FILEDESCRIPTORW* dsc = &descriptors[x];
+		FILEDESCRIPTORW dsc = WINPR_C_ARRAY_INIT;
+		if (!read_descriptor(s, &dsc))
+			return nullptr;
 
-		if (winpr_wcsnchr(dsc->cFileName, ARRAYSIZE(dsc->cFileName), backslash.w) == nullptr)
+		if (!descriptor_is_nested(log, &dsc))
 		{
-			alloc += ARRAYSIZE(dsc->cFileName) *
+			alloc += ARRAYSIZE(dsc.cFileName) *
 			         8; /* Overallocate, just take the biggest value the result path can have */
 			            /* # (1 char) -> %23 (3 chars) , the first char is replaced inplace */
-			alloc += count_special_chars(dsc->cFileName, ARRAYSIZE(dsc->cFileName)) * sizeof(WCHAR);
+			alloc += count_special_chars(dsc.cFileName, ARRAYSIZE(dsc.cFileName)) * sizeof(WCHAR);
 			alloc += decoration_len;
 		}
 	}
+
+	if (!Stream_SetPosition(s, descriptorStartPos))
+		return nullptr;
 
 	/* Append a prefix file:// and postfix \n for each file */
 	/* We need to keep last \n since snprintf is null terminated!!  */
@@ -835,19 +890,25 @@ static void* convert_filedescriptors_to_file_list(wClipboard* clipboard, UINT32 
 
 	for (size_t x = 0; x < count; x++)
 	{
-		const FILEDESCRIPTORW* dsc = &descriptors[x];
-		BOOL fail = TRUE;
-		if (winpr_wcsnchr(dsc->cFileName, ARRAYSIZE(dsc->cFileName), backslash.w) != nullptr)
-		{
-			continue;
-		}
 		int rc = -1;
+		BOOL fail = TRUE;
+		FILEDESCRIPTORW dsc = WINPR_C_ARRAY_INIT;
+		if (!read_descriptor(s, &dsc))
+			goto loop_fail;
+
+		if (descriptor_is_nested(log, &dsc))
+			continue;
+
 		char curName[520] = WINPR_C_ARRAY_INIT;
 		const char* stop_at = nullptr;
 		const char* previous_at = nullptr;
 
-		if (ConvertWCharNToUtf8(dsc->cFileName, ARRAYSIZE(dsc->cFileName), curName,
+		if (ConvertWCharNToUtf8(dsc.cFileName, ARRAYSIZE(dsc.cFileName), curName,
 		                        ARRAYSIZE(curName)) < 0)
+			goto loop_fail;
+
+		HRESULT hr = PathCchConvertStyleA(curName, ARRAYSIZE(curName), PATH_STYLE_UNIX);
+		if (FAILED(hr))
 			goto loop_fail;
 
 		rc = _snprintf(&dst[pos], alloc - pos, "%s%s/", lineprefix, clipboard->delegate.basePath);
@@ -948,8 +1009,8 @@ static void* convert_filedescriptors_to_uri_list(wClipboard* clipboard, UINT32 f
 		         ClipboardGetFormatName(clipboard, clipboard->formatId), clipboard->formatId);
 		return nullptr;
 	}
-	return convert_filedescriptors_to_file_list(clipboard, formatId, data, pSize, "", "file://",
-	                                            "\r\n", FALSE);
+	return convert_filedescriptors_to_file_list(clipboard, data, pSize, "", "file://", "\r\n",
+	                                            FALSE);
 }
 
 /* Prepend header of common gnome format to file list*/
@@ -975,8 +1036,8 @@ static void* convert_filedescriptors_to_gnome_copied_files(wClipboard* clipboard
 		         ClipboardGetFormatName(clipboard, clipboard->formatId), clipboard->formatId);
 		return nullptr;
 	}
-	return convert_filedescriptors_to_file_list(clipboard, formatId, data, pSize, "copy\n",
-	                                            "file://", "\n", TRUE);
+	return convert_filedescriptors_to_file_list(clipboard, data, pSize, "copy\n", "file://", "\n",
+	                                            TRUE);
 }
 
 WINPR_ATTR_MALLOC(free, 1)
@@ -1001,8 +1062,8 @@ static void* convert_filedescriptors_to_mate_copied_files(wClipboard* clipboard,
 		         ClipboardGetFormatName(clipboard, clipboard->formatId), clipboard->formatId);
 		return nullptr;
 	}
-	char* pDstData = convert_filedescriptors_to_file_list(clipboard, formatId, data, pSize,
-	                                                      "copy\n", "file://", "\n", TRUE);
+	char* pDstData = convert_filedescriptors_to_file_list(clipboard, data, pSize, "copy\n",
+	                                                      "file://", "\n", TRUE);
 	if (!pDstData)
 	{
 		return pDstData;

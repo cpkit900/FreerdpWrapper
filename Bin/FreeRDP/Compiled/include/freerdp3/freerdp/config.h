@@ -54,12 +54,16 @@
 #define WITH_OPENH264
 /* #undef WITH_OPENH264_LOADING */
 #define WITH_VIDEO_FFMPEG
+/* #undef WITH_APPLE_VIDEOTOOLBOX */
+/* #undef WITH_H264_WEBCODECS */
 /* #undef WITH_DSP_EXPERIMENTAL */
 #define WITH_DSP_FFMPEG
 /* #undef WITH_OPENCL */
 /* #undef WITH_MEDIA_FOUNDATION */
 /* #undef WITH_MEDIACODEC */
 /* #undef WITH_GFX_AV1 */
+/* #undef WITH_GFX_AZURE */
+/* #undef WITH_RDPEUDP */
 
 /* #undef WITH_FFMPEG_HWACCEL */
 

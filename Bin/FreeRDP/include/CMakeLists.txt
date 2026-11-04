@@ -17,12 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT WITHOUT_FREERDP_3x_DEPRECATED)
-  option(WITH_OPAQUE_SETTINGS "Hide rdpSettings struct definition, only allow getter/setter access" OFF)
-else()
-  set(WITH_OPAQUE_SETTINGS ON CACHE INTERNAL "NOT WITHOUT_FREERDP_3x_DEPRECATED")
-endif()
-
 # prepare paths for C
 file(TO_NATIVE_PATH "${FREERDP_DATA_PATH}" NATIVE_FREERDP_DATA_PATH)
 file(TO_NATIVE_PATH "${FREERDP_KEYMAP_PATH}" NATIVE_FREERDP_KEYMAP_PATH)
@@ -56,6 +50,10 @@ cleaning_configure_file(
 )
 
 file(STRINGS freerdp/settings_types_private.h SETTINGS_KEYS REGEX "ALIGN64[ \ta-zA-Z0-9]*")
+# settings_keys.h is generated from this header, so re-run CMake when it changes
+set_property(
+  DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/freerdp/settings_types_private.h
+)
 
 set(SETTINGS_KEYS_BOOL "")
 set(SETTINGS_KEYS_INT16 "")

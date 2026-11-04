@@ -5,6 +5,9 @@
 #include <winpr/clipboard.h>
 #include <winpr/stream.h>
 #include <winpr/user.h>
+#include <winpr/file.h>
+#include <winpr/shell.h>
+#include <winpr/path.h>
 
 #define test_log(fmt, ...) test_log_fn(__FILE__, __func__, __LINE__, (fmt), ##__VA_ARGS__)
 static void test_log_fn(const char* file, const char* func, size_t line, const char* fmt, ...)
@@ -22,6 +25,8 @@ static void test_log_fn(const char* file, const char* func, size_t line, const c
 
 #define test_ClipboardSetData(clipboard, formatId, data, size) \
 	test_ClipboardSetDataFn(__FILE__, __func__, __LINE__, (clipboard), (formatId), (data), (size))
+
+WINPR_ATTR_NODISCARD
 static BOOL test_ClipboardSetDataFn(const char* file, const char* func, size_t line,
                                     wClipboard* clipboard, UINT32 formatId, const void* data,
                                     UINT32 size)
@@ -37,6 +42,8 @@ static BOOL test_ClipboardSetDataFn(const char* file, const char* func, size_t l
 
 #define test_ClipboardGetData(clipboard, formatId, size) \
 	test_ClipboardGetDataFn(__FILE__, __func__, __LINE__, (clipboard), (formatId), (size))
+
+WINPR_ATTR_NODISCARD
 static void* test_ClipboardGetDataFn(const char* file, const char* func, size_t line,
                                      wClipboard* clipboard, UINT32 formatId, UINT32* pSize)
 {
@@ -218,7 +225,29 @@ static BOOL test_text_conversion(void)
 		size_t expectLen;
 	} test_case_t;
 
+	/* text/plain is UTF-8 on Windows, and ASCII with \u escapes for other characters elsewhere */
 	const test_case_t tests[] = {
+#if defined(_WIN32)
+		{ ClipboardRegisterFormat(clipboard, "text/plain"),
+		  ClipboardRegisterFormat(clipboard, "text/plain;charset=utf-8"), "a\nb\ncሴ՞", 10,
+		  "a\nb\ncሴ՞", 11 },
+		{ ClipboardRegisterFormat(clipboard, "text/plain;charset=utf-8"),
+		  ClipboardRegisterFormat(clipboard, "text/plain"), "a\r\nb\nc՞՞", 10, "a\r\nb\nc՞՞", 11 },
+		{ ClipboardRegisterFormat(clipboard, "text/plain"), CF_UNICODETEXT, "a\nb\ncሴ՞", 10,
+		  "\x61\x00\x0d\x00\x0a\x00\x62\x00\x0d\x0\x0a\x00\x63\x00\x34\x12\x5e\x05\x00\x00\x00",
+		  20 },
+		{ CF_UNICODETEXT, ClipboardRegisterFormat(clipboard, "text/plain"),
+		  "\x61\x00\x0d\x00\x0a\x00\x62\x00\x0d\x0\x0a\x00\x63\x00\x34\x12\x5e\x05\x00\x00\x00", 18,
+		  "a\nb\ncሴ՞", 11 },
+		{ ClipboardRegisterFormat(clipboard, "text/plain"), CF_TEXT, "a\nb\ncሴ՞", 10,
+		  "a\nb\nc\\u1234\\u055e", 18 },
+		{ CF_TEXT, ClipboardRegisterFormat(clipboard, "text/plain"), "a\nb\nc\\u1234\\u055e", 17,
+		  "a\nb\ncሴ՞", 11 },
+		{ ClipboardRegisterFormat(clipboard, "text/plain"), CF_OEMTEXT, "a\nb\ncሴ՞", 10,
+		  "a\nb\nc\\u1234\\u055e", 18 },
+		{ CF_OEMTEXT, ClipboardRegisterFormat(clipboard, "text/plain"), "a\nb\rc\\u1234\\u055e", 17,
+		  "a\nb\ncሴ՞", 11 },
+#else
 		{ ClipboardRegisterFormat(clipboard, "text/plain"),
 		  ClipboardRegisterFormat(clipboard, "text/plain;charset=utf-8"), "a\nb\rc\\u1234\\u055e",
 		  17, "a\nb\ncሴ՞", 11 },
@@ -238,7 +267,13 @@ static BOOL test_text_conversion(void)
 		{ ClipboardRegisterFormat(clipboard, "text/plain"), CF_OEMTEXT, "a\nb\rc\\u1234\\u055e", 17,
 		  "a\nb\nc\\u1234\\u055e", 18 },
 		{ CF_OEMTEXT, ClipboardRegisterFormat(clipboard, "text/plain"), "a\nb\rc\\u1234\\u055e", 17,
-		  "a\nb\nc\\u1234\\u055e", 18 }
+		  "a\nb\nc\\u1234\\u055e", 18 },
+#endif
+		/* UTF-8 set with its terminator */
+		{ ClipboardRegisterFormat(clipboard, "text/plain;charset=utf-8"),
+		  ClipboardRegisterFormat(clipboard, "UTF8_STRING"), "ab", 3, "ab", 3 },
+		{ ClipboardRegisterFormat(clipboard, "text/plain;charset=utf-8"), CF_UNICODETEXT, "ab", 3,
+		  "\x61\x00\x62\x00\x00\x00", 6 }
 	};
 
 	BOOL rc = FALSE;
@@ -280,6 +315,316 @@ fail:
 	return rc;
 }
 
+WINPR_ATTR_NODISCARD
+static BOOL set_descriptor_name(FILEDESCRIPTORW* dsc, const char* name, const char* trailing)
+{
+	BOOL rc = TRUE;
+	/* what follows the '\0' of cFileName is garbage the converter must ignore */
+	memset(dsc->cFileName, 0xff, sizeof(dsc->cFileName));
+	const size_t len = strlen(name);
+	if (ConvertUtf8NToWChar(name, len + 1, dsc->cFileName, ARRAYSIZE(dsc->cFileName)) < 0)
+		rc = FALSE;
+	else if (trailing && (ConvertUtf8NToWChar(trailing, strlen(trailing), &dsc->cFileName[len],
+	                                          ARRAYSIZE(dsc->cFileName) - len - 1) < 0))
+		rc = FALSE;
+	if (!rc)
+		test_log("set_descriptor_name(%s, %s) failed", name, trailing);
+	return TRUE;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL test_file_descriptors_to_uri_list(void)
+{
+	BOOL rc = FALSE;
+	char* basePath = GetKnownSubPath(KNOWN_PATH_TEMP, "frdp-test");
+	if (!basePath)
+		return FALSE;
+	char* uris = nullptr;
+
+	struct
+	{
+		UINT32 count;
+		FILEDESCRIPTORW dsc[4];
+	} data = WINPR_C_ARRAY_INIT;
+
+	char* cmpdir = nullptr;
+	char* cmpa = nullptr;
+	wClipboard* clipboard = ClipboardCreate();
+	if (!clipboard)
+		goto fail;
+
+	HRESULT hr = PathCchConvertStyleA(basePath, strlen(basePath), PATH_STYLE_UNIX);
+	if (FAILED(hr))
+		goto fail;
+
+	wClipboardDelegate* delegate = ClipboardGetDelegate(clipboard);
+	if (!delegate)
+		goto fail;
+	delegate->basePath = basePath;
+
+	size_t len = 0;
+	winpr_asprintf(&cmpdir, &len, "file://%s/dir\r\n", basePath);
+	winpr_asprintf(&cmpa, &len, "file://%s/a.txt", basePath);
+	if (!cmpdir || !cmpa)
+		goto fail;
+
+	/* data must be little endian */
+	winpr_Data_Write_UINT32(&data.count, ARRAYSIZE(data.dsc));
+	winpr_Data_Write_UINT32(&data.dsc[0].dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY);
+	if (!set_descriptor_name(&data.dsc[0], "dir", nullptr))
+		goto fail;
+	if (!set_descriptor_name(&data.dsc[1], "dir\\b.txt", nullptr))
+		goto fail;
+	/* a stale '\' after the name must not make a top level file look nested */
+	if (!set_descriptor_name(&data.dsc[2], "a.txt", "old\\name"))
+		goto fail;
+	if (!set_descriptor_name(&data.dsc[3], "a.txt", "old\\"))
+		goto fail;
+
+	{
+		const UINT32 srcId = ClipboardRegisterFormat(clipboard, "FileGroupDescriptorW");
+		const UINT32 dstId = ClipboardRegisterFormat(clipboard, "text/uri-list");
+		if (!test_ClipboardSetData(clipboard, srcId, &data, sizeof(data)))
+			goto fail;
+
+		UINT32 size = 0;
+		uris = test_ClipboardGetData(clipboard, dstId, &size);
+		if (!uris)
+			goto fail;
+		test_log("text/uri-list: '%s'", uris);
+
+		if (!strstr(uris, cmpdir))
+		{
+			test_log("strstr(%s, %s) failed", uris, cmpdir);
+			goto fail;
+		}
+		if (strstr(uris, "b.txt"))
+		{
+			test_log("strstr(%s, %s) failed", uris, "b.txt");
+			goto fail;
+		}
+	}
+
+	rc = TRUE;
+fail:
+	if (!rc)
+		test_log("FileGroupDescriptorW -> text/uri-list conversion failed");
+	free(uris);
+	free(cmpdir);
+	free(cmpa);
+	free(basePath);
+	ClipboardDestroy(clipboard);
+	return rc;
+}
+
+/* image/bmp from the clipboard has a plain BITMAPINFOHEADER and is stored bottom-up */
+WINPR_ATTR_NODISCARD
+static BOOL test_is_plain_bmp(const BYTE* bmp, size_t size)
+{
+	if ((size < 54) || (bmp[0] != 'B') || (bmp[1] != 'M'))
+		return FALSE;
+
+	UINT32 biSize = 0;
+	INT32 biHeight = 0;
+	UINT32 biCompression = 0;
+	memcpy(&biSize, &bmp[14], sizeof(biSize));
+	memcpy(&biHeight, &bmp[22], sizeof(biHeight));
+	memcpy(&biCompression, &bmp[30], sizeof(biCompression));
+	if ((biSize != 40) || (biHeight <= 0) || (biCompression != BI_RGB))
+	{
+		test_log("not a plain bottom-up BMP: biSize=%" PRIu32 " biHeight=%" PRId32
+		         " biCompression=%" PRIu32,
+		         biSize, biHeight, biCompression);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+/* convert the clipboard content to dstMime and compare the image with the expected one */
+WINPR_ATTR_NODISCARD
+static BOOL test_convert_image(wClipboard* clipboard, const char* dstMime, const wImage* expected)
+{
+	BOOL rc = FALSE;
+	UINT32 size = 0;
+	wImage* img = winpr_image_new();
+	BYTE* data =
+	    test_ClipboardGetData(clipboard, ClipboardRegisterFormat(clipboard, dstMime), &size);
+	if (!img || !data)
+		goto fail;
+
+	if (winpr_image_read_buffer(img, data, size) <= 0)
+	{
+		test_log("can not read %s", dstMime);
+		goto fail;
+	}
+
+	if (!winpr_image_equal(expected, img,
+	                       WINPR_IMAGE_CMP_IGNORE_DEPTH | WINPR_IMAGE_CMP_IGNORE_ALPHA |
+	                           WINPR_IMAGE_CMP_FUZZY))
+	{
+		test_log("%s differs from the source image", dstMime);
+		goto fail;
+	}
+
+	if ((strcmp(dstMime, "image/bmp") == 0) && !test_is_plain_bmp(data, size))
+		goto fail;
+
+	rc = TRUE;
+fail:
+	free(data);
+	winpr_image_free(img, TRUE);
+	return rc;
+}
+
+/* image formats convert into each other directly, without going through CF_DIB first */
+WINPR_ATTR_NODISCARD
+static BOOL test_image_to_image(void)
+{
+	BOOL rc = FALSE;
+	void* data = nullptr;
+	size_t size = 0;
+	wClipboard* clipboard = ClipboardCreate();
+	wImage* img = winpr_image_new();
+	if (!clipboard || !img)
+		goto fail;
+
+	if (winpr_image_read(img, TEST_CLIP_BMP) <= 0)
+		goto fail;
+
+	data = winpr_image_write_buffer(img, WINPR_IMAGE_BITMAP, &size);
+	if (!data || !test_ClipboardSetData(clipboard, ClipboardRegisterFormat(clipboard, "image/bmp"),
+	                                    data, (UINT32)size))
+		goto fail;
+	free(data);
+	data = nullptr;
+
+	if (!test_convert_image(clipboard, "image/x-bmp", img))
+		goto fail;
+#if defined(WINPR_UTILS_IMAGE_PNG)
+	if (!test_convert_image(clipboard, "image/png", img))
+		goto fail;
+
+	data = winpr_image_write_buffer(img, WINPR_IMAGE_PNG, &size);
+	if (!data || !test_ClipboardSetData(clipboard, ClipboardRegisterFormat(clipboard, "image/png"),
+	                                    data, (UINT32)size))
+		goto fail;
+
+	if (!test_convert_image(clipboard, "image/bmp", img))
+		goto fail;
+#endif
+
+	rc = TRUE;
+fail:
+	free(data);
+	winpr_image_free(img, TRUE);
+	ClipboardDestroy(clipboard);
+	return rc;
+}
+
+/* text/plain is UTF-8 on Windows and ASCII with \u escapes elsewhere; both convert back */
+WINPR_ATTR_NODISCARD
+static BOOL test_text_plain(void)
+{
+	BOOL rc = FALSE;
+	const char utf8[] = "A\xe4\xb8\xad\xe6\x96\x87\xc3\xa9"; /* A, two CJK characters, e acute */
+	const size_t utf8len = strlen(utf8);
+	char* plain = nullptr;
+	WCHAR* wstr = nullptr;
+	char* back = nullptr;
+	UINT32 size = 0;
+
+	wClipboard* clipboard = ClipboardCreate();
+	if (!clipboard)
+		goto fail;
+
+	const UINT32 idUtf8 = ClipboardRegisterFormat(clipboard, "text/plain;charset=utf-8");
+	const UINT32 idPlain = ClipboardRegisterFormat(clipboard, "text/plain");
+	if (!test_ClipboardSetData(clipboard, idUtf8, utf8, (UINT32)utf8len))
+		goto fail;
+
+	plain = test_ClipboardGetData(clipboard, idPlain, &size);
+	if (!plain)
+		goto fail;
+
+#if defined(_WIN32)
+	if ((size < utf8len) || (memcmp(plain, utf8, utf8len) != 0))
+	{
+		test_log("text/plain is not UTF-8");
+		goto fail;
+	}
+#else
+	for (UINT32 x = 0; x < size; x++)
+	{
+		if ((BYTE)plain[x] > 0x7f)
+		{
+			test_log("text/plain is not ASCII");
+			goto fail;
+		}
+	}
+#endif
+
+	if (!test_ClipboardSetData(clipboard, idPlain, plain, size))
+		goto fail;
+
+	wstr = test_ClipboardGetData(clipboard, CF_UNICODETEXT, &size);
+	if (!wstr)
+		goto fail;
+
+	{
+		size_t backlen = 0;
+		back = ConvertWCharNToUtf8Alloc(wstr, size / sizeof(WCHAR), &backlen);
+		if (!back || (backlen < utf8len) || (memcmp(back, utf8, utf8len) != 0))
+		{
+			test_log("text/plain does not convert back to the original text");
+			goto fail;
+		}
+	}
+
+	rc = TRUE;
+fail:
+	free(back);
+	free(wstr);
+	free(plain);
+	ClipboardDestroy(clipboard);
+	return rc;
+}
+
+static BOOL test_cf_locale(void)
+{
+	BOOL rc = FALSE;
+	wClipboard* cb = ClipboardCreate();
+	if (!cb)
+		return FALSE;
+
+	const UINT32 formats[] = { CF_OEMTEXT, CF_TEXT, CF_UNICODETEXT,
+		                       ClipboardRegisterFormat(cb, "text/plain"),
+		                       ClipboardRegisterFormat(cb, "text/plain;charset=utf-8") };
+
+	for (size_t x = 0; x < ARRAYSIZE(formats); x++)
+	{
+		const UINT32 format = formats[x];
+
+		const char text[] = "some test string";
+		if (!test_ClipboardSetData(cb, format, text, sizeof(text)))
+			goto fail;
+		UINT32 size = 0;
+		void* locale = test_ClipboardGetData(cb, CF_LOCALE, &size);
+		if (!locale || (size != 4))
+		{
+			free(locale);
+			goto fail;
+		}
+		const UINT32 loc = *(UINT32*)locale;
+		free(locale);
+		if (loc != 0x409)
+			goto fail;
+	}
+	rc = TRUE;
+fail:
+	ClipboardDestroy(cb);
+	return rc;
+}
+
 int TestClipboardFormats(int argc, char* argv[])
 {
 	int rc = -1;
@@ -291,10 +636,15 @@ int TestClipboardFormats(int argc, char* argv[])
 	WINPR_UNUSED(argc);
 	WINPR_UNUSED(argv);
 
+	if (!test_cf_locale())
+		return -1;
 	if (!test_text_leading_newline())
 		return -1;
 
 	if (!test_text_conversion())
+		return -1;
+
+	if (!test_file_descriptors_to_uri_list())
 		return -1;
 
 	wClipboard* clipboard = ClipboardCreate();
@@ -509,6 +859,12 @@ int TestClipboardFormats(int argc, char* argv[])
 	}
 
 	if (!test_dib_offsets())
+		goto fail;
+
+	if (!test_image_to_image())
+		goto fail;
+
+	if (!test_text_plain())
 		goto fail;
 
 	rc = 0;

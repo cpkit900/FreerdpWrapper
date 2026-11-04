@@ -134,7 +134,17 @@ void sdlDispContext::OnActivated(void* context, const ActivatedEventArgs* e)
 		if (!sdlDisp->setWindowResizeable())
 			return;
 
-		if (e->firstActivation)
+		/* The connect only carries a single monitor, so a canvas the page splits into several
+		 * (sdl_monitors_emscripten.js) needs a layout at once: its size may never change. Ask
+		 * the page again, a reconnect starts from the settings of the command line. */
+#if defined(__EMSCRIPTEN__)
+		if (!sdl->updateWindowList())
+			return;
+		const bool split = freerdp_settings_get_uint32(settings, FreeRDP_MonitorCount) > 1;
+#else
+		const bool split = false;
+#endif
+		if (e->firstActivation && !split)
 			return;
 	}
 
@@ -180,9 +190,8 @@ Uint32 sdlDispContext::OnTimer(void* param, [[maybe_unused]] SDL_TimerID timerID
 
 	WLog_Print(sdl->getWLog(), WLOG_TRACE, "checking for display changes...");
 
-	auto rc = sdlDisp->sendResize();
-	if (!rc)
-		WLog_Print(sdl->getWLog(), WLOG_TRACE, "sent new display layout, result %d", rc);
+	if (!sdlDisp->sendResize())
+		WLog_Print(sdl->getWLog(), WLOG_TRACE, "failed to send the display layout");
 
 	if (sdlDisp->_timer_retries++ >= MAX_RETRIES)
 	{
@@ -271,7 +280,7 @@ bool sdlDispContext::sendLayout(const rdpMonitor* monitors, size_t nmonitors)
 	                              static_cast<UINT32>(len), layouts.data());
 	if (ret != CHANNEL_RC_OK)
 		return false;
-	_last_sent_layout = layouts;
+	_last_sent_layout = std::move(layouts);
 	return true;
 }
 
@@ -381,6 +390,9 @@ bool sdlDispContext::handleEvent(const SDL_WindowEvent& ev)
 	{
 		case SDL_EVENT_WINDOW_HIDDEN:
 		case SDL_EVENT_WINDOW_MINIMIZED:
+			/* Other monitors may still show the session. */
+			if (!_sdl->allWindowsHidden())
+				return true;
 			return _sdl->redraw(true);
 		case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
 			return updateMonitor(ev.windowID);
@@ -439,16 +451,29 @@ UINT sdlDispContext::DisplayControlCaps(UINT32 maxNumMonitors, UINT32 maxMonitor
 	         maxNumMonitors, maxMonitorAreaFactorA, maxMonitorAreaFactorB);
 	_activated = true;
 
+	/* A new display channel means a new server instance, e.g. after a server redirection (GNOME
+	 * Remote Desktop hands the connection over from the login screen to the user session). It
+	 * does not know the layout sent to the previous instance, and the window size did not change,
+	 * so settings_changed() would suppress it: forget it and send the current layout again. */
+	_last_sent_layout.clear();
+
+	/* Windows ignores a layout sent right after the caps. Count the caps as a send, so the timer
+	 * sends the layout once RESIZE_MIN_DELAY has passed instead of addTimer() sending it now. */
+	_lastSentDate = GetTickCount64();
+
 	if (freerdp_settings_get_bool(settings, FreeRDP_Fullscreen))
 	{
 		/* Window events have long passed by the time the channel comes up, and a fullscreen
-		 * window produces no further ones, so send the layout now. */
+		 * window produces no further ones, so let the timer send the layout. */
 		std::ignore = addTimer();
 		return CHANNEL_RC_OK;
 	}
 
 	WLog_DBG(TAG, "DisplayControlCapsPdu: setting the window as resizable");
-	return setWindowResizeable() ? CHANNEL_RC_OK : CHANNEL_RC_NO_MEMORY;
+	if (!setWindowResizeable())
+		return CHANNEL_RC_NO_MEMORY;
+	std::ignore = addTimer();
+	return CHANNEL_RC_OK;
 }
 
 bool sdlDispContext::init(DispClientContext* disp)

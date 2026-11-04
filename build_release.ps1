@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$version   = "v3.2.0"
+$version   = "v3.3.0"
 $baseDir   = "c:\Users\Junnu\Freerdp Wrapper"
 $releaseDir = "$baseDir\FreeRdpWrapper_Release"
 $publishDir = "$baseDir\PublishOutput"
@@ -27,45 +27,41 @@ Write-Host "Writing release notes..."
 FreeRDP Wrapper $version
 ========================
 
-Release Date : 2026-10-16
-FreeRDP Base : 3.32.2 (SDL3 client, D3D11 renderer)
+Release Date : 2026-11-04
+FreeRDP Base : 3.33.0 (SDL3 client, D3D11 renderer)
 
 ## Changes in $version
 
-### Updated FreeRDP to 3.32.2
-- Upgraded FreeRDP base from 3.30.0 to official 3.32.2 release.
+### Updated FreeRDP to 3.33.0
+- Upgraded FreeRDP base from 3.32.2 to official 3.33.0 release.
 - Rebuilt with OpenSSL 3.6.5 and vcpkg toolchain.
 - Up-to-date sdl3-freerdp, sdl2-freerdp, and wfreerdp binaries.
 
-### Native SDL3 Parent-Window Embedding (NEW)
+### Native SDL3 Parent-Window Embedding
 - FreeRDP's sdl3-freerdp.exe now correctly supports /parent-window:N.
   SDL3 creates its window normally then reparents it into the host HWND via
   Win32 SetParent(), stripping title-bar styles so it fills the tab seamlessly.
-  Previously SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER was misused, causing a
-  fatal [handleShow] error on every connection attempt.
 
-### Embedded Dialog Suppression (BUG FIX)
+### Embedded Dialog Suppression
 - When running embedded (parent-window supplied), the SDL3 connection dialog is
   never created and SDL_RunOnMainThread is never called. This eliminates the
   spurious [ERROR][handleShow] log error that appeared on every disconnect.
 
-### Tab-Switch Repaint (BUG FIX)
+### Tab-Switch Repaint
 - Added SDL_EVENT_WINDOW_EXPOSED / SDL_EVENT_WINDOW_SHOWN handlers that
   immediately blit the last D3D11 frame when a tab becomes visible.
   Previously SDL3 waited for the next server frame, causing a visible
   blank/stale delay on tab switch.
 
-### wfreerdp Keyboard Hook (BUG FIX)
+### wfreerdp Keyboard Hook
 - The low-level WH_KEYBOARD_LL hook in wfreerdp now accepts input when focus
   is on any descendant child of hWndParent (IsChild check), or when the
   foreground window belongs to the same process as the parent. This fixes
   keyboard input when wfreerdp is embedded inside a .NET TabControl.
 
 ### Wrapper Cleanup
-- Removed all pseudo-embedding infrastructure (SyncFloatingWindow, SetWindowPos
-  sync loop, floating-window tracking, BringWindowToTop hacks).
 - Clean native /parent-window embedding with EnumChildWindows + MoveWindow.
-- Added RepaintRdpWindow() as a belt-and-suspenders C#-side repaint helper.
+- RepaintRdpWindow() as a belt-and-suspenders C#-side repaint helper.
 
 ## Usage Notes
 - Drop the Bin\FreeRDP folder alongside FreeRdpWrapper.exe.

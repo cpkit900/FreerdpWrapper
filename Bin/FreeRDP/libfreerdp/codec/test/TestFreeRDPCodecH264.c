@@ -9,8 +9,11 @@
 #include <freerdp/freerdp.h>
 #include <freerdp/codec/color.h>
 
+WINPR_ATTR_NODISCARD
 static const char* print_ns(UINT64 start, UINT64 end, char* buffer, size_t len)
 {
+	WINPR_ASSERT(buffer);
+
 	const UINT64 diff = end - start;
 	const unsigned ns = diff % 1000;
 	const unsigned us = (diff / 1000) % 1000;
@@ -20,11 +23,13 @@ static const char* print_ns(UINT64 start, UINT64 end, char* buffer, size_t len)
 	return buffer;
 }
 
+WINPR_ATTR_NODISCARD
 static BOOL testContextOptions(BOOL compressor, uint32_t width, uint32_t height)
 {
 	BOOL rc = FALSE;
 	const UINT64 start = winpr_GetUnixTimeNS();
-	H264_CONTEXT* h264 = h264_context_new(FALSE);
+	/* Test the requested encoder or decoder. */
+	H264_CONTEXT* h264 = h264_context_new(compressor);
 	if (!h264)
 	{
 		(void)fprintf(stderr, "[%s] h264_context_new failed\n", __func__);
@@ -69,6 +74,7 @@ fail:
 	return rc;
 }
 
+WINPR_ATTR_MALLOC(free, 1)
 static void* allocRGB(uint32_t format, uint32_t width, uint32_t height, uint32_t* pstride)
 {
 	const size_t bpp = FreeRDPGetBytesPerPixel(format);
@@ -80,41 +86,114 @@ static void* allocRGB(uint32_t format, uint32_t width, uint32_t height, uint32_t
 	if (!rgb)
 		return nullptr;
 
-	for (size_t x = 0; x < height; x++)
+	const UINT32 color = FreeRDPGetColor(format, 0x12, 0xaa, 0x63, 0x80);
+	for (size_t y = 0; y < height; y++)
 	{
-		if (winpr_RAND(&rgb[x * stride], width * bpp) < 0)
+		uint8_t* line = &rgb[y * stride];
+		for (size_t x = 0; x < width; x++)
 		{
-			free(rgb);
-			return nullptr;
+			FreeRDPWriteColor(&line[bpp * x], format, color);
 		}
 	}
 	return rgb;
 }
 
-static BOOL compareRGB(const uint8_t* src, const uint8_t* dst, uint32_t format, size_t width,
-                       size_t stride, size_t height)
+WINPR_ATTR_NODISCARD
+#define printIfFail(line, offset, what, a, b) \
+	printIfFail_(__func__, __LINE__, (line), (offset), (what), (a), (b))
+static BOOL printIfFail_(const char* fkt, size_t fline, size_t line, size_t offset,
+                         const char* what, BYTE a, BYTE b)
 {
-	const size_t bpp = FreeRDPGetBytesPerPixel(format);
-	for (size_t y = 0; y < height; y++)
+	const double maxDiff = 8.0;
+	const double diffR = fabs(1.0 * a - b);
+	if (diffR > maxDiff)
 	{
-		const uint8_t* csrc = &src[y * stride];
-		const uint8_t* cdst = &dst[y * stride];
-		const int rc = memcmp(csrc, cdst, width * bpp);
-		// TODO: Both, AVC420 encoding and decoding are lossy.
-		// TODO: Find a proper error margin to check for
-#if 0
-		if (rc != 0)
-			return FALSE;
-#endif
+		(void)fprintf(stderr,
+		              "[%s:%" PRIuz "]{%" PRIuz "x%" PRIuz "} %s diff %lf [0x%02" PRIx8
+		              " - 0x%02" PRIx8 "]\n",
+		              fkt, fline, offset, line, what, diffR, a, b);
+		return FALSE;
 	}
 	return TRUE;
 }
 
+WINPR_ATTR_NODISCARD
+static BOOL compareRGBColors(size_t line, size_t offset, uint32_t colora, uint32_t colorb,
+                             uint32_t format)
+{
+	BYTE cR = 0;
+	BYTE cG = 0;
+	BYTE cB = 0;
+	BYTE cA = 0;
+	BYTE dR = 0;
+	BYTE dG = 0;
+	BYTE dB = 0;
+	BYTE dA = 0;
+
+	FreeRDPSplitColor(colora, format, &cR, &cG, &cB, &cA, nullptr);
+	FreeRDPSplitColor(colorb, format, &dR, &dG, &dB, &dA, nullptr);
+
+	if (!printIfFail(line, offset, "red", cR, dR))
+		return FALSE;
+	if (!printIfFail(line, offset, "green", cG, dG))
+		return FALSE;
+	if (!printIfFail(line, offset, "blue", cB, dB))
+		return FALSE;
+	if (FreeRDPColorHasAlpha(format))
+	{
+		if (!printIfFail(line, offset, "alpha", cA, dA))
+			return FALSE;
+	}
+	return TRUE;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL compareRGBLine(size_t line, const uint8_t* src, const uint8_t* dst, uint32_t format,
+                           size_t width)
+{
+	const size_t bpp = FreeRDPGetBytesPerPixel(format);
+	for (size_t x = 0; x < width; x++)
+	{
+		const UINT32 srccolor = FreeRDPReadColor(&src[x * bpp], format);
+		const UINT32 dstcolor = FreeRDPReadColor(&dst[x * bpp], format);
+		if (!compareRGBColors(line, x, srccolor, dstcolor, format))
+			return FALSE;
+	}
+	return TRUE;
+}
+
+WINPR_ATTR_NODISCARD
+static BOOL compareRGB(const uint8_t* src, const uint8_t* dst, uint32_t format, size_t width,
+                       size_t stride, size_t height)
+{
+	WINPR_ASSERT(src);
+	WINPR_ASSERT(dst);
+
+	const size_t bits = FreeRDPGetBitsPerPixel(format);
+	if (bits != 32)
+	{
+		printf("skipping color compare for format %s, only 32bpp colors are checked\n",
+		       FreeRDPGetColorFormatName(format));
+		return TRUE;
+	}
+
+	for (size_t y = 0; y < height; y++)
+	{
+		const uint8_t* csrc = &src[y * stride];
+		const uint8_t* cdst = &dst[y * stride];
+		if (!compareRGBLine(y, csrc, cdst, format, width))
+			return FALSE;
+	}
+	return TRUE;
+}
+
+WINPR_ATTR_NODISCARD
 static BOOL testEncode(uint32_t format, uint32_t width, uint32_t height)
 {
 	BOOL rc = FALSE;
 	void* src = nullptr;
 	void* out = nullptr;
+	void* copy = nullptr;
 	RDPGFX_H264_METABLOCK meta = WINPR_C_ARRAY_INIT;
 	H264_CONTEXT* h264 = h264_context_new(TRUE);
 	H264_CONTEXT* h264dec = h264_context_new(FALSE);
@@ -149,6 +228,11 @@ static BOOL testEncode(uint32_t format, uint32_t width, uint32_t height)
 		goto fail;
 	}
 
+	copy = calloc(height, stride);
+	if (!copy)
+		goto fail;
+	memcpy(copy, src, 1ull * height * stride);
+
 	const RECTANGLE_16 rect = { .left = 0, .top = 0, .right = width, .bottom = height };
 	uint32_t dstsize = 0;
 	uint8_t* dst = nullptr;
@@ -162,6 +246,11 @@ static BOOL testEncode(uint32_t format, uint32_t width, uint32_t height)
 	if ((dstsize == 0) || !dst)
 	{
 		(void)fprintf(stderr, "[%s] dstsize=%" PRIu32 ", dst=%p\n", __func__, dstsize, (void*)dst);
+		goto fail;
+	}
+	if (memcmp(copy, src, 1ull * height * stride) != 0)
+	{
+		(void)fprintf(stderr, "[%s] avc420_compress modified source data!\n", __func__);
 		goto fail;
 	}
 
@@ -181,10 +270,12 @@ fail:
 	h264_context_free(h264dec);
 	free_h264_metablock(&meta);
 	free(src);
+	free(copy);
 	free(out);
 	return rc;
 }
 
+WINPR_ATTR_NODISCARD
 static BOOL testEncodeOffsetRegion(void)
 {
 	BOOL rc = FALSE;
@@ -259,7 +350,8 @@ static const BYTE solid_idr_64x64[] = {
 	0x85, 0x8c, 0x9c, 0x9c, 0x9d, 0x75, 0xd7, 0x5d, 0x75, 0xd7, 0x5d, 0x75, 0xd7, 0x5e
 };
 
-static BOOL testDecode(void)
+WINPR_ATTR_NODISCARD
+static BOOL testDecode(BOOL separateParameters)
 {
 	BOOL rc = FALSE;
 	const UINT32 width = 64;
@@ -273,9 +365,16 @@ static BOOL testDecode(void)
 	if (!h264 || !dst || !h264_context_reset(h264, width, height))
 		goto fail;
 
-	/* the IDR must come out of the first call, a decoder lagging one frame leaves dst empty */
-	const INT32 res = avc420_decompress(h264, solid_idr_64x64, sizeof(solid_idr_64x64), dst, format,
-	                                    stride, width, height, &rect, 1);
+	/* The video channel can deliver SPS/PPS separately from the picture. */
+	const UINT32 offset = separateParameters ? 36 : 0; /* IDR start code follows SPS/PPS. */
+	if (separateParameters && (avc420_decompress(h264, solid_idr_64x64, offset, dst, format, stride,
+	                                             width, height, &rect, 1) < 0))
+		goto fail;
+
+	/* The picture must be available immediately, with the expected RGB values. */
+	const INT32 res =
+	    avc420_decompress(h264, solid_idr_64x64 + offset, sizeof(solid_idr_64x64) - offset, dst,
+	                      format, stride, width, height, &rect, 1);
 	if (res < 0)
 	{
 		(void)fprintf(stderr, "[%s] avc420_decompress failed: %" PRId32 "\n", __func__, res);
@@ -308,8 +407,100 @@ fail:
 	return rc;
 }
 
+/* 64x64 I420: Y=64/U=90/V=170; the P-frame adds a 16x16 Y=96 block at (8,16).
+ * Generated with libx264: -qp 18 -profile:v high, bframes=0:slices=2:repeat-headers=1;
+ * SEI removed. The auxiliary frame depends on the preceding main frame. */
+static const BYTE avc444_idr[] = {
+	0x00, 0x00, 0x00, 0x01, 0x67, 0x64, 0x00, 0x0A, 0xAC, 0xB2, 0x08, 0x4D, 0x08, 0x00, 0x00, 0x03,
+	0x00, 0x08, 0x00, 0x00, 0x03, 0x01, 0xE0, 0x78, 0x91, 0x32, 0x40, 0x00, 0x00, 0x00, 0x01, 0x68,
+	0xEB, 0xC0, 0x8C, 0xB2, 0x2C, 0x00, 0x00, 0x00, 0x01, 0x09, 0x10, 0x00, 0x00, 0x01, 0x65, 0x88,
+	0x84, 0x3A, 0xFE, 0xC7, 0x6F, 0xE6, 0x59, 0x2A, 0x80, 0xC4, 0x0B, 0xD4, 0xF7, 0xD5, 0xB5, 0x93,
+	0x2C, 0x2D, 0x6E, 0xCB, 0x72, 0xFB, 0xC9, 0x1D, 0x47, 0x81, 0x00, 0x00, 0x01, 0x65, 0x12, 0x22,
+	0x10, 0xEB, 0xFE, 0xC7, 0x6F, 0xE6, 0x59, 0x2A, 0x80, 0xC4, 0x0B, 0xD4, 0xF7, 0xD5, 0xB5, 0x93,
+	0x2C, 0x2D, 0x6E, 0xCB, 0x72, 0xFB, 0xC9, 0x1D, 0x47, 0x81,
+};
+
+static const BYTE avc444_p[] = {
+	0x00, 0x00, 0x00, 0x01, 0x09, 0x30, 0x00, 0x00, 0x01, 0x41, 0x9A, 0x3B, 0x1F, 0xF9,
+	0x59, 0xCD, 0xEF, 0xFF, 0xFC, 0xF8, 0xAA, 0xD6, 0x9F, 0x73, 0x05, 0x6A, 0x32, 0x45,
+	0xA5, 0x7B, 0x00, 0x00, 0x01, 0x41, 0x12, 0x68, 0xEC, 0x7F, 0xFA, 0xE1, 0x80,
+};
+
+WINPR_ATTR_NODISCARD
+static BOOL testDecodeAvc444(UINT32 codec)
+{
+	BOOL rc = FALSE;
+	const RECTANGLE_16 full = { 0, 0, 64, 64 };
+	const RECTANGLE_16 partial = { 16, 16, 48, 32 };
+	const UINT32 stride = 64 * 4;
+	const UINT32 format = PIXEL_FORMAT_BGRX32;
+	const BYTE untouched[4] = { 0xA5, 0xA5, 0xA5, 0xA5 };
+	const size_t sampleOffset = partial.top * stride + partial.left * 4;
+	BYTE luma[4] = WINPR_C_ARRAY_INIT;
+	BYTE combined[64 * 64 * 4] = WINPR_C_ARRAY_INIT;
+	BYTE separate[64 * 64 * 4] = WINPR_C_ARRAY_INIT;
+	H264_CONTEXT* combinedContext = h264_context_new(FALSE);
+	H264_CONTEXT* separateContext = h264_context_new(FALSE);
+
+	if (!combinedContext || !separateContext || !h264_context_reset(combinedContext, 64, 64) ||
+	    !h264_context_reset(separateContext, 64, 64))
+		goto fail;
+	memset(separate, 0xA5, sizeof(separate));
+
+	/* Op 0 decodes main and dependent auxiliary frames in one update. */
+	if (avc444_decompress(combinedContext, 0, &full, 1, avc444_idr, sizeof(avc444_idr), &full, 1,
+	                      avc444_p, sizeof(avc444_p), combined, format, stride, 64, 64, codec) != 0)
+		goto fail;
+
+	/* Ops 1 and 2 deliver the same frames as separate partial updates. */
+	if (avc444_decompress(separateContext, 1, &partial, 1, avc444_idr, sizeof(avc444_idr), nullptr,
+	                      0, nullptr, 0, separate, format, stride, 64, 64, codec) != 0)
+		goto fail;
+	memcpy(luma, &separate[sampleOffset], sizeof(luma));
+	if (avc444_decompress(separateContext, 2, &partial, 1, avc444_p, sizeof(avc444_p), nullptr, 0,
+	                      nullptr, 0, separate, format, stride, 64, 64, codec) != 0)
+		goto fail;
+
+	/* Both the main picture and the auxiliary correction must produce output. */
+	if ((memcmp(luma, untouched, sizeof(luma)) == 0) ||
+	    (memcmp(luma, &separate[sampleOffset], sizeof(luma)) == 0))
+	{
+		(void)fprintf(stderr, "[%s] missing main or auxiliary output\n", __func__);
+		goto fail;
+	}
+
+	/* Compare RGB inside the update; keep all bytes unchanged outside. */
+	for (UINT32 y = 0; y < 64; y++)
+	{
+		for (UINT32 x = 0; x < 64; x++)
+		{
+			const size_t offset = y * stride + x * 4;
+			const BOOL inside = (x >= partial.left) && (x < partial.right) && (y >= partial.top) &&
+			                    (y < partial.bottom);
+			const BYTE* expected = inside ? &combined[offset] : untouched;
+			if (memcmp(&separate[offset], expected, inside ? 3 : 4) != 0)
+			{
+				(void)fprintf(stderr, "[%s] pixel %" PRIu32 ",%" PRIu32 " differs\n", __func__, x,
+				              y);
+				goto fail;
+			}
+		}
+	}
+
+	rc = TRUE;
+fail:
+	if (!rc)
+		(void)fprintf(stderr, "[%s] codec 0x%04" PRIX32 " failed\n", __func__, codec);
+	h264_context_free(combinedContext);
+	h264_context_free(separateContext);
+	return rc;
+}
+
+WINPR_ATTR_NODISCARD
 int TestFreeRDPCodecH264(int argc, char* argv[])
 {
+	WINPR_ASSERT(argv);
+
 	WINPR_UNUSED(argc);
 	WINPR_UNUSED(argv);
 
@@ -336,19 +527,43 @@ int TestFreeRDPCodecH264(int argc, char* argv[])
 		}
 	}
 
-#if !defined(WITH_MEDIACODEC) && !defined(WITH_MEDIA_FOUNDATION) && !defined(WITH_OPENH264) && \
-    !defined(WITH_VIDEO_FFMPEG)
+	/* The shared flag includes all H.264 backends. */
+#if !defined(WITH_GFX_H264)
 	(void)fprintf(stderr, "[%s] skipping, no H264 encoder/decoder support compiled in\n", __func__);
 	return 0;
 #endif
 
+#if defined(WITH_H264_WEBCODECS)
+	/* WebCodecs is probed at runtime; node (ctest) has no VideoDecoder. */
+	H264_CONTEXT* probe = h264_context_new(FALSE);
+	if (!probe)
+	{
+		(void)fprintf(stderr, "[%s] skipping, the runtime cannot decode H.264 with WebCodecs\n",
+		              __func__);
+		return 0;
+	}
+	h264_context_free(probe);
+#endif
+
+	/* Decoder tests also run when no encoder backend is configured. */
 	if (!testContextOptions(FALSE, width, height))
 		return -1;
+	if (!testDecode(FALSE))
+		return -1;
+#if defined(WITH_APPLE_VIDEOTOOLBOX) || defined(WITH_H264_WEBCODECS)
+	if (!testDecode(TRUE))
+		return -1;
+#endif
+	/* Both AVC444 packing formats must support combined and separate updates. */
+	if (!testDecodeAvc444(RDPGFX_CODECID_AVC444) || !testDecodeAvc444(RDPGFX_CODECID_AVC444v2))
+		return -1;
+
+#if !defined(WITH_MEDIA_FOUNDATION) &&                                                   \
+    (defined(WITH_OPENH264) || defined(WITH_VIDEO_FFMPEG) || defined(WITH_MEDIACODEC) || \
+	 defined(WITH_APPLE_VIDEOTOOLBOX))
+	/* Decoder-only builds cannot run the compression tests. */
 	if (!testContextOptions(TRUE, width, height))
 		return -1;
-	if (!testDecode())
-		return -1;
-#if !defined(WITH_MEDIA_FOUNDATION)
 	if (!testEncodeOffsetRegion())
 		return -1;
 
@@ -361,9 +576,11 @@ int TestFreeRDPCodecH264(int argc, char* argv[])
 				return -1;
 		}
 	}
-#else
+#elif defined(WITH_MEDIA_FOUNDATION)
 	(void)fprintf(stderr,
 	              "TODO: WITH_MEDIA_FOUNDATION: compression tests skipped, not implemented\n");
+#else
+	(void)fprintf(stderr, "H.264 compression tests skipped: no encoder configured\n");
 #endif
 
 	return 0;

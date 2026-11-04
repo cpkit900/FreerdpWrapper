@@ -118,6 +118,7 @@ struct rdpsnd_plugin
 	BOOL firstFlagReceived;
 	UINT32 totalLength;
 	BOOL connected;
+	UINT64 badWaves; /* waves dropped because they did not decode */
 };
 
 WINPR_ATTR_NODISCARD
@@ -532,6 +533,11 @@ static UINT rdpsnd_send_wave_confirm_pdu(rdpsndPlugin* rdpsnd, UINT16 wTimeStamp
 	return rdpsnd_virtual_channel_write(rdpsnd, pdu);
 }
 
+/* Audio the client may queue beyond the current sample before it drops
+ * samples as an overrun. The check is meant to stop old servers from
+ * queueing seconds of audio; jitter and bursts are tens of milliseconds. */
+#define RDPSND_OVERRUN_SLACK_MS 200
+
 WINPR_ATTR_NODISCARD
 static BOOL rdpsnd_detect_overrun(rdpsndPlugin* rdpsnd, const AUDIO_FORMAT* format, size_t size)
 {
@@ -606,8 +612,10 @@ static BOOL rdpsnd_detect_overrun(rdpsndPlugin* rdpsnd, const AUDIO_FORMAT* form
 		/* Calculate remaining duration to be played */
 		remainingDuration = totalDuration - (now - rdpsnd->startPlayTime);
 
-		/* Maximum allow duration calculation */
-		maxDuration = duration * 2 + rdpsnd->latency;
+		/* Maximum allow duration calculation: at least RDPSND_OVERRUN_SLACK_MS
+		 * on top, so samples that arrive in a burst (a late one followed by
+		 * an on-time one, or a server sending several at once) are kept */
+		maxDuration = duration * 2 + MAX(rdpsnd->latency, RDPSND_OVERRUN_SLACK_MS);
 
 		if (remainingDuration + duration > maxDuration)
 		{
@@ -654,7 +662,6 @@ static UINT rdpsnd_treat_wave(rdpsndPlugin* rdpsnd, wStream* s, size_t size)
 
 	if (rdpsnd->device && rdpsnd->attached && !rdpsnd_detect_overrun(rdpsnd, format, size))
 	{
-		UINT status = CHANNEL_RC_OK;
 		wStream* pcmData = StreamPool_Take(rdpsnd->pool, 4096);
 
 		if (rdpsnd->device->FormatSupported(rdpsnd->device, format))
@@ -676,12 +683,18 @@ static UINT rdpsnd_treat_wave(rdpsndPlugin* rdpsnd, wStream* s, size_t size)
 				                       Stream_Buffer(pcmData), Stream_Length(pcmData));
 		}
 		else
-			status = ERROR_INTERNAL_ERROR;
+		{
+			/* Dropped, and confirmed like the others: an error here would end the
+			 * thread that plays the sound, and with it the sound of the session */
+			rdpsnd->badWaves++;
+			WLog_Print(rdpsnd->log, (rdpsnd->badWaves == 1) ? WLOG_WARN : WLOG_DEBUG,
+			           "%s dropped a %s wave of %" PRIuz " bytes that does not decode (%" PRIu64
+			           " so far)",
+			           rdpsnd_is_dyn_str(rdpsnd->dynamic),
+			           audio_format_get_tag_string(format->wFormatTag), size, rdpsnd->badWaves);
+		}
 
 		Stream_Release(pcmData);
-
-		if (status != CHANNEL_RC_OK)
-			return status;
 	}
 
 	end = GetTickCount64();
@@ -923,6 +936,50 @@ static BOOL rdpsnd_set_device_name(rdpsndPlugin* rdpsnd, const char* device_name
 	return (rdpsnd->device_name != nullptr);
 }
 
+/* format:<format> accepts a numeric wFormatTag (e.g. 0x704F) or the name
+ * audio_format_get_tag_string() returns for it, with or without the
+ * WAVE_FORMAT_ prefix (e.g. opus, alaw, aac_ms).
+ * Anything else is rejected instead of silently becoming WAVE_FORMAT_UNKNOWN,
+ * which would allow any format. */
+WINPR_ATTR_NODISCARD
+static BOOL rdpsnd_parse_format_tag(const char* value, UINT16* tag)
+{
+	static const char prefix[] = "WAVE_FORMAT_";
+	const size_t prefixlen = strnlen(prefix, sizeof(prefix));
+
+	WINPR_ASSERT(value);
+	WINPR_ASSERT(tag);
+
+	char* end = nullptr;
+	errno = 0;
+	const unsigned long val = strtoul(value, &end, 0);
+	if ((errno == 0) && (end != value) && (*end == '\0'))
+	{
+		if (val > UINT16_MAX)
+			return FALSE;
+		*tag = (UINT16)val;
+		return TRUE;
+	}
+
+	const char* name = value;
+	if (_strnicmp(name, prefix, prefixlen) == 0)
+		name += prefixlen;
+
+	for (UINT32 x = 0; x <= UINT16_MAX; x++)
+	{
+		const char* str = audio_format_get_tag_string((UINT16)x);
+		if (strncmp(str, prefix, prefixlen) == 0)
+			str += prefixlen;
+		if (_stricmp(name, str) == 0)
+		{
+			*tag = (UINT16)x;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 /**
  * Function description
  *
@@ -980,12 +1037,18 @@ static UINT rdpsnd_process_addin_args(rdpsndPlugin* rdpsnd, const ADDIN_ARGV* ar
 			}
 			CommandLineSwitchCase(arg, "format")
 			{
-				unsigned long val = strtoul(arg->Value, nullptr, 0);
+				UINT16 tag = WAVE_FORMAT_UNKNOWN;
 
-				if ((errno != 0) || (val > UINT16_MAX))
+				if (!rdpsnd_parse_format_tag(arg->Value, &tag))
+				{
+					WLog_Print(rdpsnd->log, WLOG_ERROR,
+					           "invalid format '%s', expected a format tag (e.g. 0x704F) or "
+					           "a WAVE_FORMAT_ name (e.g. opus, pcm, alaw, aac_ms)",
+					           arg->Value);
 					return CHANNEL_RC_INITIALIZATION_ERROR;
+				}
 
-				rdpsnd->fixed_format->wFormatTag = (UINT16)val;
+				rdpsnd->fixed_format->wFormatTag = tag;
 			}
 			CommandLineSwitchCase(arg, "rate")
 			{
@@ -1086,6 +1149,9 @@ static UINT rdpsnd_process_connect(rdpsndPlugin* rdpsnd)
 #endif
 #if defined(WITH_SNDIO)
 		{ "sndio", "" },
+#endif
+#if defined(__EMSCRIPTEN__)
+		{ "emscripten", "" },
 #endif
 		{ "fake", "" }
 	};

@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <vector>
 #include <mutex>
@@ -119,6 +120,7 @@ class SdlContext
 
 	[[nodiscard]] const SdlWindow* getWindowForId(SDL_WindowID id) const;
 	[[nodiscard]] SdlWindow* getWindowForId(SDL_WindowID id);
+	[[nodiscard]] bool allWindowsHidden() const;
 	[[nodiscard]] SdlWindow* getFirstWindow();
 
 	[[nodiscard]] bool addDisplayWindow(SDL_DisplayID id);
@@ -222,6 +224,19 @@ class SdlContext
 	bool _resizeable = false;
 	bool _grabMouse = false;
 	bool _grabKeyboard = false;
+
+	/* RemoteApp pointer state */
+	struct
+	{
+		SDL_WindowID window = 0;
+		SDL_FPoint local = {};
+		SDL_FPoint server = {};
+	} _lastMotion; /* last motion forwarded to the server */
+	struct
+	{
+		SDL_WindowID window = 0;
+		Uint64 time = 0;
+	} _lastRelease;
 	int _exitCode = -1;
 	std::atomic<bool> _rdpThreadRunning = false;
 	SDL_PixelFormat _sdlPixelFormat = SDL_PIXELFORMAT_UNKNOWN;
@@ -249,6 +264,7 @@ class SdlContext
 	WinPREvent _windowsCreatedEvent;
 	std::thread _thread;
 	std::vector<COMMAND_LINE_ARGUMENT_A> _args;
+	std::optional<bool> _connectionDialog;
 	std::vector<rdpPointer*> _valid_pointers;
 	bool _credentialsRead = false;
 };
