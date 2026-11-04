@@ -32,36 +32,60 @@ FreeRDP Base : 3.33.0 (SDL3 client, D3D11 renderer)
 
 ## Changes in $version
 
-### Updated FreeRDP to 3.33.0
-- Upgraded FreeRDP base from 3.32.2 to official 3.33.0 release.
-- Rebuilt with OpenSSL 3.6.5 and vcpkg toolchain.
-- Up-to-date sdl3-freerdp, sdl2-freerdp, and wfreerdp binaries.
+### Upgraded FreeRDP from 3.32.2 to 3.33.0
+This is a major FreeRDP feature release with 13 CVE security fixes and
+numerous improvements. Highlights relevant to this wrapper:
 
-### Native SDL3 Parent-Window Embedding
-- FreeRDP's sdl3-freerdp.exe now correctly supports /parent-window:N.
-  SDL3 creates its window normally then reparents it into the host HWND via
-  Win32 SetParent(), stripping title-bar styles so it fills the tab seamlessly.
+### Security Fixes (13 CVEs)
+- Fixed multiple security vulnerabilities across codec, core, and channel
+  subsystems. See FreeRDP 3.33.0 security advisories for full details.
 
-### Embedded Dialog Suppression
-- When running embedded (parent-window supplied), the SDL3 connection dialog is
-  never created and SDL_RunOnMainThread is never called. This eliminates the
-  spurious [ERROR][handleShow] log error that appeared on every disconnect.
+### SDL3 Client Improvements
+- RemoteApp (RAIL) support for Windows — popups, window positioning, sizing,
+  minimize, and activation now work correctly on Windows.
+- Fixed fullscreen toggle releasing Ctrl+Alt properly on the server side,
+  preventing stuck modifier keys after Alt+Ctrl+Enter.
+- Wheel/scroll input now sends one axis per event (fixes erratic scrolling).
+- Fixed duplicate presentation in SDL3 input dialogs.
+- Fixed monitor order with /monitors: flag on multi-display setups.
+- Connection dialog can now be turned off; queued messages are drained
+  before the dialog is dismissed, preventing missed error messages.
+- Display layout is resent when the display channel reconnects.
 
-### Tab-Switch Repaint
-- Added SDL_EVENT_WINDOW_EXPOSED / SDL_EVENT_WINDOW_SHOWN handlers that
-  immediately blit the last D3D11 frame when a tab becomes visible.
-  Previously SDL3 waited for the next server frame, causing a visible
-  blank/stale delay on tab switch.
+### wfreerdp Client Improvements
+- Fixed fullscreen toggle — Ctrl+Alt+Enter now works via WM_SYSKEYDOWN and
+  releases Ctrl/Alt on the server before toggling.
+- Keyboard hook correctly resets key states on release events during
+  focus flip, preventing permanently stuck keys.
 
-### wfreerdp Keyboard Hook
-- The low-level WH_KEYBOARD_LL hook in wfreerdp now accepts input when focus
-  is on any descendant child of hWndParent (IsChild check), or when the
-  foreground window belongs to the same process as the parent. This fixes
-  keyboard input when wfreerdp is embedded inside a .NET TabControl.
+### Core / Protocol
+- Experimental UDP multitransport support for direct RDP connections.
+- Broker redirect detection for gateway scenarios.
+- Gateway (RDG) header parsing fixes — partially read headers no longer
+  cause connection drops.
+- Kerberos realm prompter fixes for domain authentication.
+- Auto-reconnect now stops when a reconnect attempt is rejected by server.
+- DisconnectProviderUltimatum reason encoding fix.
+- Input events are discarded before activation (prevents stale input).
 
-### Wrapper Cleanup
-- Clean native /parent-window embedding with EnumChildWindows + MoveWindow.
-- RepaintRdpWindow() as a belt-and-suspenders C#-side repaint helper.
+### Codec / Audio
+- Opus microphone encoding fix (audio capture reliability).
+- Sound channel accepts format names in /sound:format: option.
+- Dropped undecodable audio waves no longer stop playback.
+- RDPSND WinMM backend keeps audio queued ahead for smoother playback.
+- Pulse backend has default target latency and silence padding on restart.
+
+### Clipboard
+- Windows clipboard: image conversion, BMP layout, and UTF-8 text fixes.
+- HTML clipboard synthesizer destination format checks corrected.
+- FileGroupDescriptorW to file list conversion fixes.
+- Handles CB_RESPONSE_FAIL and malformed FAIL responses gracefully.
+
+### Other Notable Changes
+- Smartcard logon partial domain match and inverted domain match fixes.
+- OpenH264 2.6 (libopenh264.so.8) loader support.
+- PNG write: aborts on size wrap or realloc failure (prevents corruption).
+- Stream pool uses InterlockedDecrement for thread safety.
 
 ## Usage Notes
 - Drop the Bin\FreeRDP folder alongside FreeRdpWrapper.exe.
