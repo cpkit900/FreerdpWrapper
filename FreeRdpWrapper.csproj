@@ -7,6 +7,9 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Authors>cpkit900</Authors>
+    <Copyright>Copyright (c) 2026 cpkit900</Copyright>
   </PropertyGroup>
 
 </Project>
