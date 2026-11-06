@@ -443,7 +443,7 @@ namespace FreeRdpWrapper
         {
             if (e.Button == MouseButtons.Right)
             {
-                TreeNode node = treeConnections.GetNodeAt(e.X, e.Y);
+                TreeNode? node = treeConnections.GetNodeAt(e.X, e.Y);
                 if (node != null)
                 {
                     treeConnections.SelectedNode = node;
@@ -502,7 +502,7 @@ namespace FreeRdpWrapper
         {
             if (e.Button == MouseButtons.Right)
             {
-                TreeNode node = treeScripts.GetNodeAt(e.X, e.Y);
+                TreeNode? node = treeScripts.GetNodeAt(e.X, e.Y);
                 if (node != null) treeScripts.SelectedNode = node;
                 scriptContextMenu.Show(treeScripts, e.Location);
             }
@@ -612,7 +612,7 @@ namespace FreeRdpWrapper
 
         private void TreeConnections_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Tag is SavedConnection c)
+            if (e.Node?.Tag is SavedConnection c)
             {
                 LaunchSession(c);
             }
