@@ -70,7 +70,7 @@ namespace FreeRdpWrapper
                 CheckBoxes = true
             };
             treeConnections.AfterCheck += (s, e) => {
-                if (e.Action != TreeViewAction.Unknown)
+                if (e.Action != TreeViewAction.Unknown && e.Node != null)
                 {
                     foreach (TreeNode child in e.Node.Nodes)
                         child.Checked = e.Node.Checked;

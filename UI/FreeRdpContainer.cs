@@ -131,6 +131,7 @@ namespace FreeRdpWrapper.UI
             if (config.EnableUsbRedirection) baseArgs += " /usb:auto";
 
             if (config.AdminSession) baseArgs += " +admin";
+            if (config.DisableUdp)   baseArgs += " /multitransport:tcp-only";
 
             // Network / GFX (skip for RemoteApp — conflicts with RAIL)
             if (string.IsNullOrEmpty(config.RemoteApp))

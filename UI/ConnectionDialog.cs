@@ -43,6 +43,7 @@ namespace FreeRdpWrapper.UI
         private CheckBox chkAdminSession = null!;
         private CheckBox chkAutoNetworkProfile = null!;
         private CheckBox chkGamingMode = null!;
+        private CheckBox chkDisableUdp = null!;
 
         private ComboBox cmbProtocol = null!;
         private TextBox txtSshKey = null!;
@@ -237,7 +238,10 @@ namespace FreeRdpWrapper.UI
             tabAdvanced.Controls.Add(txtRemoteApp); y += 50;
 
             chkAutoReconnect = new CheckBox { Text = "Auto-Reconnect on network drop", Location = new Point(20, y), Width = 300 };
-            tabAdvanced.Controls.Add(chkAutoReconnect);
+            tabAdvanced.Controls.Add(chkAutoReconnect); y += 30;
+
+            chkDisableUdp = new CheckBox { Text = "Disable UDP Multitransport (/multitransport:tcp-only)", Location = new Point(20, y), Width = 350 };
+            tabAdvanced.Controls.Add(chkDisableUdp);
 
             // Add Tabs
             tabs.TabPages.Add(tabGeneral);
@@ -310,6 +314,7 @@ namespace FreeRdpWrapper.UI
             chkGateway.Checked = Connection.EnableGateway;
             txtRemoteApp.Text = Connection.RemoteApp;
             chkAutoReconnect.Checked = Connection.AutoReconnect;
+            chkDisableUdp.Checked = Connection.DisableUdp;
         }
 
         private void BtnSave_Click(object? sender, EventArgs e)
@@ -380,6 +385,7 @@ namespace FreeRdpWrapper.UI
             Connection.EnableGateway = chkGateway.Checked;
             Connection.RemoteApp = txtRemoteApp.Text;
             Connection.AutoReconnect = chkAutoReconnect.Checked;
+            Connection.DisableUdp = chkDisableUdp.Checked;
 
             Connection.AdditionalFlags = "/gfx"; // Auto-negotiate best graphics
 

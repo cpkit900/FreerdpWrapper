@@ -46,6 +46,7 @@ namespace FreeRdpWrapper.Models
         public bool MapDrive { get; set; } = false;
         public bool MapPrinter { get; set; } = false;
         public bool MapSmartcard { get; set; } = false;
+        public bool DisableUdp { get; set; } = false;
 
         // Session Reliability & Multi-Monitor
         public bool MultiMonitor { get; set; } = false;
