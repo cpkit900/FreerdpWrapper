@@ -29,10 +29,8 @@ jobs:
       - name: Prepare Signing Payload
         shell: pwsh
         run: |
-          # SignPath expects a zip containing the file(s) to sign
-          New-Item -ItemType Directory -Path ./to_sign -Force
-          Copy-Item ./publish/FreeRdpWrapper.exe ./to_sign/FreeRdpWrapper.exe
-          Compress-Archive -Path ./to_sign/* -DestinationPath ./unsigned_payload.zip -Force
+          # Create a clean zip containing FreeRdpWrapper.exe at root
+          [System.IO.Compression.ZipFile]::CreateFromDirectory("./publish", "./unsigned_payload.zip")
 
       - name: Submit Signing Request to SignPath
         shell: pwsh
@@ -48,6 +46,7 @@ jobs:
             -OrganizationId "4133c782-e9a0-41bf-8180-f61656612c59" `
             -ProjectSlug "Freerdp_Wrapper" `
             -SigningPolicySlug "Freerdp_Wrapper_Signing_Policy" `
+            -ArtifactConfigurationSlug "initial" `
             -OutputArtifactPath "./signed_payload.zip" `
             -WaitForCompletion
 
@@ -83,3 +82,4 @@ jobs:
         with:
           files: ${{ env.ZIP_PATH }}
           generate_release_notes: true
+
