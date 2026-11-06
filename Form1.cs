@@ -724,7 +724,12 @@ namespace FreeRdpWrapper
             }
 
             string host = config.Host;
-            string exeName = config.UseSdl ? "sdl3-freerdp.exe" : "wfreerdp.exe";
+                        string exeName = config.ClientType switch
+            {
+                RdpClientType.Sdl3     => "sdl3-freerdp.exe",
+                RdpClientType.XFreeRdp => "xfreerdp.exe",
+                _                      => "wfreerdp.exe"
+            };
             string relativeBuildPath = Path.Combine("Compiled", "bin", exeName);
             
             string possiblePath = exeName;

@@ -15,7 +15,7 @@ namespace FreeRdpWrapper.UI
         private TextBox txtUser = null!;
         private TextBox txtPass = null!;
         private TextBox txtDomain = null!;
-        private CheckBox chkUseSdl = null!;
+        private ComboBox cmbRdpClient = null!;
         private ComboBox cmbCertSecurity = null!;
         private ComboBox cmbResolution = null!;
         private TextBox txtResWidth = null!;
@@ -169,8 +169,10 @@ namespace FreeRdpWrapper.UI
             chkMultiMonitor = new CheckBox { Text = "Use Multiple Monitors (/multimon)\nNote: Will launch detached", Location = new Point(20, y), Width = 300, Height = 35 };
             tabDisplay.Controls.Add(chkMultiMonitor); y += 40;
 
-            chkUseSdl = new CheckBox { Text = "Use SDL3 Engine (Instead of wfreerdp)", Location = new Point(20, y), Width = 300 };
-            tabDisplay.Controls.Add(chkUseSdl); y += 30;
+            tabDisplay.Controls.Add(new Label { Text = "RDP Client:", Location = new Point(20, y + 3), Width = 80 });
+            cmbRdpClient = new ComboBox { Location = new Point(100, y), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbRdpClient.Items.AddRange(new string[] { "wfreerdp (Windows Native)", "sdl3-freerdp (SDL3 Engine)", "xfreerdp (X11 / Linux)" });
+            tabDisplay.Controls.Add(cmbRdpClient); y += 35;
 
             tabDisplay.Controls.Add(new Label { Text = "Cert Security:", Location = new Point(20, y), Width = 80 });
             cmbCertSecurity = new ComboBox { Location = new Point(100, y), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
@@ -285,7 +287,12 @@ namespace FreeRdpWrapper.UI
 
             chkEnableDpiScale.Checked = Connection.EnableDpiScale;
             chkMultiMonitor.Checked = Connection.MultiMonitor;
-            chkUseSdl.Checked = Connection.UseSdl;
+                        cmbRdpClient.SelectedIndex = Connection.ClientType switch
+            {
+                RdpClientType.Sdl3     => 1,
+                RdpClientType.XFreeRdp => 2,
+                _                      => 0
+            };
 
             cmbCertSecurity.SelectedIndex = Connection.CertConfig switch
             {
@@ -356,7 +363,12 @@ namespace FreeRdpWrapper.UI
 
             Connection.EnableDpiScale = chkEnableDpiScale.Checked;
             Connection.MultiMonitor = chkMultiMonitor.Checked;
-            Connection.UseSdl = chkUseSdl.Checked;
+                        Connection.ClientType = cmbRdpClient.SelectedIndex switch
+            {
+                1 => RdpClientType.Sdl3,
+                2 => RdpClientType.XFreeRdp,
+                _ => RdpClientType.WFreeRdp
+            };
 
             Connection.CertConfig = cmbCertSecurity.SelectedIndex switch
             {

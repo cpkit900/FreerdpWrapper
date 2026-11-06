@@ -1,5 +1,12 @@
 namespace FreeRdpWrapper.Models
 {
+    public enum RdpClientType
+    {
+        WFreeRdp,
+        Sdl3,
+        XFreeRdp
+    }
+
     public enum CertSecurity
     {
         Ignore,
@@ -15,7 +22,13 @@ namespace FreeRdpWrapper.Models
         public string Domain { get; set; } = string.Empty;
         
         // Advanced Display & Exec
-        public bool UseSdl { get; set; } = false; // wfreerdp is standard on Windows, sdlfreerdp is optional
+                public RdpClientType ClientType { get; set; } = RdpClientType.WFreeRdp;
+        // Backwards compatibility property
+        public bool UseSdl 
+        { 
+            get => ClientType == RdpClientType.Sdl3; 
+            set { if (value) ClientType = RdpClientType.Sdl3; else if (ClientType == RdpClientType.Sdl3) ClientType = RdpClientType.WFreeRdp; } 
+        }
         public CertSecurity CertConfig { get; set; } = CertSecurity.Ignore;
         public bool DynamicResolution { get; set; } = true;
         public bool UseCustomResolution { get; set; } = false;
