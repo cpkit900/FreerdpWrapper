@@ -16,7 +16,7 @@ static class Program
     static void Main(string[] args)
     {
         // Internal diagnostic self-test
-        if (args.Length > 0 && args[0] == "--test-phase1")
+        if (args.Length > 0 && (args[0] == "--test-phase1" || args[0] == "--test-all"))
         {
             RunSelfTests();
             return;
@@ -79,7 +79,35 @@ static class Program
         File.Delete(tempRdp);
         Console.WriteLine("[PASS] Microsoft .rdp file import & parsing");
 
-        Console.WriteLine("=== ALL PHASE 1 TESTS PASSED SUCCESSFULLY! ===");
+        // 4. AI Diagnostics Engine
+        string diagResult = AiAssistantService.DiagnoseErrorAsync("ERRCONNECT_SECURITY_NEGO_CONNECT_FAILED [0x2000C]").GetAwaiter().GetResult();
+        if (!diagResult.Contains("0x2000C") || !diagResult.Contains("Security Negotiation"))
+        {
+            Console.WriteLine("[FAIL] AiAssistantService diagnosis rule failed!");
+            Environment.Exit(1);
+        }
+        Console.WriteLine("[PASS] AI Diagnostics Engine (Built-in Knowledgebase)");
+
+        // 5. AI Script Generator
+        string winScript = AiAssistantService.GenerateScriptAsync("Enable Remote Desktop", false).GetAwaiter().GetResult();
+        string linuxScript = AiAssistantService.GenerateScriptAsync("Install XRDP", true).GetAwaiter().GetResult();
+        if (!winScript.Contains("termservice") || !linuxScript.Contains("xrdp"))
+        {
+            Console.WriteLine("[FAIL] AiAssistantService script generator failed!");
+            Environment.Exit(1);
+        }
+        Console.WriteLine("[PASS] AI Script Generator (Windows & Linux)");
+
+        // 6. Network Reachability Probe
+        var probe = NetworkTester.ProbeHostAsync("127.0.0.1", defaultPort: 3389, timeoutMs: 500).GetAwaiter().GetResult();
+        if (probe.Port != 3389)
+        {
+            Console.WriteLine("[FAIL] NetworkTester probe failed!");
+            Environment.Exit(1);
+        }
+        Console.WriteLine("[PASS] Network Reachability & Port Probe");
+
+        Console.WriteLine("=== ALL SYSTEM TESTS PASSED SUCCESSFULLY! ===");
         Environment.Exit(0);
     }
 }

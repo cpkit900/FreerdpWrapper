@@ -11,6 +11,8 @@ namespace FreeRdpWrapper.UI
     {
         private Process? _rdpProcess;
         private IntPtr _rdpHandle = IntPtr.Zero;
+        private RdpConfig? _lastConfig;
+        private string _lastExePath = string.Empty;
 
         // ── Win32 imports needed at runtime ──────────────────────────────────
 
@@ -46,6 +48,9 @@ namespace FreeRdpWrapper.UI
         [DllImport("user32.dll")]
         static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
 
+        [DllImport("user32.dll")]
+        static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
         const uint RDW_INVALIDATE  = 0x0001;
         const uint RDW_ERASE       = 0x0004;
         const uint RDW_ALLCHILDREN = 0x0080;
@@ -64,6 +69,9 @@ namespace FreeRdpWrapper.UI
 
         public void LaunchSession(RdpConfig config, string exePath)
         {
+            _lastConfig = config;
+            _lastExePath = exePath;
+
             // Ensure the Win32 handle is created before we pass it to FreeRDP
             if (!this.IsHandleCreated)
                 _ = this.Handle;
@@ -336,6 +344,56 @@ namespace FreeRdpWrapper.UI
             RedrawWindow(_rdpHandle, IntPtr.Zero, IntPtr.Zero,
                 RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW);
             SendMessage(_rdpHandle, WM_PAINT, IntPtr.Zero, IntPtr.Zero);
+        }
+
+        public void Reconnect()
+        {
+            if (_lastConfig != null && !string.IsNullOrEmpty(_lastExePath))
+            {
+                Disconnect();
+                System.Threading.Thread.Sleep(300);
+                LaunchSession(_lastConfig, _lastExePath);
+            }
+        }
+
+        public System.Drawing.Bitmap? CaptureScreenshot()
+        {
+            if (this.Width <= 0 || this.Height <= 0) return null;
+            try
+            {
+                var bmp = new System.Drawing.Bitmap(this.Width, this.Height);
+                using (var g = System.Drawing.Graphics.FromImage(bmp))
+                {
+                    System.Drawing.Point screenPt = this.PointToScreen(System.Drawing.Point.Empty);
+                    g.CopyFromScreen(screenPt.X, screenPt.Y, 0, 0, this.Size);
+                }
+                return bmp;
+            }
+            catch (Exception ex)
+            {
+                OnLogMessage?.Invoke($"[Screenshot] Failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        public void SendCtrlAltDel()
+        {
+            FocusRdpWindow();
+            // Send Ctrl + Alt + End (standard Windows SAS key for Remote Desktop)
+            const byte VK_CONTROL = 0x11;
+            const byte VK_MENU = 0x12; // Alt
+            const byte VK_END = 0x23;
+            const uint KEYEVENTF_KEYUP = 0x0002;
+
+            keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
+            keybd_event(VK_MENU, 0, 0, UIntPtr.Zero);
+            keybd_event(VK_END, 0, 0, UIntPtr.Zero);
+            System.Threading.Thread.Sleep(50);
+            keybd_event(VK_END, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            keybd_event(VK_MENU, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+
+            OnLogMessage?.Invoke("[Input] Injected Remote Ctrl+Alt+Del (Ctrl+Alt+End) sequence.");
         }
 
         // ── Disconnect / cleanup ─────────────────────────────────────────────
