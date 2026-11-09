@@ -83,7 +83,8 @@ namespace FreeRdpWrapper.UI
 
             string baseArgs = $"/v:\"{config.Host}\" /u:\"{config.User}\"";
 
-            string plainPass = FreeRdpWrapper.Services.CryptoHelper.DecryptString(config.Pass);
+            string plainPass = !string.IsNullOrEmpty(config.Pass) ? FreeRdpWrapper.Services.VaultCrypto.DecryptSecret(config.Pass) : string.Empty;
+            if (string.IsNullOrEmpty(plainPass) && !string.IsNullOrEmpty(config.Pass)) plainPass = config.Pass;
             if (!string.IsNullOrEmpty(plainPass)) baseArgs += $" /p:\"{plainPass}\"";
 
             if (!string.IsNullOrEmpty(config.Domain)) baseArgs += $" /d:\"{config.Domain}\"";
@@ -96,7 +97,8 @@ namespace FreeRdpWrapper.UI
                 if (!string.IsNullOrEmpty(config.GatewayDomain)) gwArgs += $",d:{config.GatewayDomain}";
                 if (!string.IsNullOrEmpty(config.GatewayUser))   gwArgs += $",u:{config.GatewayUser}";
 
-                string plainGwPass = FreeRdpWrapper.Services.CryptoHelper.DecryptString(config.GatewayPass);
+                string plainGwPass = !string.IsNullOrEmpty(config.GatewayPass) ? FreeRdpWrapper.Services.VaultCrypto.DecryptSecret(config.GatewayPass) : string.Empty;
+                if (string.IsNullOrEmpty(plainGwPass) && !string.IsNullOrEmpty(config.GatewayPass)) plainGwPass = config.GatewayPass;
                 if (!string.IsNullOrEmpty(plainGwPass)) gwArgs += $",p:{plainGwPass}";
 
                 baseArgs += $" \"/gateway:{gwArgs}\"";

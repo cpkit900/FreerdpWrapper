@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -11,7 +12,19 @@ namespace FreeRdpWrapper.Services
 
         public ScriptStore()
         {
-            _filePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "scripts.json");
+            string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FreeRdpWrapper");
+            if (!Directory.Exists(appData))
+            {
+                Directory.CreateDirectory(appData);
+            }
+            _filePath = Path.Combine(appData, "scripts.json");
+
+            // Migration: If legacy scripts.json exists in BaseDirectory, copy it over
+            string legacyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts.json");
+            if (File.Exists(legacyPath) && !File.Exists(_filePath))
+            {
+                try { File.Copy(legacyPath, _filePath); } catch { }
+            }
         }
 
         public List<SavedScript> LoadScripts()
