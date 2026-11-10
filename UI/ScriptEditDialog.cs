@@ -19,7 +19,7 @@ namespace FreeRdpWrapper.UI
         public ScriptEditDialog(SavedScript? existingScript = null)
         {
             _isNew = (existingScript == null);
-            Script = existingScript ?? new SavedScript { Name = "New Script", Content = "#!/bin/bash\n# Automation script\n\nuname -a\nuptime\n" };
+            Script = existingScript ?? new SavedScript { Name = "New Script", Content = "#!/bin/bash\r\n# Automation script\r\n\r\nuname -a\r\nuptime\r\n" };
             SetupUI();
         }
 
@@ -74,6 +74,13 @@ namespace FreeRdpWrapper.UI
                 BackColor = inputBg,
                 ForeColor = fg
             };
+            txtName.KeyDown += (s, e) => {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true;
+                    txtContent.Focus();
+                }
+            };
 
             Label lblSub = new Label
             {
@@ -104,7 +111,7 @@ namespace FreeRdpWrapper.UI
 
             Label lblHint = new Label
             {
-                Text = "Tip: Supports multi-line Bash, PowerShell, or Batch commands.",
+                Text = "Tip: Press Enter for new line, Tab to indent, Ctrl+S to save.",
                 Location = new Point(12, 16),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 8f),
@@ -161,10 +168,12 @@ namespace FreeRdpWrapper.UI
             {
                 Dock = DockStyle.Fill,
                 Multiline = true,
+                AcceptsReturn = true,
+                AcceptsTab = true,
                 ScrollBars = ScrollBars.Both,
                 WordWrap = false,
                 Font = new Font("Consolas", 10.5f),
-                Text = Script.Content,
+                Text = (Script.Content ?? "").Replace("\r\n", "\n").Replace("\n", "\r\n"),
                 BackColor = inputBg,
                 ForeColor = fg
             };
@@ -181,7 +190,14 @@ namespace FreeRdpWrapper.UI
             pnlBottom.BringToFront();
             pnlEditorWrapper.BringToFront();
 
-            this.AcceptButton = btnSave;
+            this.KeyPreview = true;
+            this.KeyDown += (s, e) => {
+                if (e.Control && e.KeyCode == Keys.S)
+                {
+                    e.SuppressKeyPress = true;
+                    BtnSave_Click(s, e);
+                }
+            };
             this.CancelButton = btnCancel;
         }
 
