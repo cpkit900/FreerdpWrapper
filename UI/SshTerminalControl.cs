@@ -357,7 +357,9 @@ namespace FreeRdpWrapper.UI
         // ════════════════════════════════════════════════════════════════════
 
         private Color _currentForeColor = Color.FromArgb(212, 212, 212);
-        private static readonly Regex AnsiRegex = new Regex(@"\x1B\[[0-9;]*[a-zA-Z]|\x1B\][^\x07]*\x07|\x1B[=>]", RegexOptions.Compiled);
+        private static readonly Regex AnsiRegex = new Regex(
+            @"\x1B\[[\?><=]?[0-9;]*[@-~]|\x1B\][^\x07\x1B]*(?:\x07|\x1B\\)|\x1B[=>NOPn-o]|\x1B[()][A-Z0-9]",
+            RegexOptions.Compiled);
 
         private void AppendAnsiText(string raw)
         {
