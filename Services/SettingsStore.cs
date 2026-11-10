@@ -6,9 +6,20 @@ using System.Text;
 
 namespace FreeRdpWrapper.Services
 {
+    public enum LogLevelSetting
+    {
+        Off,
+        Error,
+        Info,
+        Trace
+    }
+
     public class AppSettings
     {
         public string MasterPasswordHash { get; set; } = string.Empty;
+        public LogLevelSetting LogLevel { get; set; } = LogLevelSetting.Info;
+        public bool AutoShowLogsOnError { get; set; } = true;
+        public bool ShowQuickConnectBar { get; set; } = true;
     }
 
     public static class SettingsStore
@@ -31,14 +42,12 @@ namespace FreeRdpWrapper.Services
 
                 if (settings != null && !string.IsNullOrEmpty(settings.MasterPasswordHash))
                 {
-                    // MasterPasswordHash is stored encrypted via DPAPI for extra security at rest.
                     try
                     {
-                        settings.MasterPasswordHash = CryptoHelper.DecryptString(settings.MasterPasswordHash);
+                        settings.MasterPasswordHash = VaultCrypto.DecryptSecret(settings.MasterPasswordHash);
                     }
                     catch (CryptographicException)
                     {
-                        // Could not decrypt DPAPI payload (maybe different user or machine)
                         settings.MasterPasswordHash = string.Empty;
                     }
                 }
@@ -62,12 +71,14 @@ namespace FreeRdpWrapper.Services
                     Directory.CreateDirectory(directory);
                 }
 
-                // Deep copy so we don't encrypt the active in-memory object
                 var settingsToSave = new AppSettings
                 {
                     MasterPasswordHash = !string.IsNullOrEmpty(settings.MasterPasswordHash)
-                        ? CryptoHelper.EncryptString(settings.MasterPasswordHash)
-                        : string.Empty
+                        ? VaultCrypto.EncryptSecret(settings.MasterPasswordHash)
+                        : string.Empty,
+                    LogLevel = settings.LogLevel,
+                    AutoShowLogsOnError = settings.AutoShowLogsOnError,
+                    ShowQuickConnectBar = settings.ShowQuickConnectBar
                 };
 
                 var options = new JsonSerializerOptions { WriteIndented = true };

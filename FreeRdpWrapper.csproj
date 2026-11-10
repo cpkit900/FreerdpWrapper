@@ -10,6 +10,10 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>cpkit900</Authors>
     <Copyright>Copyright (c) 2026 cpkit900</Copyright>
+    <Product>AeroRemote Desktop</Product>
+    <AssemblyTitle>AeroRemote Desktop</AssemblyTitle>
+    <Description>Modern FreeRDP 3 Connection Manager &amp; Desktop Workspace</Description>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>

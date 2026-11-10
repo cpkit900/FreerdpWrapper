@@ -17,14 +17,16 @@ namespace FreeRdpWrapper
         private List<SavedConnection> _connections = new();
         private ScriptStore _scriptStore = default!;
         private List<SavedScript> _scripts = new();
+        private AppSettings _settings = default!;
 
-        // UI Zones (Rocket Remote Desktop Inspired)
-        private Panel ribbonPanel = default!;       // Top Zone A: Command Bar & Quick Connect
-        private SplitContainer mainSplit = default!; // Left: Nav, Right: Workspace
-        private SplitContainer leftSplit = default!; // Top: Connections, Bottom: Scripts
-        private SplitContainer rightSplit = default!; // Top: Tabs, Bottom: Logs
-        
-        // Navigation Zone B
+        // UI Zones (Devolutions RDM + Rocket Remote Desktop Inspired)
+        private Panel topNavPanel = default!;       // Top Zone: Modern Command Bar & Search
+        private Panel quickConnectRow = default!;   // Quick Connect Bar
+        private SplitContainer mainSplit = default!; // Left: Nav, Right: Workspace & Logs
+        private SplitContainer leftSplit = default!; // Left Top: Connections, Left Bottom: Scripts
+        private SplitContainer rightSplit = default!; // Center: TabControl, Bottom: Hidden Logs Drawer
+
+        // Navigation Zone
         private Panel leftNavHeader = default!;
         private TextBox txtSearch = default!;
         private Button btnClearSearch = default!;
@@ -33,41 +35,49 @@ namespace FreeRdpWrapper
         private TreeView treeScripts = default!;
         private ContextMenuStrip treeContextMenu = default!;
         private ContextMenuStrip scriptContextMenu = default!;
-        
+
         // Pinning & Retracting states
         private bool _isLeftPinned = true;
         private bool _isLeftCollapsed = false;
-        private int _leftSavedWidth = 240;
+        private int _leftSavedWidth = 250;
         private Button btnPinLeft = default!;
         private Button btnCollapseLeft = default!;
 
-        private bool _isBottomPinned = true;
-        private bool _isBottomCollapsed = false;
-        private int _bottomSavedHeight = 180;
-        private Button btnPinBottom = default!;
-        private Button btnToggleBottom = default!;
-        private Label lblBottomStatus = default!;
-
-        private bool _isRibbonCompact = false;
-        private Panel ribbonActionRow = default!;
-        private Panel quickConnectRow = default!;
-
-        // Center Workspace Zone C
-        private TabControl tabControl = default!;
+        // Logs Drawer (Hidden by default, Devolutions style)
+        private bool _isLogsVisible = false;
+        private Panel logsDrawer = default!;
         private TextBox txtLogs = default!;
+        private Button btnLogsToggle = default!;
+        private Label lblStatusText = default!;
+
+        // Workspace Zone
+        private TabControl tabControl = default!;
+        private TabPage? _quickStartTab = null;
         private TabPage? _aiTabPage = null;
 
-        // Clipboard clear timer
+        // Clipboard timer
         private System.Windows.Forms.Timer? _clipboardTimer;
 
         public Form1()
         {
             InitializeComponent();
+            _settings = SettingsStore.LoadSettings();
             _store = new ConnectionStore();
             _connections = _store.LoadConnections();
             _scriptStore = new ScriptStore();
             _scripts = _scriptStore.LoadScripts();
-            
+
+            // Set application icon
+            try
+            {
+                string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico");
+                if (File.Exists(iconPath))
+                {
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+            catch { }
+
             SetupUI();
             RefreshTree();
             RefreshScriptsTree();
@@ -75,68 +85,95 @@ namespace FreeRdpWrapper
 
         private void SetupUI()
         {
-            this.Text = "FreeRDP Wrapper - Modern Remote Desktop Manager (.NET 10)";
-            this.Width = 1280;
-            this.Height = 840;
+            this.Text = "AeroRemote Desktop - FreeRDP 3 Workspace (.NET 10)";
+            this.Width = 1300;
+            this.Height = 860;
             this.StartPosition = FormStartPosition.CenterScreen;
 
             // ════════════════════════════════════════════════════════════════════
-            // ZONE A: TOP COMMAND RIBBON & QUICK CONNECT
+            // TOP COMMAND BAR (DEVOLUTIONS RDM STYLE)
             // ════════════════════════════════════════════════════════════════════
-            ribbonPanel = new Panel { Dock = DockStyle.Top, Height = 84, AutoSize = false };
+            topNavPanel = new Panel { Dock = DockStyle.Top, Height = 42, Padding = new Padding(6, 4, 6, 4) };
 
-            // Row 1: Action Ribbon Buttons
-            ribbonActionRow = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(4) };
-            
-            Button btnAdd = CreateToolButton("➕ New Server", (s, e) => AddConnection());
-            Button btnImportRdp = CreateToolButton("📥 Import .rdp", (s, e) => ImportRdpFile());
-            Button btnExportVault = CreateToolButton("📤 Export Vault", (s, e) => ExportVaultArchive());
-            Button btnImportVault = CreateToolButton("📥 Import Vault", (s, e) => ImportVaultArchive());
+            Button btnAdd = CreateNavButton("➕ Add Entry", (s, e) => AddConnection(), isPrimary: true);
+            Button btnEdit = CreateNavButton("✏️ Edit", (s, e) => EditConnection());
+            Button btnDelete = CreateNavButton("🗑️ Delete", (s, e) => DeleteConnection());
+            Button btnImport = CreateNavButton("📥 Import .rdp", (s, e) => ImportRdpFile());
+            Button btnVault = CreateNavButton("🔒 Vault Backup", (s, e) => ExportVaultArchive());
 
-            Button btnReconnect = CreateToolButton("🔁 Reconnect", (s, e) => ReconnectActiveSession());
-            Button btnScreenshot = CreateToolButton("📸 Screenshot", (s, e) => CaptureActiveScreenshot());
-            Button btnCtrlAltDel = CreateToolButton("⌨️ Ctrl+Alt+Del", (s, e) => SendActiveCtrlAltDel());
-            Button btnAiCopilot = CreateToolButton("🤖 AI Copilot", (s, e) => ToggleAiCopilotTab());
-            Button btnFullscreen = CreateToolButton("⛶ Fullscreen (F11)", (s, e) => ToggleFullscreen());
-            Button btnTheme = CreateToolButton("🌗 Theme", (s, e) => CycleTheme());
-            Button btnCompactRibbon = CreateToolButton("▲ Compact", (s, e) => ToggleRibbonCompact());
+            Button btnReconnect = CreateNavButton("🔁 Reconnect", (s, e) => ReconnectActiveSession());
+            Button btnScreenshot = CreateNavButton("📸 Screenshot", (s, e) => CaptureActiveScreenshot());
+            Button btnCtrlAltDel = CreateNavButton("⌨️ Ctrl+Alt+Del", (s, e) => SendActiveCtrlAltDel());
+            Button btnFullscreen = CreateNavButton("⛶ Fullscreen (F11)", (s, e) => ToggleFullscreen());
 
-            FlowLayoutPanel ribbonFlow = new FlowLayoutPanel
+            Button btnAiCopilot = CreateNavButton("🤖 AI Copilot", (s, e) => ToggleAiCopilotTab());
+            Button btnSettings = CreateNavButton("⚙️ Settings", (s, e) => OpenSettings());
+            Button btnTheme = CreateNavButton("🌗", (s, e) => CycleTheme());
+
+            // Global Search Bar in Top Bar
+            TextBox txtGlobalSearch = new TextBox
             {
-                Dock = DockStyle.Fill,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false,
-                AutoScroll = true
+                Width = 220,
+                Height = 26,
+                Font = new Font("Segoe UI", 9.5f),
+                PlaceholderText = "🔍 Search everywhere..."
             };
-            ribbonFlow.Controls.AddRange(new Control[] {
-                btnAdd, btnImportRdp, btnExportVault, btnImportVault,
-                CreateSeparator(),
-                btnReconnect, btnScreenshot, btnCtrlAltDel,
-                CreateSeparator(),
-                btnAiCopilot, btnFullscreen, btnTheme, btnCompactRibbon
-            });
-            ribbonActionRow.Controls.Add(ribbonFlow);
+            txtGlobalSearch.TextChanged += (s, e) => {
+                txtSearch.Text = txtGlobalSearch.Text;
+            };
 
-            // Row 2: Quick Connect Address Bar
-            quickConnectRow = new Panel { Dock = DockStyle.Bottom, Height = 42, Padding = new Padding(6) };
-            
-            Label lblQc = new Label { Text = "⚡ Quick Connect:", Location = new Point(8, 12), AutoSize = true, Font = new Font(this.Font, FontStyle.Bold) };
-            TextBox txtQHost = new TextBox { Location = new Point(130, 9), Width = 170, PlaceholderText = "Host or IP[:Port]", Font = new Font("Segoe UI", 9.5f) };
-            TextBox txtQUser = new TextBox { Location = new Point(310, 9), Width = 130, PlaceholderText = "Username", Font = new Font("Segoe UI", 9.5f) };
-            TextBox txtQPass = new TextBox { Location = new Point(450, 9), Width = 130, PlaceholderText = "Password", PasswordChar = '*', Font = new Font("Segoe UI", 9.5f) };
-            
-            ComboBox cmbQClient = new ComboBox { Location = new Point(590, 8), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9.5f) };
+            FlowLayoutPanel leftFlow = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Left,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false
+            };
+            leftFlow.Controls.AddRange(new Control[] {
+                btnAdd, btnEdit, btnDelete,
+                CreateSeparator(),
+                btnImport, btnVault,
+                CreateSeparator(),
+                btnReconnect, btnScreenshot, btnCtrlAltDel, btnFullscreen
+            });
+
+            FlowLayoutPanel rightFlow = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Right,
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false
+            };
+            rightFlow.Controls.AddRange(new Control[] {
+                txtGlobalSearch,
+                btnAiCopilot, btnSettings, btnTheme
+            });
+
+            topNavPanel.Controls.Add(leftFlow);
+            topNavPanel.Controls.Add(rightFlow);
+
+            // ════════════════════════════════════════════════════════════════════
+            // QUICK CONNECT ADDRESS BAR (ROCKET REMOTE DESKTOP STYLE)
+            // ════════════════════════════════════════════════════════════════════
+            quickConnectRow = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(8, 6, 8, 4) };
+
+            Label lblQc = new Label { Text = "⚡ Quick Connect:", Location = new Point(8, 10), AutoSize = true, Font = new Font(this.Font, FontStyle.Bold) };
+            TextBox txtQHost = new TextBox { Location = new Point(135, 7), Width = 190, PlaceholderText = "Host or IP[:Port]", Font = new Font("Segoe UI", 9.5f) };
+            TextBox txtQUser = new TextBox { Location = new Point(335, 7), Width = 140, PlaceholderText = "Username", Font = new Font("Segoe UI", 9.5f) };
+            TextBox txtQPass = new TextBox { Location = new Point(485, 7), Width = 140, PlaceholderText = "Password", PasswordChar = '*', Font = new Font("Segoe UI", 9.5f) };
+
+            ComboBox cmbQClient = new ComboBox { Location = new Point(635, 6), Width = 160, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9.5f) };
             cmbQClient.Items.AddRange(new object[] { "wfreerdp (Windows)", "sdl3 (Modern D3D11)", "xfreerdp (Linux/WSL)" });
             cmbQClient.SelectedIndex = 0;
 
-            Button btnQConnect = new Button 
-            { 
-                Text = "🚀 Connect", 
-                Location = new Point(750, 7), 
-                Width = 100, 
-                Height = 28, 
-                FlatStyle = FlatStyle.Flat, 
-                BackColor = Color.DodgerBlue, 
+            Button btnQConnect = new Button
+            {
+                Text = "🚀 Connect",
+                Location = new Point(805, 5),
+                Width = 100,
+                Height = 29,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.DodgerBlue,
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold)
             };
@@ -151,8 +188,9 @@ namespace FreeRdpWrapper
                         _ => RdpClientType.WFreeRdp
                     };
 
-                    LaunchSession(new SavedConnection {
-                        Name = "Quick: " + txtQHost.Text,
+                    LaunchSession(new SavedConnection
+                    {
+                        Name = "Quick: " + txtQHost.Text.Trim(),
                         Host = txtQHost.Text.Trim(),
                         User = txtQUser.Text.Trim(),
                         Pass = txtQPass.Text,
@@ -167,11 +205,8 @@ namespace FreeRdpWrapper
 
             quickConnectRow.Controls.AddRange(new Control[] { lblQc, txtQHost, txtQUser, txtQPass, cmbQClient, btnQConnect });
 
-            ribbonPanel.Controls.Add(quickConnectRow);
-            ribbonPanel.Controls.Add(ribbonActionRow);
-
             // ════════════════════════════════════════════════════════════════════
-            // ZONE B: LEFT NAVIGATION & LIVE SEARCH DOCK (RETRACTABLE & PINNABLE)
+            // LEFT NAVIGATION SIDEBAR (RETRACTABLE & PINNABLE)
             // ════════════════════════════════════════════════════════════════════
             mainSplit = new SplitContainer
             {
@@ -182,42 +217,40 @@ namespace FreeRdpWrapper
                 SplitterWidth = 5
             };
 
-            // Search Header
-            leftNavHeader = new Panel { Dock = DockStyle.Top, Height = 64, Padding = new Padding(4) };
-            
-            Panel headerTop = new Panel { Dock = DockStyle.Top, Height = 28 };
-            Label lblNavTitle = new Label { Text = "🌍 CONNECTIONS", Dock = DockStyle.Left, Width = 140, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
-            
-            btnPinLeft = new Button { Text = "📌", Dock = DockStyle.Right, Width = 30, FlatStyle = FlatStyle.Flat };
+            leftNavHeader = new Panel { Dock = DockStyle.Top, Height = 60, Padding = new Padding(6, 4, 6, 2) };
+
+            Panel navTopRow = new Panel { Dock = DockStyle.Top, Height = 26 };
+            Label lblNavTitle = new Label { Text = "🌍 NAVIGATION", Dock = DockStyle.Left, Width = 140, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
+
+            btnPinLeft = new Button { Text = "📌", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
             btnPinLeft.FlatAppearance.BorderSize = 0;
             btnPinLeft.Click += (s, e) => TogglePinLeft();
 
-            btnCollapseLeft = new Button { Text = "◀", Dock = DockStyle.Right, Width = 30, FlatStyle = FlatStyle.Flat };
+            btnCollapseLeft = new Button { Text = "◀", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
             btnCollapseLeft.FlatAppearance.BorderSize = 0;
             btnCollapseLeft.Click += (s, e) => ToggleCollapseLeft();
 
-            headerTop.Controls.Add(lblNavTitle);
-            headerTop.Controls.Add(btnPinLeft);
-            headerTop.Controls.Add(btnCollapseLeft);
+            navTopRow.Controls.Add(lblNavTitle);
+            navTopRow.Controls.Add(btnPinLeft);
+            navTopRow.Controls.Add(btnCollapseLeft);
 
-            Panel searchBar = new Panel { Dock = DockStyle.Bottom, Height = 30, Padding = new Padding(2) };
-            txtSearch = new TextBox { Dock = DockStyle.Fill, PlaceholderText = "🔍 Search servers (Host, Name)...", Font = new Font("Segoe UI", 9f) };
+            Panel searchPanel = new Panel { Dock = DockStyle.Bottom, Height = 28, Padding = new Padding(1) };
+            txtSearch = new TextBox { Dock = DockStyle.Fill, PlaceholderText = "🔍 Filter entries...", Font = new Font("Segoe UI", 9f) };
             txtSearch.TextChanged += (s, e) => FilterTree(txtSearch.Text);
 
-            btnClearSearch = new Button { Text = "✖", Dock = DockStyle.Right, Width = 26, FlatStyle = FlatStyle.Flat };
+            btnClearSearch = new Button { Text = "✖", Dock = DockStyle.Right, Width = 24, FlatStyle = FlatStyle.Flat };
             btnClearSearch.FlatAppearance.BorderSize = 0;
-            btnClearSearch.Click += (s, e) => { txtSearch.Clear(); };
+            btnClearSearch.Click += (s, e) => txtSearch.Clear();
 
-            lblSearchStats = new Label { Dock = DockStyle.Bottom, Height = 14, Font = new Font("Segoe UI", 7.5f), ForeColor = Color.Gray, Text = "" };
+            searchPanel.Controls.Add(txtSearch);
+            searchPanel.Controls.Add(btnClearSearch);
 
-            searchBar.Controls.Add(txtSearch);
-            searchBar.Controls.Add(btnClearSearch);
+            lblSearchStats = new Label { Dock = DockStyle.Bottom, Height = 13, Font = new Font("Segoe UI", 7.5f), ForeColor = Color.Gray, Text = "" };
 
-            leftNavHeader.Controls.Add(headerTop);
-            leftNavHeader.Controls.Add(searchBar);
+            leftNavHeader.Controls.Add(navTopRow);
+            leftNavHeader.Controls.Add(searchPanel);
             leftNavHeader.Controls.Add(lblSearchStats);
 
-            // Trees
             treeConnections = new TreeView
             {
                 Dock = DockStyle.Fill,
@@ -239,7 +272,6 @@ namespace FreeRdpWrapper
             treeConnections.NodeMouseDoubleClick += TreeConnections_NodeMouseDoubleClick;
             treeConnections.MouseUp += TreeConnections_MouseUp;
 
-            // Rich Context Menu for Connections
             treeContextMenu = new ContextMenuStrip();
             treeContextMenu.Items.Add("🚀 Connect", null, (s, e) => {
                 if (treeConnections.SelectedNode?.Tag is SavedConnection c) LaunchSession(c);
@@ -276,7 +308,7 @@ namespace FreeRdpWrapper
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Horizontal,
-                SplitterDistance = 420,
+                SplitterDistance = 460,
                 SplitterWidth = 4
             };
 
@@ -286,8 +318,8 @@ namespace FreeRdpWrapper
 
             Panel pnlScripts = new Panel { Dock = DockStyle.Fill };
             Panel scriptsHeader = new Panel { Dock = DockStyle.Top, Height = 26 };
-            Label lblScriptsTitle = new Label { Text = "📜 SAVED SCRIPTS", Dock = DockStyle.Left, Width = 150, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
-            Button btnAddSc = new Button { Text = "➕", Dock = DockStyle.Right, Width = 30, FlatStyle = FlatStyle.Flat };
+            Label lblScriptsTitle = new Label { Text = "📜 SAVED SCRIPTS", Dock = DockStyle.Left, Width = 150, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
+            Button btnAddSc = new Button { Text = "➕", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
             btnAddSc.FlatAppearance.BorderSize = 0;
             btnAddSc.Click += (s, e) => AddScript();
             scriptsHeader.Controls.Add(lblScriptsTitle);
@@ -302,13 +334,14 @@ namespace FreeRdpWrapper
             mainSplit.Panel1.Controls.Add(leftSplit);
 
             // ════════════════════════════════════════════════════════════════════
-            // ZONE C & D: WORKSPACE & RETRACTABLE BOTTOM STATUS/LOGS DOCK
+            // CENTER WORKSPACE & CONFIGURABLE LOGS DRAWER (DEVOLUTIONS STYLE)
             // ════════════════════════════════════════════════════════════════════
             rightSplit = new SplitContainer
             {
                 Dock = DockStyle.Fill,
                 Orientation = Orientation.Horizontal,
-                SplitterDistance = this.Height - _bottomSavedHeight - 120,
+                Panel2Collapsed = true, // LOGS REMOVED FROM VIEW BY DEFAULT!
+                SplitterDistance = this.Height - 220,
                 SplitterWidth = 5
             };
 
@@ -328,36 +361,25 @@ namespace FreeRdpWrapper
                 }
             };
 
-            // Zone D: Bottom Status & Diagnostics Dock
-            Panel bottomDock = new Panel { Dock = DockStyle.Fill };
-            Panel bottomHeader = new Panel { Dock = DockStyle.Top, Height = 28 };
-            
-            Label lblLogsTitle = new Label { Text = "  📋 LOGS & DIAGNOSTICS", Dock = DockStyle.Left, Width = 180, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
-            
-            lblBottomStatus = new Label 
-            { 
-                Text = "⚡ Ready | 🔒 Vault: AES-256-GCM Active | 🐧 FreeRDP 3.33.0 (.NET 10)", 
-                Dock = DockStyle.Fill, 
-                TextAlign = ContentAlignment.MiddleLeft, 
-                Font = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.CornflowerBlue
-            };
+            // Add Quick Start Tab by Default
+            ShowQuickStartTab();
 
-            btnPinBottom = new Button { Text = "📌", Dock = DockStyle.Right, Width = 30, FlatStyle = FlatStyle.Flat };
-            btnPinBottom.FlatAppearance.BorderSize = 0;
-            btnPinBottom.Click += (s, e) => TogglePinBottom();
+            // Logs Drawer (Panel 2, collapsed by default)
+            logsDrawer = new Panel { Dock = DockStyle.Fill };
+            Panel logsHeader = new Panel { Dock = DockStyle.Top, Height = 28 };
+            Label lblLogsTitle = new Label { Text = "  📋 SESSION LOGS & DIAGNOSTICS", Dock = DockStyle.Left, Width = 240, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
 
-            btnToggleBottom = new Button { Text = "▼ Retract", Dock = DockStyle.Right, Width = 80, FlatStyle = FlatStyle.Flat };
-            btnToggleBottom.FlatAppearance.BorderSize = 0;
-            btnToggleBottom.Click += (s, e) => ToggleCollapseBottom();
+            Button btnCloseLogs = new Button { Text = "✕ Close Logs", Dock = DockStyle.Right, Width = 90, FlatStyle = FlatStyle.Flat };
+            btnCloseLogs.FlatAppearance.BorderSize = 0;
+            btnCloseLogs.Click += (s, e) => HideLogsDrawer();
 
-            Button btnClearLogs = new Button { Text = "🗑️ Clear", Dock = DockStyle.Right, Width = 70, FlatStyle = FlatStyle.Flat };
+            Button btnClearLogs = new Button { Text = "🗑️ Clear", Dock = DockStyle.Right, Width = 65, FlatStyle = FlatStyle.Flat };
             btnClearLogs.FlatAppearance.BorderSize = 0;
             btnClearLogs.Click += (s, e) => txtLogs.Clear();
 
-            Button btnAiDiagLogs = new Button { Text = "🤖 Diagnose with AI", Dock = DockStyle.Right, Width = 140, FlatStyle = FlatStyle.Flat };
-            btnAiDiagLogs.FlatAppearance.BorderSize = 0;
-            btnAiDiagLogs.Click += (s, e) => {
+            Button btnAiDiag = new Button { Text = "🤖 Diagnose with AI", Dock = DockStyle.Right, Width = 140, FlatStyle = FlatStyle.Flat };
+            btnAiDiag.FlatAppearance.BorderSize = 0;
+            btnAiDiag.Click += (s, e) => {
                 ToggleAiCopilotTab();
                 if (_aiTabPage?.Controls.Count > 0 && _aiTabPage.Controls[0] is AiAssistantPanel ai)
                 {
@@ -365,12 +387,10 @@ namespace FreeRdpWrapper
                 }
             };
 
-            bottomHeader.Controls.Add(lblBottomStatus);
-            bottomHeader.Controls.Add(lblLogsTitle);
-            bottomHeader.Controls.Add(btnAiDiagLogs);
-            bottomHeader.Controls.Add(btnClearLogs);
-            bottomHeader.Controls.Add(btnPinBottom);
-            bottomHeader.Controls.Add(btnToggleBottom);
+            logsHeader.Controls.Add(lblLogsTitle);
+            logsHeader.Controls.Add(btnAiDiag);
+            logsHeader.Controls.Add(btnClearLogs);
+            logsHeader.Controls.Add(btnCloseLogs);
 
             txtLogs = new TextBox
             {
@@ -384,16 +404,46 @@ namespace FreeRdpWrapper
                 BorderStyle = BorderStyle.None
             };
 
-            bottomDock.Controls.Add(txtLogs);
-            bottomDock.Controls.Add(bottomHeader);
+            logsDrawer.Controls.Add(txtLogs);
+            logsDrawer.Controls.Add(logsHeader);
 
             rightSplit.Panel1.Controls.Add(tabControl);
-            rightSplit.Panel2.Controls.Add(bottomDock);
+            rightSplit.Panel2.Controls.Add(logsDrawer);
 
             mainSplit.Panel2.Controls.Add(rightSplit);
 
+            // ════════════════════════════════════════════════════════════════════
+            // BOTTOM STATUS BAR (CLEAN & MINIMALIST)
+            // ════════════════════════════════════════════════════════════════════
+            Panel statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, Padding = new Padding(6, 2, 6, 2) };
+            
+            lblStatusText = new Label
+            {
+                Text = $"⚡ Ready • {Environment.UserName} • 🔒 Vault: AES-256-GCM • FreeRDP 3.33.0 (.NET 10)",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Font = new Font("Segoe UI", 8.5f),
+                ForeColor = Color.CornflowerBlue
+            };
+
+            btnLogsToggle = new Button
+            {
+                Text = "📋 Logs",
+                Dock = DockStyle.Right,
+                Width = 70,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 8f)
+            };
+            btnLogsToggle.FlatAppearance.BorderSize = 0;
+            btnLogsToggle.Click += (s, e) => ToggleLogsDrawer();
+
+            statusBar.Controls.Add(lblStatusText);
+            statusBar.Controls.Add(btnLogsToggle);
+
             this.Controls.Add(mainSplit);
-            this.Controls.Add(ribbonPanel);
+            this.Controls.Add(statusBar);
+            this.Controls.Add(quickConnectRow);
+            this.Controls.Add(topNavPanel);
 
             this.KeyPreview = true;
             this.KeyDown += (s, e) => {
@@ -403,16 +453,18 @@ namespace FreeRdpWrapper
             ApplyTheme(this);
         }
 
-        private Button CreateToolButton(string text, EventHandler onClick)
+        private Button CreateNavButton(string text, EventHandler onClick, bool isPrimary = false)
         {
             var btn = new Button
             {
                 Text = text,
                 AutoSize = true,
-                Height = 30,
+                Height = 28,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9f),
-                Margin = new Padding(2)
+                Font = new Font("Segoe UI", 9f, isPrimary ? FontStyle.Bold : FontStyle.Regular),
+                Margin = new Padding(2),
+                BackColor = isPrimary ? Color.FromArgb(0, 120, 215) : Color.Transparent,
+                ForeColor = isPrimary ? Color.White : Color.Empty
             };
             btn.FlatAppearance.BorderSize = 0;
             btn.Click += onClick;
@@ -426,12 +478,114 @@ namespace FreeRdpWrapper
                 Text = "|",
                 AutoSize = true,
                 ForeColor = Color.Gray,
-                Padding = new Padding(2, 6, 2, 0)
+                Padding = new Padding(3, 5, 3, 0)
             };
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // RETRACTABLE & PINNABLE DOCK HANDLERS
+        // QUICK START DASHBOARD TAB (DEVOLUTIONS STYLE)
+        // ════════════════════════════════════════════════════════════════════
+        private void ShowQuickStartTab()
+        {
+            if (_quickStartTab != null && tabControl.TabPages.Contains(_quickStartTab))
+            {
+                tabControl.SelectedTab = _quickStartTab;
+                return;
+            }
+
+            _quickStartTab = new TabPage("🚀 Quick start");
+            var dashboard = new QuickStartDashboard();
+            dashboard.QuickConnectClicked += (s, e) => {
+                quickConnectRow.Visible = true;
+                foreach (Control c in quickConnectRow.Controls)
+                {
+                    if (c is TextBox tb && tb.PlaceholderText.Contains("Host"))
+                    {
+                        tb.Focus();
+                        break;
+                    }
+                }
+            };
+            dashboard.AddEntryClicked += (s, e) => AddConnection();
+            dashboard.ImportClicked += (s, e) => ImportRdpFile();
+            dashboard.ManageVaultClicked += (s, e) => OpenSettings();
+            dashboard.ProbeNetworkClicked += (s, e) => {
+                if (treeConnections.SelectedNode?.Tag is SavedConnection)
+                    _ = ProbeSelectedServer();
+                else
+                    MessageBox.Show("Select a server from the connection tree on the left to probe its reachability.", "Probe Network", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            };
+
+            _quickStartTab.Controls.Add(dashboard);
+            tabControl.TabPages.Insert(0, _quickStartTab);
+            tabControl.SelectedTab = _quickStartTab;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // LOG DRAWER & CONFIGURABLE LOGGING
+        // ════════════════════════════════════════════════════════════════════
+        private void ToggleLogsDrawer()
+        {
+            _isLogsVisible = !_isLogsVisible;
+            rightSplit.Panel2Collapsed = !_isLogsVisible;
+            if (_isLogsVisible)
+            {
+                rightSplit.SplitterDistance = Math.Max(150, rightSplit.Height - 200);
+                btnLogsToggle.Text = "📋 Logs ▲";
+            }
+            else
+            {
+                btnLogsToggle.Text = "📋 Logs";
+            }
+        }
+
+        private void HideLogsDrawer()
+        {
+            _isLogsVisible = false;
+            rightSplit.Panel2Collapsed = true;
+            btnLogsToggle.Text = "📋 Logs";
+        }
+
+        private void LogMessage(string msg, LogLevelSetting level = LogLevelSetting.Info)
+        {
+            if (_settings.LogLevel == LogLevelSetting.Off) return;
+            if (_settings.LogLevel == LogLevelSetting.Error && level != LogLevelSetting.Error) return;
+            if (_settings.LogLevel == LogLevelSetting.Info && level == LogLevelSetting.Trace) return;
+
+            if (txtLogs.IsHandleCreated && !txtLogs.Disposing)
+            {
+                txtLogs.BeginInvoke((MethodInvoker)delegate {
+                    if (txtLogs.TextLength > 60000) txtLogs.Clear();
+                    txtLogs.AppendText($"[{DateTime.Now:HH:mm:ss}] [{level.ToString().ToUpperInvariant()}] {msg}\r\n");
+                    txtLogs.SelectionStart = txtLogs.TextLength;
+                    txtLogs.ScrollToCaret();
+                });
+            }
+
+            // Auto show logs on error if configured
+            if (level == LogLevelSetting.Error && _settings.AutoShowLogsOnError && !_isLogsVisible)
+            {
+                if (this.IsHandleCreated && !this.Disposing)
+                {
+                    this.BeginInvoke((MethodInvoker)delegate {
+                        ToggleLogsDrawer();
+                    });
+                }
+            }
+        }
+
+        private void OpenSettings()
+        {
+            using var dlg = new SettingsDialog();
+            dlg.SettingsChanged += () => {
+                _settings = SettingsStore.LoadSettings();
+                ApplyTheme(this);
+            };
+            dlg.ShowDialog(this);
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        // RETRACTABLE & PINNABLE SIDEBAR
         // ════════════════════════════════════════════════════════════════════
         private void TogglePinLeft()
         {
@@ -445,48 +599,18 @@ namespace FreeRdpWrapper
             if (_isLeftCollapsed)
             {
                 _leftSavedWidth = mainSplit.SplitterDistance;
-                mainSplit.SplitterDistance = 32; // Collapsed narrow rail
+                mainSplit.SplitterDistance = 32;
                 btnCollapseLeft.Text = "▶";
             }
             else
             {
-                mainSplit.SplitterDistance = _leftSavedWidth > 50 ? _leftSavedWidth : 240;
+                mainSplit.SplitterDistance = _leftSavedWidth > 50 ? _leftSavedWidth : 250;
                 btnCollapseLeft.Text = "◀";
             }
         }
 
-        private void TogglePinBottom()
-        {
-            _isBottomPinned = !_isBottomPinned;
-            btnPinBottom.Text = _isBottomPinned ? "📌" : "📍";
-        }
-
-        private void ToggleCollapseBottom()
-        {
-            _isBottomCollapsed = !_isBottomCollapsed;
-            if (_isBottomCollapsed)
-            {
-                _bottomSavedHeight = rightSplit.Height - rightSplit.SplitterDistance;
-                rightSplit.SplitterDistance = rightSplit.Height - 34; // Retracted status strip
-                btnToggleBottom.Text = "▲ Expand";
-            }
-            else
-            {
-                int dist = rightSplit.Height - (_bottomSavedHeight > 60 ? _bottomSavedHeight : 180);
-                if (dist > 50) rightSplit.SplitterDistance = dist;
-                btnToggleBottom.Text = "▼ Retract";
-            }
-        }
-
-        private void ToggleRibbonCompact()
-        {
-            _isRibbonCompact = !_isRibbonCompact;
-            quickConnectRow.Visible = !_isRibbonCompact;
-            ribbonPanel.Height = _isRibbonCompact ? 42 : 84;
-        }
-
         // ════════════════════════════════════════════════════════════════════
-        // LIVE INSTANT SEARCH FILTER
+        // LIVE SEARCH FILTER
         // ════════════════════════════════════════════════════════════════════
         private void FilterTree(string query)
         {
@@ -525,18 +649,18 @@ namespace FreeRdpWrapper
             }
 
             treeConnections.ExpandAll();
-            lblSearchStats.Text = $"  Found {matchCount} matching server(s)";
+            lblSearchStats.Text = $"  Found {matchCount} match(es)";
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // ACTIVE SESSION ACTIONS (SCREENSHOT, CTRL+ALT+DEL, RECONNECT)
+        // ACTIVE SESSION ACTIONS
         // ════════════════════════════════════════════════════════════════════
         private void ReconnectActiveSession()
         {
             if (tabControl.SelectedTab?.Controls.Count > 0 && tabControl.SelectedTab.Controls[0] is FreeRdpContainer container)
             {
                 container.Reconnect();
-                LogSystem("Reconnected active session.");
+                LogMessage("Reconnected active session.", LogLevelSetting.Info);
             }
             else
             {
@@ -552,15 +676,14 @@ namespace FreeRdpWrapper
                 if (bmp != null)
                 {
                     Clipboard.SetImage(bmp);
-                    
-                    // Save to pictures directory as well
-                    string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "FreeRDP_Screenshots");
+
+                    string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "AeroRemote_Screenshots");
                     if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 
                     string file = Path.Combine(dir, $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png");
                     bmp.Save(file, System.Drawing.Imaging.ImageFormat.Png);
 
-                    LogSystem($"Screenshot captured and saved to: {file} (and copied to clipboard)");
+                    LogMessage($"Screenshot saved to: {file}", LogLevelSetting.Info);
                     MessageBox.Show($"Screenshot copied to clipboard and saved to:\r\n{file}", "Screenshot Captured", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -591,10 +714,10 @@ namespace FreeRdpWrapper
             }
 
             _aiTabPage = new TabPage("🤖 AI Remote Ops Copilot");
-            var aiPanel = new AiAssistantPanel 
-            { 
+            var aiPanel = new AiAssistantPanel
+            {
                 Dock = DockStyle.Fill,
-                GetActiveLogsFunc = () => txtLogs.Text 
+                GetActiveLogsFunc = () => txtLogs.Text
             };
             _aiTabPage.Controls.Add(aiPanel);
             tabControl.TabPages.Add(_aiTabPage);
@@ -602,19 +725,19 @@ namespace FreeRdpWrapper
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // REACHABILITY PROBE & QUICK ACTIONS
+        // REACHABILITY PROBE
         // ════════════════════════════════════════════════════════════════════
         private async Task ProbeSelectedServer()
         {
             if (treeConnections.SelectedNode?.Tag is SavedConnection c)
             {
-                lblBottomStatus.Text = $"⚡ Probing {c.Host} (Port 3389 & Ping)...";
+                lblStatusText.Text = $"⚡ Probing {c.Host}...";
                 var result = await NetworkTester.ProbeHostAsync(c.Host);
-                
-                lblBottomStatus.Text = $"⚡ [{c.Name}] {result.SummaryText}";
-                LogSystem($"[Probe] {c.Name} ({c.Host}): {result.SummaryText}");
 
-                MessageBox.Show($"Reachability check for '{c.Name}' ({c.Host}):\r\n\r\n" +
+                lblStatusText.Text = $"⚡ [{c.Name}] {result.SummaryText}";
+                LogMessage($"[Probe] {c.Name} ({c.Host}): {result.SummaryText}", LogLevelSetting.Info);
+
+                MessageBox.Show($"Reachability probe for '{c.Name}' ({c.Host}):\r\n\r\n" +
                                 $"• TCP Port {result.Port}: {(result.IsPortOpen ? $"OPEN ({result.PortHandshakeMs} ms)" : "CLOSED / FIREWALLED")}\r\n" +
                                 $"• ICMP Ping: {(result.IsPingSuccessful ? $"REACHABLE ({result.PingRoundtripMs} ms)" : "UNREACHABLE / BLOCKED")}\r\n" +
                                 (string.IsNullOrEmpty(result.ErrorMessage) ? "" : $"• Note: {result.ErrorMessage}"),
@@ -634,9 +757,8 @@ namespace FreeRdpWrapper
                 if (!string.IsNullOrEmpty(plain))
                 {
                     Clipboard.SetText(plain);
-                    LogSystem($"Password for {c.Name} copied to clipboard (auto-wipes in 30s).");
+                    LogMessage($"Password for {c.Name} copied to clipboard (wipes in 30s).", LogLevelSetting.Info);
 
-                    // Start a 30s timer to clear clipboard for security
                     _clipboardTimer?.Stop();
                     _clipboardTimer?.Dispose();
                     _clipboardTimer = new System.Windows.Forms.Timer { Interval = 30000 };
@@ -671,7 +793,7 @@ namespace FreeRdpWrapper
                     _connections.Add(clone);
                     _store.SaveConnections(_connections);
                     RefreshTree();
-                    LogSystem($"Duplicated connection: {clone.Name}");
+                    LogMessage($"Duplicated connection: {clone.Name}", LogLevelSetting.Info);
                 }
             }
         }
@@ -695,7 +817,7 @@ namespace FreeRdpWrapper
                     _connections.Add(conn);
                     _store.SaveConnections(_connections);
                     RefreshTree();
-                    LogSystem($"Imported RDP file: {ofd.FileName} -> {conn.Name}");
+                    LogMessage($"Imported RDP file: {ofd.FileName} -> {conn.Name}", LogLevelSetting.Info);
                     MessageBox.Show($"Successfully imported '{conn.Name}' ({conn.Host})!", "Import RDP", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
@@ -721,7 +843,7 @@ namespace FreeRdpWrapper
                     try
                     {
                         _store.ExportRdp(c, sfd.FileName);
-                        LogSystem($"Exported {c.Name} to {sfd.FileName}");
+                        LogMessage($"Exported {c.Name} to {sfd.FileName}", LogLevelSetting.Info);
                         MessageBox.Show($"Exported '{c.Name}' to {sfd.FileName}", "Export RDP", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
@@ -759,7 +881,7 @@ namespace FreeRdpWrapper
                 using var sfd = new SaveFileDialog
                 {
                     Filter = "FreeRDP Vault (*.frdpvault)|*.frdpvault",
-                    FileName = $"FreeRdp_Backup_{DateTime.Now:yyyyMMdd}.frdpvault"
+                    FileName = $"AeroRemote_Vault_{DateTime.Now:yyyyMMdd}.frdpvault"
                 };
 
                 if (sfd.ShowDialog() == DialogResult.OK)
@@ -767,7 +889,7 @@ namespace FreeRdpWrapper
                     try
                     {
                         _store.ExportVault(sfd.FileName, txtPass.Text, _connections);
-                        LogSystem($"Exported encrypted vault backup to {sfd.FileName}");
+                        LogMessage($"Exported encrypted vault backup to {sfd.FileName}", LogLevelSetting.Info);
                         MessageBox.Show("Encrypted vault backup successfully created!", "Vault Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         dlg.Close();
                     }
@@ -781,62 +903,6 @@ namespace FreeRdpWrapper
             btnCancel.Click += (s, e) => dlg.Close();
             dlg.Controls.AddRange(new Control[] { lbl, txtPass, btnExport, btnCancel });
             dlg.ShowDialog(this);
-        }
-
-        private void ImportVaultArchive()
-        {
-            using var ofd = new OpenFileDialog
-            {
-                Filter = "FreeRDP Vault (*.frdpvault)|*.frdpvault|All Files (*.*)|*.*",
-                Title = "Open Encrypted Vault Backup"
-            };
-
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                using var dlg = new Form
-                {
-                    Text = "Unlock Vault Backup",
-                    Size = new Size(360, 180),
-                    StartPosition = FormStartPosition.CenterParent,
-                    FormBorderStyle = FormBorderStyle.FixedDialog,
-                    MaximizeBox = false,
-                    MinimizeBox = false
-                };
-
-                Label lbl = new Label { Text = "Enter the password used when exporting this vault:", Location = new Point(20, 20), Width = 300, Height = 30 };
-                TextBox txtPass = new TextBox { Location = new Point(20, 55), Width = 300, PasswordChar = '*' };
-                Button btnImport = new Button { Text = "Unlock & Merge", Location = new Point(120, 100), Width = 110 };
-                Button btnCancel = new Button { Text = "Cancel", Location = new Point(240, 100), Width = 80 };
-
-                btnImport.Click += (s, e) => {
-                    try
-                    {
-                        var imported = _store.ImportVault(ofd.FileName, txtPass.Text);
-                        int count = 0;
-                        foreach (var item in imported)
-                        {
-                            if (!_connections.Any(x => x.Id == item.Id))
-                            {
-                                _connections.Add(item);
-                                count++;
-                            }
-                        }
-                        _store.SaveConnections(_connections);
-                        RefreshTree();
-                        LogSystem($"Imported {count} new connections from vault archive.");
-                        MessageBox.Show($"Successfully merged {count} connections from vault!", "Vault Imported", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        dlg.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Decryption failed: {ex.Message}\r\nPlease check your password.", "Decryption Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                };
-
-                btnCancel.Click += (s, e) => dlg.Close();
-                dlg.Controls.AddRange(new Control[] { lbl, txtPass, btnImport, btnCancel });
-                dlg.ShowDialog(this);
-            }
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -863,9 +929,9 @@ namespace FreeRdpWrapper
             if (_isFullscreen)
             {
                 mainSplit.Panel1Collapsed = true;
-                rightSplit.Panel2Collapsed = true;
-                ribbonPanel.Visible = false;
-                
+                topNavPanel.Visible = false;
+                quickConnectRow.Visible = false;
+
                 this.FormBorderStyle = FormBorderStyle.None;
                 this.WindowState = FormWindowState.Maximized;
                 tabControl.Padding = new Point(0, 0);
@@ -873,8 +939,8 @@ namespace FreeRdpWrapper
             else
             {
                 mainSplit.Panel1Collapsed = false;
-                rightSplit.Panel2Collapsed = false;
-                ribbonPanel.Visible = true;
+                topNavPanel.Visible = true;
+                quickConnectRow.Visible = true;
 
                 this.FormBorderStyle = FormBorderStyle.Sizable;
                 this.WindowState = FormWindowState.Normal;
@@ -885,11 +951,11 @@ namespace FreeRdpWrapper
         private void ApplyTheme(Control parent)
         {
             Color bg, fg, panelBg, treeBg, activeTabBg, inactiveTabBg, logBg;
-            
+
             switch (ThemeSettings.CurrentTheme)
             {
                 case AppTheme.Light:
-                    bg = Color.WhiteSmoke;
+                    bg = Color.FromArgb(248, 249, 250);
                     fg = Color.Black;
                     panelBg = Color.FromArgb(235, 237, 240);
                     treeBg = Color.White;
@@ -926,26 +992,27 @@ namespace FreeRdpWrapper
                     break;
                 case AppTheme.Dark:
                 default:
-                    bg = Color.FromArgb(30, 30, 30);
-                    fg = Color.FromArgb(220, 220, 220);
-                    panelBg = Color.FromArgb(45, 45, 48);
-                    treeBg = Color.FromArgb(37, 37, 38);
-                    activeTabBg = Color.FromArgb(45, 45, 48);
-                    inactiveTabBg = Color.FromArgb(30, 30, 30);
+                    bg = Color.FromArgb(28, 30, 34);
+                    fg = Color.FromArgb(220, 225, 232);
+                    panelBg = Color.FromArgb(36, 38, 44);
+                    treeBg = Color.FromArgb(24, 25, 28);
+                    activeTabBg = Color.FromArgb(36, 38, 44);
+                    inactiveTabBg = Color.FromArgb(24, 25, 28);
                     logBg = Color.FromArgb(18, 18, 20);
                     break;
             }
 
             this.BackColor = bg;
             this.ForeColor = fg;
-            ribbonPanel.BackColor = panelBg;
-            
+            topNavPanel.BackColor = panelBg;
+            quickConnectRow.BackColor = panelBg;
+
             treeConnections.BackColor = treeBg;
             treeConnections.ForeColor = fg;
 
             treeScripts.BackColor = treeBg;
             treeScripts.ForeColor = fg;
-            
+
             txtLogs.BackColor = logBg;
             txtLogs.ForeColor = fg;
 
@@ -982,10 +1049,7 @@ namespace FreeRdpWrapper
             if (e.Button == MouseButtons.Right)
             {
                 TreeNode? node = treeConnections.GetNodeAt(e.X, e.Y);
-                if (node != null)
-                {
-                    treeConnections.SelectedNode = node;
-                }
+                if (node != null) treeConnections.SelectedNode = node;
                 treeContextMenu.Show(treeConnections, e.Location);
             }
         }
@@ -1124,14 +1188,14 @@ namespace FreeRdpWrapper
 
             if (picker.ShowDialog() == DialogResult.OK && cmb.SelectedItem is SavedScript selectedScript)
             {
-                LogSystem($"\n--- Starting Bulk Execution: {selectedScript.Name} ---");
+                LogMessage($"\n--- Starting Bulk Execution: {selectedScript.Name} ---", LogLevelSetting.Info);
                 foreach (var conn in selectedConnections)
                 {
-                    LogSystem($"[{conn.Name}] Executing script...");
+                    LogMessage($"[{conn.Name}] Executing script...", LogLevelSetting.Info);
                     string result = await SshLauncher.ExecuteBackgroundCommandAsync(conn, selectedScript.Content);
-                    LogSystem($"[{conn.Name}] Result:\n{result}");
+                    LogMessage($"[{conn.Name}] Result:\n{result}", LogLevelSetting.Info);
                 }
-                LogSystem("--- Bulk Execution Complete ---\n");
+                LogMessage("--- Bulk Execution Complete ---\n", LogLevelSetting.Info);
             }
         }
 
@@ -1150,11 +1214,11 @@ namespace FreeRdpWrapper
         {
             var tabPage = tabControl.TabPages[e.Index];
             var tabRect = tabControl.GetTabRect(e.Index);
-            
+
             bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
-            
+
             Color activeBg, inactiveBg, textFg;
-            
+
             switch (ThemeSettings.CurrentTheme)
             {
                 case AppTheme.Light:
@@ -1179,9 +1243,9 @@ namespace FreeRdpWrapper
                     break;
                 case AppTheme.Dark:
                 default:
-                    activeBg = Color.FromArgb(45, 45, 48);
-                    inactiveBg = Color.FromArgb(30, 30, 30);
-                    textFg = Color.FromArgb(220, 220, 220);
+                    activeBg = Color.FromArgb(36, 38, 44);
+                    inactiveBg = Color.FromArgb(24, 25, 28);
+                    textFg = Color.FromArgb(220, 225, 232);
                     break;
             }
 
@@ -1195,14 +1259,16 @@ namespace FreeRdpWrapper
 
             string title = tabPage.Text;
             Font font = e.Font ?? tabControl.Font;
-            
-            // Draw Text
+
             e.Graphics.DrawString(title, font, new SolidBrush(textFg), new PointF(tabRect.X + 6, tabRect.Y + 5));
 
-            // Draw Close 'X'
-            var closeRect = new Rectangle(tabRect.Right - 16, tabRect.Y + 6, 12, 12);
-            e.Graphics.DrawString("×", new Font("Arial", 9, FontStyle.Bold), Brushes.IndianRed, closeRect);
-            
+            // Close button (only for non-dashboard tabs)
+            if (tabPage != _quickStartTab)
+            {
+                var closeRect = new Rectangle(tabRect.Right - 16, tabRect.Y + 6, 12, 12);
+                e.Graphics.DrawString("×", new Font("Arial", 9, FontStyle.Bold), Brushes.IndianRed, closeRect);
+            }
+
             backBrush.Dispose();
         }
 
@@ -1210,6 +1276,8 @@ namespace FreeRdpWrapper
         {
             for (int i = 0; i < tabControl.TabPages.Count; i++)
             {
+                if (tabControl.TabPages[i] == _quickStartTab) continue;
+
                 Rectangle r = tabControl.GetTabRect(i);
                 Rectangle closeRect = new Rectangle(r.Right - 18, r.Y + 4, 14, 14);
                 if (closeRect.Contains(e.Location))
@@ -1231,27 +1299,14 @@ namespace FreeRdpWrapper
             tabPage.Dispose();
         }
 
-        private void LogSystem(string msg)
-        {
-            if (txtLogs.IsHandleCreated && !txtLogs.Disposing)
-            {
-                txtLogs.BeginInvoke((MethodInvoker)delegate {
-                    if (txtLogs.TextLength > 60000) txtLogs.Clear();
-                    txtLogs.AppendText($"[{DateTime.Now:HH:mm:ss}] {msg}\r\n");
-                    txtLogs.SelectionStart = txtLogs.TextLength;
-                    txtLogs.ScrollToCaret();
-                });
-            }
-        }
-
         // ════════════════════════════════════════════════════════════════════
-        // SESSION LAUNCHING & BINARY RESOLUTION
+        // SESSION LAUNCHING & ENGINE RESOLUTION
         // ════════════════════════════════════════════════════════════════════
         private void LaunchSession(SavedConnection config)
         {
             if (config.Protocol == ConnectionProtocol.SSH)
             {
-                LogSystem($"[{config.Name}] Launching external SSH terminal...");
+                LogMessage($"[{config.Name}] Launching external SSH terminal...", LogLevelSetting.Info);
                 SshLauncher.LaunchInteractiveSession(config);
                 return;
             }
@@ -1263,10 +1318,10 @@ namespace FreeRdpWrapper
                 _                      => "wfreerdp.exe"
             };
             string relativeBuildPath = Path.Combine("Compiled", "bin", exeName);
-            
+
             string possiblePath = exeName;
             string? currentDir = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName) ?? AppDomain.CurrentDomain.BaseDirectory;
-            
+
             if (File.Exists(Path.Combine(currentDir, "Bin", "FreeRDP", exeName)))
             {
                 possiblePath = Path.Combine(currentDir, "Bin", "FreeRDP", exeName);
@@ -1281,7 +1336,7 @@ namespace FreeRdpWrapper
                         possiblePath = testPath;
                         break;
                     }
-                    
+
                     string fallbackPath = Path.GetFullPath(Path.Combine(currentDir, "Bin", "FreeRDP", exeName));
                     if (File.Exists(fallbackPath))
                     {
@@ -1297,26 +1352,19 @@ namespace FreeRdpWrapper
 
             var tabPage = new TabPage($"🟢 {config.Name}");
             var container = new FreeRdpContainer { Dock = DockStyle.Fill };
-            
-            Action<string> appendLog = (msg) => {
-                if (txtLogs.IsHandleCreated && !txtLogs.Disposing)
-                {
-                    txtLogs.BeginInvoke((MethodInvoker)delegate {
-                        if (txtLogs.TextLength > 60000) txtLogs.Clear();
-                        txtLogs.AppendText($"[{config.Name}] {msg}\r\n");
-                        txtLogs.SelectionStart = txtLogs.TextLength;
-                        txtLogs.ScrollToCaret();
-                    });
-                }
-            };
 
-            container.OnLogMessage += appendLog;
+            container.OnLogMessage += (msg) => {
+                var level = msg.Contains("Failed", StringComparison.OrdinalIgnoreCase) || msg.Contains("Error", StringComparison.OrdinalIgnoreCase)
+                    ? LogLevelSetting.Error
+                    : LogLevelSetting.Trace;
+                LogMessage($"[{config.Name}] {msg}", level);
+            };
 
             container.OnDisconnected += () => {
                 if (tabControl.IsHandleCreated && !tabControl.Disposing)
                 {
                     tabControl.Invoke((MethodInvoker)delegate {
-                        appendLog("Session Disconnected.");
+                        LogMessage($"[{config.Name}] Session Disconnected.", LogLevelSetting.Info);
                         if (tabControl.TabPages.Contains(tabPage))
                         {
                             tabControl.TabPages.Remove(tabPage);
@@ -1332,12 +1380,12 @@ namespace FreeRdpWrapper
 
             try
             {
-                appendLog($"Attempting to launch {possiblePath}");
+                LogMessage($"Attempting to launch {possiblePath}", LogLevelSetting.Trace);
                 container.LaunchSession(config, possiblePath);
             }
             catch (Exception ex)
             {
-                appendLog($"Failed to launch {possiblePath}: {ex.Message}");
+                LogMessage($"Failed to launch {possiblePath}: {ex.Message}", LogLevelSetting.Error);
             }
         }
     }
