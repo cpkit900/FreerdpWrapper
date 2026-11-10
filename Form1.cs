@@ -65,6 +65,7 @@ namespace FreeRdpWrapper
         private TabControl tabControl = default!;
         private TabPage? _quickStartTab = null;
         private TabPage? _aiTabPage = null;
+        private ToolTip _toolTip = new ToolTip { InitialDelay = 200, ReshowDelay = 100, AutoPopDelay = 5000 };
 
         // Clipboard timer
         private System.Windows.Forms.Timer? _clipboardTimer;
@@ -142,27 +143,27 @@ namespace FreeRdpWrapper
 
             // Toolbar A: Standard & Vault (Add, Import, Export, Vault)
             pnlStandardToolbar = CreateToolbarGroup(new Control[] {
-                CreateToolButton("➕ New", (s, e) => AddConnection()),
-                CreateToolButton("📥 Import .rdp", (s, e) => ImportRdpFile()),
-                CreateToolButton("📤 Export Vault", (s, e) => ExportVaultArchive()),
-                CreateToolButton("📥 Import Vault", (s, e) => ImportVaultArchive())
+                CreateToolButton("➕", "New Connection (Ctrl+N)", (s, e) => AddConnection()),
+                CreateToolButton("📥", "Import Microsoft .rdp File", (s, e) => ImportRdpFile()),
+                CreateToolButton("📤", "Export Encrypted Vault Backup (.frdpvault)", (s, e) => ExportVaultArchive()),
+                CreateToolButton("🔓", "Unlock & Import Vault Backup", (s, e) => ImportVaultArchive())
             });
 
             // Toolbar B: Session Actions (Connect, Reconnect, Screenshot, SAS, Fullscreen)
             pnlSessionToolbar = CreateToolbarGroup(new Control[] {
-                CreateToolButton("🔁 Reconnect", (s, e) => ReconnectActiveSession()),
-                CreateToolButton("📸 Screenshot", (s, e) => CaptureActiveScreenshot()),
-                CreateToolButton("⌨️ Ctrl+Alt+Del", (s, e) => SendActiveCtrlAltDel()),
-                CreateToolButton("⛶ Fullscreen", (s, e) => ToggleFullscreen())
+                CreateToolButton("🔁", "Reconnect Active Session", (s, e) => ReconnectActiveSession()),
+                CreateToolButton("📸", "Capture Screenshot (Copy to Clipboard & Save to Pictures)", (s, e) => CaptureActiveScreenshot()),
+                CreateToolButton("⌨️", "Send Ctrl+Alt+Del (SAS Keys) to Remote Desktop", (s, e) => SendActiveCtrlAltDel()),
+                CreateToolButton("⛶", "Toggle Fullscreen (F11)", (s, e) => ToggleFullscreen())
             });
 
             // Toolbar C: Diagnostics & Tools (Probe, AI, Settings, Customize)
             pnlToolsToolbar = CreateToolbarGroup(new Control[] {
-                CreateToolButton("⚡ Probe", async (s, e) => await ProbeSelectedServer()),
-                CreateToolButton("🤖 AI Copilot", (s, e) => ToggleAiCopilotTab()),
-                CreateToolButton("⚙️ Settings", (s, e) => OpenSettings()),
-                CreateToolButton("🎨 Theme", (s, e) => CycleTheme()),
-                CreateToolButton("🛠️ Customize", (s, e) => OpenToolbarCustomization())
+                CreateToolButton("⚡", "Ping & Probe TCP Port 3389 Reachability", async (s, e) => await ProbeSelectedServer()),
+                CreateToolButton("🤖", "AI Remote Ops Copilot (Error Diagnostician & Scripts)", (s, e) => ToggleAiCopilotTab()),
+                CreateToolButton("⚙️", "Settings (Logging, Vault Security, Theme)", (s, e) => OpenSettings()),
+                CreateToolButton("🎨", "Cycle Theme (Matrix World, Dark, Light, etc.)", (s, e) => CycleTheme()),
+                CreateToolButton("🛠️", "Customize Toolbars...", (s, e) => OpenToolbarCustomization())
             });
 
             toolbarContainer.Controls.AddRange(new Control[] {
@@ -590,19 +591,20 @@ namespace FreeRdpWrapper
             };
         }
 
-        private Button CreateToolButton(string text, EventHandler onClick)
+        private Button CreateToolButton(string iconSymbol, string tooltipText, EventHandler onClick)
         {
             var btn = new Button
             {
-                Text = text,
-                AutoSize = true,
-                Height = 27,
+                Text = iconSymbol,
+                Size = new Size(32, 28),
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 8.5f),
-                Margin = new Padding(2, 1, 2, 1)
+                Font = new Font("Segoe UI", 10.5f),
+                Margin = new Padding(2, 1, 2, 1),
+                TextAlign = ContentAlignment.MiddleCenter
             };
             btn.FlatAppearance.BorderSize = 1;
             btn.Click += onClick;
+            _toolTip.SetToolTip(btn, tooltipText);
             return btn;
         }
 
