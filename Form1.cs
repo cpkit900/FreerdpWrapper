@@ -156,6 +156,10 @@ namespace FreeRdpWrapper
                         }
                     }
                 }
+                if (_settings.ShowPingStatusInNavTree)
+                {
+                    _ = RefreshAllConnectionPingStatusesAsync();
+                }
             };
         }
 
@@ -252,7 +256,7 @@ namespace FreeRdpWrapper
             // Toolbar C: Diagnostics & Tools (Probe, AI, Settings, Customize)
             pnlToolsToolbar = CreateToolbarGroup("Tools", new Control[] {
                 CreateToolButton("🌐", "Network Scanner (Discover RDP & SSH hosts on local subnet)", (s, e) => OpenNetworkScanner()),
-                CreateToolButton("⚡", "Ping & Probe TCP Port 3389 Reachability", async (s, e) => await ProbeSelectedServer()),
+                CreateToolButton("⚡", "Ping & Probe Selected Host (TCP Reachability: RDP 3389 / SSH 22)", async (s, e) => await ProbeSelectedServer()),
                 CreateToolButton("🤖", "AI Remote Ops Copilot (Error Diagnostician & Scripts)", (s, e) => ToggleAiCopilotTab()),
                 CreateToolButton("⚙️", "Settings (Logging, Vault Security, Theme)", (s, e) => OpenSettings()),
                 CreateToolButton("🎨", "Cycle Theme (Matrix World, Dark, Light, etc.)", (s, e) => CycleTheme()),
@@ -618,7 +622,7 @@ namespace FreeRdpWrapper
             // Tools Menu
             var mnuTools = new ToolStripMenuItem("&Tools");
             mnuTools.DropDownItems.Add("🌐 Network Scanner...", null, (s, e) => OpenNetworkScanner());
-            mnuTools.DropDownItems.Add("⚡ Ping & Probe Port 3389...", null, async (s, e) => await ProbeSelectedServer());
+            mnuTools.DropDownItems.Add("⚡ Ping & Probe Host (RDP 3389 / SSH 22)...", null, async (s, e) => await ProbeSelectedServer());
             mnuTools.DropDownItems.Add("📜 Manage Automation Scripts...", null, (s, e) => AddScript());
             mnuTools.DropDownItems.Add("🔑 Manage Stored Credentials...", null, (s, e) => AddCredential());
             mnuTools.DropDownItems.Add("🔒 Vault Security...", null, (s, e) => OpenSettings());
@@ -915,6 +919,10 @@ namespace FreeRdpWrapper
                 ApplyToolbarOrder();
                 ApplyToolbarVisibility();
                 RefreshTree();
+                if (_settings.ShowPingStatusInNavTree)
+                {
+                    _ = RefreshAllConnectionPingStatusesAsync();
+                }
             };
             dlg.ShowDialog(this);
         }
@@ -1239,22 +1247,82 @@ namespace FreeRdpWrapper
         {
             if (treeConnections.SelectedNode?.Tag is SavedConnection c)
             {
-                lblStatusText.Text = $"⚡ Probing {c.Host}...";
-                var result = await NetworkTester.ProbeHostAsync(c.Host);
+                int targetPort = c.Protocol == ConnectionProtocol.SSH ? 22 : 3389;
+                string protoName = c.Protocol == ConnectionProtocol.SSH ? "SSH" : "RDP";
+
+                lblStatusText.Text = $"⚡ Probing {c.Host} ({protoName}:{targetPort})...";
+                var result = await NetworkTester.ProbeConnectionAsync(c);
 
                 lblStatusText.Text = $"⚡ [{c.Name}] {result.SummaryText}";
-                LogMessage($"[Probe] {c.Name} ({c.Host}): {result.SummaryText}", LogLevelSetting.Info);
+                LogMessage($"[Probe] {c.Name} ({c.Host}) via {protoName}: {result.SummaryText}", LogLevelSetting.Info);
 
                 _pingStatusCache[c.Host] = result.IsPortOpen || result.IsPingSuccessful;
                 treeConnections.SelectedNode.Text = FormatConnectionNodeText(c);
 
                 MessageBox.Show($"Reachability probe for '{c.Name}' ({c.Host}):\r\n\r\n" +
-                                $"• TCP Port {result.Port}: {(result.IsPortOpen ? $"OPEN ({result.PortHandshakeMs} ms)" : "CLOSED / FIREWALLED")}\r\n" +
+                                $"• Protocol Target: {result.ProtocolName}\r\n" +
+                                $"• TCP Port {result.Port} ({result.ProtocolName}): {(result.IsPortOpen ? $"OPEN ({result.PortHandshakeMs} ms)" : "CLOSED / FIREWALLED")}\r\n" +
                                 $"• ICMP Ping: {(result.IsPingSuccessful ? $"REACHABLE ({result.PingRoundtripMs} ms)" : "UNREACHABLE / BLOCKED")}\r\n" +
                                 (string.IsNullOrEmpty(result.ErrorMessage) ? "" : $"• Note: {result.ErrorMessage}"),
-                                "Server Reachability Probe",
+                                $"{protoName} Reachability Probe",
                                 MessageBoxButtons.OK,
                                 result.IsPortOpen ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            }
+            else
+            {
+                MessageBox.Show("Please select a connection in the navigation tree to probe reachability.", "Probe Server", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private async Task RefreshAllConnectionPingStatusesAsync()
+        {
+            if (!_settings.ShowPingStatusInNavTree) return;
+
+            var conns = _connections.ToList();
+            if (conns.Count == 0) return;
+
+            using var throttler = new SemaphoreSlim(10, 10);
+            var tasks = conns.Select(async c =>
+            {
+                await throttler.WaitAsync();
+                try
+                {
+                    var res = await NetworkTester.ProbeConnectionAsync(c, timeoutMs: 1500);
+                    _pingStatusCache[c.Host] = res.IsPortOpen || res.IsPingSuccessful;
+                }
+                catch
+                {
+                    _pingStatusCache[c.Host] = false;
+                }
+                finally
+                {
+                    throttler.Release();
+                }
+            });
+
+            await Task.WhenAll(tasks);
+
+            if (this.IsHandleCreated && !this.IsDisposed)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    UpdateAllConnectionNodeTexts(treeConnections.Nodes);
+                });
+            }
+        }
+
+        private void UpdateAllConnectionNodeTexts(TreeNodeCollection nodes)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                if (node.Tag is SavedConnection c)
+                {
+                    node.Text = FormatConnectionNodeText(c);
+                }
+                if (node.Nodes.Count > 0)
+                {
+                    UpdateAllConnectionNodeTexts(node.Nodes);
+                }
             }
         }
 
@@ -1764,7 +1832,8 @@ namespace FreeRdpWrapper
             if (node?.Tag is SavedConnection c)
             {
                 menu.Items.Add("🚀 Connect", null, (s, e) => LaunchSession(c));
-                menu.Items.Add("⚡ Ping & Probe Port 3389", null, async (s, e) => await ProbeSelectedServer());
+                string probeLabel = c.Protocol == ConnectionProtocol.SSH ? "⚡ Ping & Probe SSH (Port 22)" : "⚡ Ping & Probe RDP (Port 3389)";
+                menu.Items.Add(probeLabel, null, async (s, e) => await ProbeSelectedServer());
                 menu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
                 menu.Items.Add("📋 Copy Decrypted Password", null, (s, e) => CopySelectedPassword());
                 menu.Items.Add("📑 Duplicate Connection", null, (s, e) => DuplicateConnection());
