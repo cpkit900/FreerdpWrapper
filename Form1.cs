@@ -1427,11 +1427,8 @@ namespace FreeRdpWrapper
                 menu.Items.Add("✏️ Edit Connection", null, (s, e) => EditConnection());
                 menu.Items.Add("🗑️ Delete Connection", null, (s, e) => DeleteConnection());
                 menu.Items.Add("📤 Export to .rdp...", null, (s, e) => ExportSelectedToRdp());
-                if (c.Protocol == ConnectionProtocol.SSH)
-                {
-                    menu.Items.Add("-");
-                    menu.Items.Add("▶ Run Automation Script...", null, (s, e) => RunScriptOnConnection(c));
-                }
+                menu.Items.Add("-");
+                menu.Items.Add("▶ Run Automation Script...", null, (s, e) => RunScriptOnConnection(c));
             }
             else if (node?.Tag is SavedScript sc)
             {
@@ -1641,12 +1638,6 @@ namespace FreeRdpWrapper
 
         private async void RunScriptOnConnection(SavedConnection conn)
         {
-            if (conn.Protocol != ConnectionProtocol.SSH)
-            {
-                MessageBox.Show("Automation scripts execute over SSH remote shell. This connection is configured for RDP.", "SSH Protocol Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             var scripts = _scriptStore.LoadScripts();
             if (scripts.Count == 0)
             {
@@ -1657,10 +1648,10 @@ namespace FreeRdpWrapper
                 return;
             }
 
-            using var picker = new Form { Text = $"Run Script on {conn.Name}", Size = new Size(340, 160), FormBorderStyle = FormBorderStyle.FixedDialog, StartPosition = FormStartPosition.CenterParent, MaximizeBox = false, MinimizeBox = false };
+            using var picker = new Form { Text = $"Run Script on {conn.Name}", Size = new Size(380, 175), FormBorderStyle = FormBorderStyle.FixedDialog, StartPosition = FormStartPosition.CenterParent, MaximizeBox = false, MinimizeBox = false };
             var lbl = new Label { Text = "Select script to execute:", Location = new Point(20, 15), AutoSize = true };
-            var cmb = new ComboBox { Location = new Point(20, 38), Width = 280, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Name", DataSource = scripts };
-            var btnRun = new Button { Text = "▶ Execute", Location = new Point(190, 80), Width = 110, Height = 28 };
+            var cmb = new ComboBox { Location = new Point(20, 38), Width = 320, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Name", DataSource = scripts };
+            var btnRun = new Button { Text = "▶ Execute", Location = new Point(230, 85), Width = 110, Height = 30 };
             btnRun.Click += (s, e) => { picker.DialogResult = DialogResult.OK; picker.Close(); };
             picker.Controls.Add(lbl);
             picker.Controls.Add(cmb);
@@ -1668,8 +1659,9 @@ namespace FreeRdpWrapper
 
             if (picker.ShowDialog() == DialogResult.OK && cmb.SelectedItem is SavedScript selectedScript)
             {
-                LogMessage($"\n--- Executing Script '{selectedScript.Name}' on {conn.Name} ({conn.Host}) ---", LogLevelSetting.Info);
-                string result = await SshLauncher.ExecuteBackgroundCommandAsync(conn, selectedScript.Content);
+                string protoDesc = conn.Protocol == ConnectionProtocol.SSH ? "SSH" : "PowerShell Remoting (WinRM)";
+                LogMessage($"\n--- Executing Script '{selectedScript.Name}' on {conn.Name} ({conn.Host}) via {protoDesc} ---", LogLevelSetting.Info);
+                string result = await RemoteScriptRunner.ExecuteScriptAsync(conn, selectedScript.Content);
                 LogMessage($"[{conn.Name}] Result:\n{result}", LogLevelSetting.Info);
                 LogMessage("--- Execution Complete ---\n", LogLevelSetting.Info);
             }
@@ -1677,28 +1669,29 @@ namespace FreeRdpWrapper
 
         private async void RunSpecificScriptPrompt(SavedScript sc)
         {
-            var sshConns = _connections.Where(c => c.Protocol == ConnectionProtocol.SSH).ToList();
-            if (sshConns.Count == 0)
+            if (_connections.Count == 0)
             {
-                MessageBox.Show("No SSH connections configured in your workspace to run this script against.", "No SSH Servers", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No connections configured in your workspace to run this script against.", "No Servers Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            using var picker = new Form { Text = $"Execute '{sc.Name}' on SSH Server", Size = new Size(360, 170), FormBorderStyle = FormBorderStyle.FixedDialog, StartPosition = FormStartPosition.CenterParent, MaximizeBox = false, MinimizeBox = false };
-            var lbl = new Label { Text = "Select target SSH server:", Location = new Point(20, 15), AutoSize = true };
-            var cmb = new ComboBox { Location = new Point(20, 38), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Name", DataSource = sshConns };
-            var btnRun = new Button { Text = "▶ Run Script", Location = new Point(210, 85), Width = 110, Height = 28 };
-            btnRun.Click += (s, e) => { picker.DialogResult = DialogResult.OK; picker.Close(); };
-            picker.Controls.Add(lbl);
-            picker.Controls.Add(cmb);
-            picker.Controls.Add(btnRun);
-
-            if (picker.ShowDialog() == DialogResult.OK && cmb.SelectedItem is SavedConnection targetConn)
+            using var picker = new ScriptTargetPickerDialog(_connections, sc);
+            if (picker.ShowDialog() == DialogResult.OK && picker.SelectedConnections.Count > 0)
             {
-                LogMessage($"\n--- Executing '{sc.Name}' on {targetConn.Name} ({targetConn.Host}) ---", LogLevelSetting.Info);
-                string result = await SshLauncher.ExecuteBackgroundCommandAsync(targetConn, sc.Content);
-                LogMessage($"[{targetConn.Name}] Result:\n{result}", LogLevelSetting.Info);
-                LogMessage("--- Execution Complete ---\n", LogLevelSetting.Info);
+                var targets = picker.SelectedConnections;
+                LogMessage($"\n=======================================================", LogLevelSetting.Info);
+                LogMessage($"▶ Executing '{sc.Name}' on {targets.Count} target(s)", LogLevelSetting.Info);
+                LogMessage($"=======================================================", LogLevelSetting.Info);
+
+                foreach (var target in targets)
+                {
+                    string protoDesc = target.Protocol == ConnectionProtocol.SSH ? "SSH" : "PowerShell Remoting (WinRM)";
+                    LogMessage($"\n[{target.Name}] Connecting to {target.Host} via {protoDesc}...", LogLevelSetting.Info);
+                    string result = await RemoteScriptRunner.ExecuteScriptAsync(target, sc.Content);
+                    LogMessage($"[{target.Name}] Output:\n{result}", LogLevelSetting.Info);
+                }
+
+                LogMessage($"\n✔ Finished script execution on {targets.Count} target(s).\n", LogLevelSetting.Info);
             }
         }
 

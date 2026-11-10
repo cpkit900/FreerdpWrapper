@@ -21,10 +21,17 @@
 * **Quick Auto-Fill**: Added a **`🔑`** button in Connection Properties to instantly populate username, password, and domain from the vault.
 * **Security & Clipboard Protection**: Passwords copied from credentials auto-wipe from the clipboard after 30 seconds.
 
-### 📜 Automation Scripts Engine
-* **Script Management**: Create, edit, and store reusable multi-line Bash and PowerShell automation scripts.
-* **Direct Execution**: Right-click any SSH connection to run scripts directly, or right-click any script to execute on a chosen target server.
-* **Live Logging**: Real-time output streaming directly in the application logs drawer.
+### 📜 Automation Scripts Engine (Dual-Protocol WinRM & SSH)
+* **Dual-Protocol Execution Engine**:
+  * **Windows Targets (WinRM)**: Execute automation scripts against Windows/RDP servers via PowerShell Remoting (`Invoke-Command`) with automatic credential negotiation.
+  * **Linux/Unix Targets (SSH)**: Execute Bash/shell commands via Windows native OpenSSH client.
+* **Scalable Target Picker Dialog**:
+  * Designed for large enterprise workspaces with 1,000s of imported servers.
+  * Instant real-time text search (filter by name, hostname/IP, group, or username).
+  * Filter pills for **All Protocols**, **SSH Only**, and **Windows / WinRM Only**, plus Group filters.
+  * Multi-select ListView with checkboxes, `Select All` / `Clear All`, and target count indicators.
+  * Batch execution: run an automation script sequentially across dozens or hundreds of chosen servers with unified live logging.
+* **Enhanced Script Editor**: Full multi-line editing support for PowerShell and Bash scripts with return key handling, tab key indentation, and `Ctrl+S` quick save shortcut.
 
 ### 🌐 Network & Protocol Scanner
 * **Host Discovery**: Devolutions-style network scanner with local subnet adapter selector and ARP table discovery.
@@ -41,3 +48,4 @@
 ## 📦 Installation & Usage
 1. Download and extract **`FreeRdpWrapper_v3.4.0.zip`**.
 2. Run **`FreeRdpWrapper.exe`** (FreeRDP 3.33.0 runtime and SDL3 binaries are bundled in `Bin\FreeRDP`).
+
