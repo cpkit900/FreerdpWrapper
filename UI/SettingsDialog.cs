@@ -195,3 +195,4 @@ namespace FreeRdpWrapper.UI
         }
     }
 }
+

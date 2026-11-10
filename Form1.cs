@@ -19,9 +19,20 @@ namespace FreeRdpWrapper
         private List<SavedScript> _scripts = new();
         private AppSettings _settings = default!;
 
-        // UI Zones (Devolutions RDM + Rocket Remote Desktop Inspired)
-        private Panel topNavPanel = default!;       // Top Zone: Modern Command Bar & Search
-        private Panel quickConnectRow = default!;   // Quick Connect Bar
+        // Top Zone: Retractable Menu Bar & Modular Toolbars
+        private Panel topContainer = default!;
+        private MenuStrip menuStrip = default!;
+        private FlowLayoutPanel toolbarContainer = default!;
+        private FlowLayoutPanel pnlStandardToolbar = default!;
+        private FlowLayoutPanel pnlSessionToolbar = default!;
+        private FlowLayoutPanel pnlToolsToolbar = default!;
+        private Panel quickConnectRow = default!;
+
+        // Sideways retractable menu toggle
+        private bool _isMenuRetracted = false;
+        private Button btnRetractMenu = default!;
+
+        // Layout zones
         private SplitContainer mainSplit = default!; // Left: Nav, Right: Workspace & Logs
         private SplitContainer leftSplit = default!; // Left Top: Connections, Left Bottom: Scripts
         private SplitContainer rightSplit = default!; // Center: TabControl, Bottom: Hidden Logs Drawer
@@ -62,6 +73,10 @@ namespace FreeRdpWrapper
         {
             InitializeComponent();
             _settings = SettingsStore.LoadSettings();
+            
+            // Set default theme to Matrix World (High Contrast) if not set
+            ThemeSettings.CurrentTheme = _settings.Theme;
+
             _store = new ConnectionStore();
             _connections = _store.LoadConnections();
             _scriptStore = new ScriptStore();
@@ -85,99 +100,103 @@ namespace FreeRdpWrapper
 
         private void SetupUI()
         {
-            this.Text = "AeroRemote Desktop - FreeRDP 3 Workspace (.NET 10)";
-            this.Width = 1300;
-            this.Height = 860;
+            this.Text = "AeroRemote Desktop - Matrix FreeRDP Workspace (.NET 10)";
+            this.Width = 1320;
+            this.Height = 880;
             this.StartPosition = FormStartPosition.CenterScreen;
 
             // ════════════════════════════════════════════════════════════════════
-            // TOP COMMAND BAR (DEVOLUTIONS RDM STYLE)
+            // TOP CONTAINER: MENU STRIP + MODULAR TOOLBARS
             // ════════════════════════════════════════════════════════════════════
-            topNavPanel = new Panel { Dock = DockStyle.Top, Height = 42, Padding = new Padding(6, 4, 6, 4) };
+            topContainer = new Panel { Dock = DockStyle.Top, AutoSize = true };
 
-            Button btnAdd = CreateNavButton("➕ Add Entry", (s, e) => AddConnection(), isPrimary: true);
-            Button btnEdit = CreateNavButton("✏️ Edit", (s, e) => EditConnection());
-            Button btnDelete = CreateNavButton("🗑️ Delete", (s, e) => DeleteConnection());
-            Button btnImport = CreateNavButton("📥 Import .rdp", (s, e) => ImportRdpFile());
-            Button btnVault = CreateNavButton("🔒 Vault Backup", (s, e) => ExportVaultArchive());
-
-            Button btnReconnect = CreateNavButton("🔁 Reconnect", (s, e) => ReconnectActiveSession());
-            Button btnScreenshot = CreateNavButton("📸 Screenshot", (s, e) => CaptureActiveScreenshot());
-            Button btnCtrlAltDel = CreateNavButton("⌨️ Ctrl+Alt+Del", (s, e) => SendActiveCtrlAltDel());
-            Button btnFullscreen = CreateNavButton("⛶ Fullscreen (F11)", (s, e) => ToggleFullscreen());
-
-            Button btnAiCopilot = CreateNavButton("🤖 AI Copilot", (s, e) => ToggleAiCopilotTab());
-            Button btnSettings = CreateNavButton("⚙️ Settings", (s, e) => OpenSettings());
-            Button btnTheme = CreateNavButton("🌗", (s, e) => CycleTheme());
-
-            // Global Search Bar in Top Bar
-            TextBox txtGlobalSearch = new TextBox
+            // 1. Menu Bar Row with Sideways Retract Button (Devolutions style)
+            Panel menuRow = new Panel { Dock = DockStyle.Top, Height = 28 };
+            
+            btnRetractMenu = new Button
             {
-                Width = 220,
-                Height = 26,
-                Font = new Font("Segoe UI", 9.5f),
-                PlaceholderText = "🔍 Search everywhere..."
-            };
-            txtGlobalSearch.TextChanged += (s, e) => {
-                txtSearch.Text = txtGlobalSearch.Text;
-            };
-
-            FlowLayoutPanel leftFlow = new FlowLayoutPanel
-            {
+                Text = "☰",
                 Dock = DockStyle.Left,
-                AutoSize = true,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false
+                Width = 32,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 10f, FontStyle.Bold)
             };
-            leftFlow.Controls.AddRange(new Control[] {
-                btnAdd, btnEdit, btnDelete,
-                CreateSeparator(),
-                btnImport, btnVault,
-                CreateSeparator(),
-                btnReconnect, btnScreenshot, btnCtrlAltDel, btnFullscreen
-            });
+            btnRetractMenu.FlatAppearance.BorderSize = 0;
+            btnRetractMenu.Click += (s, e) => ToggleMenuRetract();
 
-            FlowLayoutPanel rightFlow = new FlowLayoutPanel
+            menuStrip = new MenuStrip { Dock = DockStyle.Fill, Font = new Font("Segoe UI", 9f) };
+            BuildMenuStrip();
+
+            menuRow.Controls.Add(menuStrip);
+            menuRow.Controls.Add(btnRetractMenu);
+
+            // 2. Modular Toolbars Container (Rocket Remote Desktop style)
+            toolbarContainer = new FlowLayoutPanel
             {
-                Dock = DockStyle.Right,
+                Dock = DockStyle.Top,
                 AutoSize = true,
                 FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = false
+                WrapContents = true,
+                Padding = new Padding(4, 2, 4, 2)
             };
-            rightFlow.Controls.AddRange(new Control[] {
-                txtGlobalSearch,
-                btnAiCopilot, btnSettings, btnTheme
+
+            // Toolbar A: Standard & Vault (Add, Import, Export, Vault)
+            pnlStandardToolbar = CreateToolbarGroup(new Control[] {
+                CreateToolButton("➕ New", (s, e) => AddConnection()),
+                CreateToolButton("📥 Import .rdp", (s, e) => ImportRdpFile()),
+                CreateToolButton("📤 Export Vault", (s, e) => ExportVaultArchive()),
+                CreateToolButton("📥 Import Vault", (s, e) => ImportVaultArchive())
             });
 
-            topNavPanel.Controls.Add(leftFlow);
-            topNavPanel.Controls.Add(rightFlow);
+            // Toolbar B: Session Actions (Connect, Reconnect, Screenshot, SAS, Fullscreen)
+            pnlSessionToolbar = CreateToolbarGroup(new Control[] {
+                CreateToolButton("🔁 Reconnect", (s, e) => ReconnectActiveSession()),
+                CreateToolButton("📸 Screenshot", (s, e) => CaptureActiveScreenshot()),
+                CreateToolButton("⌨️ Ctrl+Alt+Del", (s, e) => SendActiveCtrlAltDel()),
+                CreateToolButton("⛶ Fullscreen", (s, e) => ToggleFullscreen())
+            });
 
-            // ════════════════════════════════════════════════════════════════════
-            // QUICK CONNECT ADDRESS BAR (ROCKET REMOTE DESKTOP STYLE)
-            // ════════════════════════════════════════════════════════════════════
-            quickConnectRow = new Panel { Dock = DockStyle.Top, Height = 40, Padding = new Padding(8, 6, 8, 4) };
+            // Toolbar C: Diagnostics & Tools (Probe, AI, Settings, Customize)
+            pnlToolsToolbar = CreateToolbarGroup(new Control[] {
+                CreateToolButton("⚡ Probe", async (s, e) => await ProbeSelectedServer()),
+                CreateToolButton("🤖 AI Copilot", (s, e) => ToggleAiCopilotTab()),
+                CreateToolButton("⚙️ Settings", (s, e) => OpenSettings()),
+                CreateToolButton("🎨 Theme", (s, e) => CycleTheme()),
+                CreateToolButton("🛠️ Customize", (s, e) => OpenToolbarCustomization())
+            });
 
-            Label lblQc = new Label { Text = "⚡ Quick Connect:", Location = new Point(8, 10), AutoSize = true, Font = new Font(this.Font, FontStyle.Bold) };
-            TextBox txtQHost = new TextBox { Location = new Point(135, 7), Width = 190, PlaceholderText = "Host or IP[:Port]", Font = new Font("Segoe UI", 9.5f) };
-            TextBox txtQUser = new TextBox { Location = new Point(335, 7), Width = 140, PlaceholderText = "Username", Font = new Font("Segoe UI", 9.5f) };
-            TextBox txtQPass = new TextBox { Location = new Point(485, 7), Width = 140, PlaceholderText = "Password", PasswordChar = '*', Font = new Font("Segoe UI", 9.5f) };
+            toolbarContainer.Controls.AddRange(new Control[] {
+                pnlStandardToolbar,
+                CreateToolbarDivider(),
+                pnlSessionToolbar,
+                CreateToolbarDivider(),
+                pnlToolsToolbar
+            });
 
-            ComboBox cmbQClient = new ComboBox { Location = new Point(635, 6), Width = 160, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9.5f) };
+            // 3. Quick Connect Address Bar
+            quickConnectRow = new Panel { Dock = DockStyle.Top, Height = 38, Padding = new Padding(6, 4, 6, 4) };
+
+            Label lblQc = new Label { Text = "⚡ Quick Connect:", Location = new Point(8, 9), AutoSize = true, Font = new Font(this.Font, FontStyle.Bold) };
+            TextBox txtQHost = new TextBox { Location = new Point(135, 6), Width = 190, PlaceholderText = "Host or IP[:Port]", Font = new Font("Segoe UI", 9.5f) };
+            TextBox txtQUser = new TextBox { Location = new Point(335, 6), Width = 140, PlaceholderText = "Username", Font = new Font("Segoe UI", 9.5f) };
+            TextBox txtQPass = new TextBox { Location = new Point(485, 6), Width = 140, PlaceholderText = "Password", PasswordChar = '*', Font = new Font("Segoe UI", 9.5f) };
+
+            ComboBox cmbQClient = new ComboBox { Location = new Point(635, 5), Width = 160, DropDownStyle = ComboBoxStyle.DropDownList, Font = new Font("Segoe UI", 9.5f) };
             cmbQClient.Items.AddRange(new object[] { "wfreerdp (Windows)", "sdl3 (Modern D3D11)", "xfreerdp (Linux/WSL)" });
             cmbQClient.SelectedIndex = 0;
 
             Button btnQConnect = new Button
             {
                 Text = "🚀 Connect",
-                Location = new Point(805, 5),
-                Width = 100,
-                Height = 29,
+                Location = new Point(805, 4),
+                Width = 95,
+                Height = 28,
                 FlatStyle = FlatStyle.Flat,
-                BackColor = Color.DodgerBlue,
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold)
+                BackColor = Color.FromArgb(0, 100, 35),
+                ForeColor = Color.FromArgb(0, 255, 102),
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold)
             };
-            btnQConnect.FlatAppearance.BorderSize = 0;
+            btnQConnect.FlatAppearance.BorderColor = Color.FromArgb(0, 255, 102);
             btnQConnect.Click += (s, e) => {
                 if (!string.IsNullOrWhiteSpace(txtQHost.Text))
                 {
@@ -204,6 +223,13 @@ namespace FreeRdpWrapper
             };
 
             quickConnectRow.Controls.AddRange(new Control[] { lblQc, txtQHost, txtQUser, txtQPass, cmbQClient, btnQConnect });
+
+            topContainer.Controls.Add(quickConnectRow);
+            topContainer.Controls.Add(toolbarContainer);
+            topContainer.Controls.Add(menuRow);
+
+            // Apply visibility from Settings
+            ApplyToolbarVisibility();
 
             // ════════════════════════════════════════════════════════════════════
             // LEFT NAVIGATION SIDEBAR (RETRACTABLE & PINNABLE)
@@ -364,12 +390,12 @@ namespace FreeRdpWrapper
             // Add Quick Start Tab by Default
             ShowQuickStartTab();
 
-            // Logs Drawer (Panel 2, collapsed by default)
+            // Logs Drawer (Collapsed by default)
             logsDrawer = new Panel { Dock = DockStyle.Fill };
             Panel logsHeader = new Panel { Dock = DockStyle.Top, Height = 28 };
             Label lblLogsTitle = new Label { Text = "  📋 SESSION LOGS & DIAGNOSTICS", Dock = DockStyle.Left, Width = 240, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
 
-            Button btnCloseLogs = new Button { Text = "✕ Close Logs", Dock = DockStyle.Right, Width = 90, FlatStyle = FlatStyle.Flat };
+            Button btnCloseLogs = new Button { Text = "✕ Close", Dock = DockStyle.Right, Width = 80, FlatStyle = FlatStyle.Flat };
             btnCloseLogs.FlatAppearance.BorderSize = 0;
             btnCloseLogs.Click += (s, e) => HideLogsDrawer();
 
@@ -398,8 +424,8 @@ namespace FreeRdpWrapper
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical,
                 ReadOnly = true,
-                BackColor = Color.FromArgb(18, 18, 20),
-                ForeColor = Color.FromArgb(200, 200, 200),
+                BackColor = Color.Black,
+                ForeColor = Color.FromArgb(0, 255, 102),
                 Font = new Font("Consolas", 9f),
                 BorderStyle = BorderStyle.None
             };
@@ -413,17 +439,17 @@ namespace FreeRdpWrapper
             mainSplit.Panel2.Controls.Add(rightSplit);
 
             // ════════════════════════════════════════════════════════════════════
-            // BOTTOM STATUS BAR (CLEAN & MINIMALIST)
+            // BOTTOM STATUS BAR (CLEAN MATRIX MINIMALIST)
             // ════════════════════════════════════════════════════════════════════
             Panel statusBar = new Panel { Dock = DockStyle.Bottom, Height = 26, Padding = new Padding(6, 2, 6, 2) };
-            
+
             lblStatusText = new Label
             {
-                Text = $"⚡ Ready • {Environment.UserName} • 🔒 Vault: AES-256-GCM • FreeRDP 3.33.0 (.NET 10)",
+                Text = $"⚡ Ready • {Environment.UserName} • 🔒 Matrix Vault: Active • FreeRDP 3.33.0 (.NET 10)",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.CornflowerBlue
+                ForeColor = Color.FromArgb(0, 255, 102)
             };
 
             btnLogsToggle = new Button
@@ -442,8 +468,7 @@ namespace FreeRdpWrapper
 
             this.Controls.Add(mainSplit);
             this.Controls.Add(statusBar);
-            this.Controls.Add(quickConnectRow);
-            this.Controls.Add(topNavPanel);
+            this.Controls.Add(topContainer);
 
             this.KeyPreview = true;
             this.KeyDown += (s, e) => {
@@ -453,33 +478,143 @@ namespace FreeRdpWrapper
             ApplyTheme(this);
         }
 
-        private Button CreateNavButton(string text, EventHandler onClick, bool isPrimary = false)
+        // ════════════════════════════════════════════════════════════════════
+        // MENU STRIP BUILDER (DEVOLUTIONS & RRD FUSION)
+        // ════════════════════════════════════════════════════════════════════
+        private void BuildMenuStrip()
         {
-            var btn = new Button
-            {
-                Text = text,
-                AutoSize = true,
-                Height = 28,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI", 9f, isPrimary ? FontStyle.Bold : FontStyle.Regular),
-                Margin = new Padding(2),
-                BackColor = isPrimary ? Color.FromArgb(0, 120, 215) : Color.Transparent,
-                ForeColor = isPrimary ? Color.White : Color.Empty
-            };
-            btn.FlatAppearance.BorderSize = 0;
-            btn.Click += onClick;
-            return btn;
+            menuStrip.Items.Clear();
+
+            // Environment / File Menu
+            var mnuFile = new ToolStripMenuItem("&Environment");
+            mnuFile.DropDownItems.Add("➕ New Connection...", null, (s, e) => AddConnection());
+            mnuFile.DropDownItems.Add("📥 Import Microsoft .rdp...", null, (s, e) => ImportRdpFile());
+            mnuFile.DropDownItems.Add("📤 Export Vault Backup (.frdpvault)...", null, (s, e) => ExportVaultArchive());
+            mnuFile.DropDownItems.Add("📥 Import Vault Backup...", null, (s, e) => ImportVaultArchive());
+            mnuFile.DropDownItems.Add(new ToolStripSeparator());
+            mnuFile.DropDownItems.Add("🚪 Exit", null, (s, e) => this.Close());
+
+            // Edit Menu
+            var mnuEdit = new ToolStripMenuItem("&Edit");
+            mnuEdit.DropDownItems.Add("✏️ Edit Selected...", null, (s, e) => EditConnection());
+            mnuEdit.DropDownItems.Add("📑 Duplicate Connection", null, (s, e) => DuplicateConnection());
+            mnuEdit.DropDownItems.Add("🔑 Copy Decrypted Password", null, (s, e) => CopySelectedPassword());
+            mnuEdit.DropDownItems.Add("🗑️ Delete Connection", null, (s, e) => DeleteConnection());
+
+            // View Menu
+            var mnuView = new ToolStripMenuItem("&View");
+            mnuView.DropDownItems.Add("⛶ Fullscreen (F11)", null, (s, e) => ToggleFullscreen());
+            mnuView.DropDownItems.Add(new ToolStripSeparator());
+            
+            var mnuToolbars = new ToolStripMenuItem("Toolbars");
+            var itmStd = new ToolStripMenuItem("Standard & Vault Toolbar", null, (s, e) => ToggleToolbar(0)) { Checked = _settings.ShowStandardToolbar };
+            var itmSes = new ToolStripMenuItem("Session Controls Toolbar", null, (s, e) => ToggleToolbar(1)) { Checked = _settings.ShowSessionToolbar };
+            var itmTools = new ToolStripMenuItem("Diagnostics & AI Toolbar", null, (s, e) => ToggleToolbar(2)) { Checked = _settings.ShowToolsToolbar };
+            var itmQc = new ToolStripMenuItem("Quick Connect Address Bar", null, (s, e) => ToggleToolbar(3)) { Checked = _settings.ShowQuickConnectBar };
+            var itmCust = new ToolStripMenuItem("🛠️ Customize Toolbars...", null, (s, e) => OpenToolbarCustomization());
+
+            mnuToolbars.DropDownItems.AddRange(new ToolStripItem[] { itmStd, itmSes, itmTools, itmQc, new ToolStripSeparator(), itmCust });
+            mnuView.DropDownItems.Add(mnuToolbars);
+
+            mnuView.DropDownItems.Add("📋 Session Logs Drawer", null, (s, e) => ToggleLogsDrawer());
+            mnuView.DropDownItems.Add("🤖 AI Remote Ops Copilot", null, (s, e) => ToggleAiCopilotTab());
+            mnuView.DropDownItems.Add("🚀 Quick Start Dashboard", null, (s, e) => ShowQuickStartTab());
+
+            // Tools Menu
+            var mnuTools = new ToolStripMenuItem("&Tools");
+            mnuTools.DropDownItems.Add("⚡ Ping & Probe Port 3389...", null, async (s, e) => await ProbeSelectedServer());
+            mnuTools.DropDownItems.Add("📜 Manage Automation Scripts...", null, (s, e) => AddScript());
+            mnuTools.DropDownItems.Add("🔒 Vault Security...", null, (s, e) => OpenSettings());
+            mnuTools.DropDownItems.Add("⚙️ Settings...", null, (s, e) => OpenSettings());
+
+            // Help Menu
+            var mnuHelp = new ToolStripMenuItem("&Help");
+            mnuHelp.DropDownItems.Add("🤖 AI Troubleshooting Guide", null, (s, e) => ToggleAiCopilotTab());
+            mnuHelp.DropDownItems.Add("ℹ️ About AeroRemote Desktop", null, (s, e) => {
+                MessageBox.Show("AeroRemote Desktop\r\nVersion 3.3.0 (.NET 10 WinForms)\r\nBuilt against FreeRDP 3.33.0 & SDL3\r\n\r\nFeatures:\r\n• Matrix World & High-Contrast Themes\r\n• Authenticated AES-256-GCM Vault\r\n• Modular Retractable Toolbars\r\n• AI Remote Ops Copilot", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            });
+
+            menuStrip.Items.AddRange(new ToolStripItem[] { mnuFile, mnuEdit, mnuView, mnuTools, mnuHelp });
         }
 
-        private Label CreateSeparator()
+        private void ToggleToolbar(int index)
+        {
+            switch (index)
+            {
+                case 0: _settings.ShowStandardToolbar = !_settings.ShowStandardToolbar; break;
+                case 1: _settings.ShowSessionToolbar = !_settings.ShowSessionToolbar; break;
+                case 2: _settings.ShowToolsToolbar = !_settings.ShowToolsToolbar; break;
+                case 3: _settings.ShowQuickConnectBar = !_settings.ShowQuickConnectBar; break;
+            }
+            SettingsStore.SaveSettings(_settings);
+            ApplyToolbarVisibility();
+            BuildMenuStrip();
+        }
+
+        private void ApplyToolbarVisibility()
+        {
+            pnlStandardToolbar.Visible = _settings.ShowStandardToolbar;
+            pnlSessionToolbar.Visible = _settings.ShowSessionToolbar;
+            pnlToolsToolbar.Visible = _settings.ShowToolsToolbar;
+            quickConnectRow.Visible = _settings.ShowQuickConnectBar;
+        }
+
+        private void ToggleMenuRetract()
+        {
+            _isMenuRetracted = !_isMenuRetracted;
+            menuStrip.Visible = !_isMenuRetracted;
+            btnRetractMenu.Text = _isMenuRetracted ? "☰ Menu" : "☰";
+        }
+
+        private FlowLayoutPanel CreateToolbarGroup(Control[] controls)
+        {
+            var pnl = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Margin = new Padding(2, 0, 2, 0)
+            };
+            pnl.Controls.AddRange(controls);
+            return pnl;
+        }
+
+        private Label CreateToolbarDivider()
         {
             return new Label
             {
                 Text = "|",
                 AutoSize = true,
-                ForeColor = Color.Gray,
-                Padding = new Padding(3, 5, 3, 0)
+                ForeColor = Color.FromArgb(0, 150, 50),
+                Padding = new Padding(2, 4, 2, 0)
             };
+        }
+
+        private Button CreateToolButton(string text, EventHandler onClick)
+        {
+            var btn = new Button
+            {
+                Text = text,
+                AutoSize = true,
+                Height = 27,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 8.5f),
+                Margin = new Padding(2, 1, 2, 1)
+            };
+            btn.FlatAppearance.BorderSize = 1;
+            btn.Click += onClick;
+            return btn;
+        }
+
+        private void OpenToolbarCustomization()
+        {
+            using var dlg = new ToolbarCustomizeDialog();
+            dlg.ToolbarsChanged += () => {
+                _settings = SettingsStore.LoadSettings();
+                ApplyToolbarVisibility();
+                BuildMenuStrip();
+            };
+            dlg.ShowDialog(this);
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -562,7 +697,6 @@ namespace FreeRdpWrapper
                 });
             }
 
-            // Auto show logs on error if configured
             if (level == LogLevelSetting.Error && _settings.AutoShowLogsOnError && !_isLogsVisible)
             {
                 if (this.IsHandleCreated && !this.Disposing)
@@ -905,14 +1039,72 @@ namespace FreeRdpWrapper
             dlg.ShowDialog(this);
         }
 
+        private void ImportVaultArchive()
+        {
+            using var ofd = new OpenFileDialog
+            {
+                Filter = "FreeRDP Vault (*.frdpvault)|*.frdpvault|All Files (*.*)|*.*",
+                Title = "Open Encrypted Vault Backup"
+            };
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                using var dlg = new Form
+                {
+                    Text = "Unlock Vault Backup",
+                    Size = new Size(360, 180),
+                    StartPosition = FormStartPosition.CenterParent,
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    MaximizeBox = false,
+                    MinimizeBox = false
+                };
+
+                Label lbl = new Label { Text = "Enter the password used when exporting this vault:", Location = new Point(20, 20), Width = 300, Height = 30 };
+                TextBox txtPass = new TextBox { Location = new Point(20, 55), Width = 300, PasswordChar = '*' };
+                Button btnImport = new Button { Text = "Unlock & Merge", Location = new Point(120, 100), Width = 110 };
+                Button btnCancel = new Button { Text = "Cancel", Location = new Point(240, 100), Width = 80 };
+
+                btnImport.Click += (s, e) => {
+                    try
+                    {
+                        var imported = _store.ImportVault(ofd.FileName, txtPass.Text);
+                        int count = 0;
+                        foreach (var item in imported)
+                        {
+                            if (!_connections.Any(x => x.Id == item.Id))
+                            {
+                                _connections.Add(item);
+                                count++;
+                            }
+                        }
+                        _store.SaveConnections(_connections);
+                        RefreshTree();
+                        LogMessage($"Imported {count} new connections from vault archive.", LogLevelSetting.Info);
+                        MessageBox.Show($"Successfully merged {count} connections from vault!", "Vault Imported", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        dlg.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Decryption failed: {ex.Message}\r\nPlease check your password.", "Decryption Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                };
+
+                btnCancel.Click += (s, e) => dlg.Close();
+                dlg.Controls.AddRange(new Control[] { lbl, txtPass, btnImport, btnCancel });
+                dlg.ShowDialog(this);
+            }
+        }
+
         // ════════════════════════════════════════════════════════════════════
-        // THEME & FULLSCREEN
+        // THEME & FULLSCREEN (MATRIX WORLD AS DEFAULT)
         // ════════════════════════════════════════════════════════════════════
         private void CycleTheme()
         {
             var themes = (AppTheme[])Enum.GetValues(typeof(AppTheme));
             int nextIndex = ((int)ThemeSettings.CurrentTheme + 1) % themes.Length;
             ThemeSettings.CurrentTheme = themes[nextIndex];
+            _settings.Theme = ThemeSettings.CurrentTheme;
+            SettingsStore.SaveSettings(_settings);
             ApplyTheme(this);
         }
 
@@ -929,8 +1121,7 @@ namespace FreeRdpWrapper
             if (_isFullscreen)
             {
                 mainSplit.Panel1Collapsed = true;
-                topNavPanel.Visible = false;
-                quickConnectRow.Visible = false;
+                topContainer.Visible = false;
 
                 this.FormBorderStyle = FormBorderStyle.None;
                 this.WindowState = FormWindowState.Maximized;
@@ -939,8 +1130,7 @@ namespace FreeRdpWrapper
             else
             {
                 mainSplit.Panel1Collapsed = false;
-                topNavPanel.Visible = true;
-                quickConnectRow.Visible = true;
+                topContainer.Visible = true;
 
                 this.FormBorderStyle = FormBorderStyle.Sizable;
                 this.WindowState = FormWindowState.Normal;
@@ -950,7 +1140,7 @@ namespace FreeRdpWrapper
 
         private void ApplyTheme(Control parent)
         {
-            Color bg, fg, panelBg, treeBg, activeTabBg, inactiveTabBg, logBg;
+            Color bg, fg, panelBg, treeBg, activeTabBg, inactiveTabBg, logBg, borderCol;
 
             switch (ThemeSettings.CurrentTheme)
             {
@@ -962,6 +1152,7 @@ namespace FreeRdpWrapper
                     activeTabBg = SystemColors.Window;
                     inactiveTabBg = SystemColors.ControlLight;
                     logBg = Color.White;
+                    borderCol = Color.FromArgb(200, 205, 215);
                     break;
                 case AppTheme.SolarizedDark:
                     bg = Color.FromArgb(0, 43, 54);
@@ -971,6 +1162,7 @@ namespace FreeRdpWrapper
                     activeTabBg = Color.FromArgb(7, 54, 66);
                     inactiveTabBg = Color.FromArgb(0, 43, 54);
                     logBg = Color.FromArgb(0, 43, 54);
+                    borderCol = Color.FromArgb(10, 65, 80);
                     break;
                 case AppTheme.Dracula:
                     bg = Color.FromArgb(40, 42, 54);
@@ -980,18 +1172,9 @@ namespace FreeRdpWrapper
                     activeTabBg = Color.FromArgb(68, 71, 90);
                     inactiveTabBg = Color.FromArgb(40, 42, 54);
                     logBg = Color.FromArgb(40, 42, 54);
-                    break;
-                case AppTheme.HighContrast:
-                    bg = Color.Black;
-                    fg = Color.Lime;
-                    panelBg = Color.FromArgb(20, 20, 20);
-                    treeBg = Color.Black;
-                    activeTabBg = Color.FromArgb(20, 20, 20);
-                    inactiveTabBg = Color.Black;
-                    logBg = Color.Black;
+                    borderCol = Color.FromArgb(90, 95, 120);
                     break;
                 case AppTheme.Dark:
-                default:
                     bg = Color.FromArgb(28, 30, 34);
                     fg = Color.FromArgb(220, 225, 232);
                     panelBg = Color.FromArgb(36, 38, 44);
@@ -999,12 +1182,28 @@ namespace FreeRdpWrapper
                     activeTabBg = Color.FromArgb(36, 38, 44);
                     inactiveTabBg = Color.FromArgb(24, 25, 28);
                     logBg = Color.FromArgb(18, 18, 20);
+                    borderCol = Color.FromArgb(50, 55, 65);
+                    break;
+                case AppTheme.HighContrast:
+                default:
+                    // ── MATRIX WORLD (HIGH CONTRAST) ──
+                    bg = Color.FromArgb(2, 6, 2);
+                    fg = Color.FromArgb(0, 255, 102); // Phosphor Matrix green
+                    panelBg = Color.FromArgb(6, 14, 6);
+                    treeBg = Color.FromArgb(2, 6, 2);
+                    activeTabBg = Color.FromArgb(10, 24, 10);
+                    inactiveTabBg = Color.FromArgb(2, 6, 2);
+                    logBg = Color.Black;
+                    borderCol = Color.FromArgb(0, 160, 50);
                     break;
             }
 
             this.BackColor = bg;
             this.ForeColor = fg;
-            topNavPanel.BackColor = panelBg;
+            topContainer.BackColor = panelBg;
+            menuStrip.BackColor = panelBg;
+            menuStrip.ForeColor = fg;
+            toolbarContainer.BackColor = panelBg;
             quickConnectRow.BackColor = panelBg;
 
             treeConnections.BackColor = treeBg;
@@ -1020,7 +1219,30 @@ namespace FreeRdpWrapper
             txtSearch.BackColor = logBg;
             txtSearch.ForeColor = fg;
 
+            btnRetractMenu.BackColor = panelBg;
+            btnRetractMenu.ForeColor = fg;
+
+            // Style toolbar buttons
+            ApplyButtonStyles(toolbarContainer, panelBg, fg, borderCol);
+
             tabControl.Invalidate();
+        }
+
+        private void ApplyButtonStyles(Control parent, Color bg, Color fg, Color borderCol)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                if (c is Button b)
+                {
+                    b.BackColor = bg;
+                    b.ForeColor = fg;
+                    b.FlatAppearance.BorderColor = borderCol;
+                }
+                else if (c.HasChildren)
+                {
+                    ApplyButtonStyles(c, bg, fg, borderCol);
+                }
+            }
         }
 
         private void RefreshTree()
@@ -1208,7 +1430,7 @@ namespace FreeRdpWrapper
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // TAB DRAWING & MANAGEMENT
+        // TAB DRAWING & MANAGEMENT (MATRIX ACCENTS)
         // ════════════════════════════════════════════════════════════════════
         private void TabControl_DrawItem(object? sender, DrawItemEventArgs e)
         {
@@ -1216,8 +1438,9 @@ namespace FreeRdpWrapper
             var tabRect = tabControl.GetTabRect(e.Index);
 
             bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            bool isMatrix = ThemeSettings.CurrentTheme == AppTheme.HighContrast;
 
-            Color activeBg, inactiveBg, textFg;
+            Color activeBg, inactiveBg, textFg, accentLine;
 
             switch (ThemeSettings.CurrentTheme)
             {
@@ -1225,27 +1448,33 @@ namespace FreeRdpWrapper
                     activeBg = SystemColors.Window;
                     inactiveBg = SystemColors.ControlLight;
                     textFg = SystemColors.ControlText;
+                    accentLine = Color.DodgerBlue;
                     break;
                 case AppTheme.SolarizedDark:
                     activeBg = Color.FromArgb(7, 54, 66);
                     inactiveBg = Color.FromArgb(0, 43, 54);
                     textFg = Color.FromArgb(131, 148, 150);
+                    accentLine = Color.FromArgb(38, 139, 210);
                     break;
                 case AppTheme.Dracula:
                     activeBg = Color.FromArgb(68, 71, 90);
                     inactiveBg = Color.FromArgb(40, 42, 54);
                     textFg = Color.FromArgb(248, 248, 242);
-                    break;
-                case AppTheme.HighContrast:
-                    activeBg = Color.FromArgb(20, 20, 20);
-                    inactiveBg = Color.Black;
-                    textFg = Color.Lime;
+                    accentLine = Color.FromArgb(189, 147, 249);
                     break;
                 case AppTheme.Dark:
-                default:
                     activeBg = Color.FromArgb(36, 38, 44);
                     inactiveBg = Color.FromArgb(24, 25, 28);
                     textFg = Color.FromArgb(220, 225, 232);
+                    accentLine = Color.DodgerBlue;
+                    break;
+                case AppTheme.HighContrast:
+                default:
+                    // ── MATRIX WORLD ──
+                    activeBg = Color.FromArgb(10, 26, 10);
+                    inactiveBg = Color.FromArgb(2, 8, 2);
+                    textFg = Color.FromArgb(0, 255, 102);
+                    accentLine = Color.FromArgb(0, 255, 102);
                     break;
             }
 
@@ -1254,7 +1483,8 @@ namespace FreeRdpWrapper
 
             if (isSelected)
             {
-                e.Graphics.DrawLine(Pens.DodgerBlue, tabRect.Left, tabRect.Bottom - 1, tabRect.Right, tabRect.Bottom - 1);
+                using var p = new Pen(accentLine, 2);
+                e.Graphics.DrawLine(p, tabRect.Left, tabRect.Bottom - 1, tabRect.Right, tabRect.Bottom - 1);
             }
 
             string title = tabPage.Text;
@@ -1262,11 +1492,11 @@ namespace FreeRdpWrapper
 
             e.Graphics.DrawString(title, font, new SolidBrush(textFg), new PointF(tabRect.X + 6, tabRect.Y + 5));
 
-            // Close button (only for non-dashboard tabs)
             if (tabPage != _quickStartTab)
             {
                 var closeRect = new Rectangle(tabRect.Right - 16, tabRect.Y + 6, 12, 12);
-                e.Graphics.DrawString("×", new Font("Arial", 9, FontStyle.Bold), Brushes.IndianRed, closeRect);
+                Color xCol = isMatrix ? Color.FromArgb(0, 255, 102) : Color.IndianRed;
+                e.Graphics.DrawString("×", new Font("Arial", 9, FontStyle.Bold), new SolidBrush(xCol), closeRect);
             }
 
             backBrush.Dispose();

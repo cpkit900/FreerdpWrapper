@@ -23,12 +23,14 @@ namespace FreeRdpWrapper.UI
 
         private void InitializeUI()
         {
-            bool isDark = ThemeSettings.CurrentTheme != AppTheme.Light;
-            Color bg = isDark ? Color.FromArgb(24, 25, 28) : Color.FromArgb(248, 249, 250);
-            Color fg = isDark ? Color.FromArgb(235, 237, 240) : Color.FromArgb(32, 33, 36);
-            Color subFg = isDark ? Color.FromArgb(160, 165, 175) : Color.FromArgb(100, 105, 115);
-            Color cardBg = isDark ? Color.FromArgb(34, 36, 42) : Color.White;
-            Color cardBorder = isDark ? Color.FromArgb(50, 54, 64) : Color.FromArgb(220, 224, 230);
+            bool isMatrix = ThemeSettings.CurrentTheme == AppTheme.HighContrast;
+            bool isDark = isMatrix || ThemeSettings.CurrentTheme != AppTheme.Light;
+
+            Color bg = isMatrix ? Color.FromArgb(4, 8, 4) : (isDark ? Color.FromArgb(24, 25, 28) : Color.FromArgb(248, 249, 250));
+            Color fg = isMatrix ? Color.FromArgb(0, 255, 102) : (isDark ? Color.FromArgb(235, 237, 240) : Color.FromArgb(32, 33, 36));
+            Color subFg = isMatrix ? Color.FromArgb(0, 200, 80) : (isDark ? Color.FromArgb(160, 165, 175) : Color.FromArgb(100, 105, 115));
+            Color cardBg = isMatrix ? Color.FromArgb(8, 16, 8) : (isDark ? Color.FromArgb(34, 36, 42) : Color.White);
+            Color cardBorder = isMatrix ? Color.FromArgb(0, 180, 60) : (isDark ? Color.FromArgb(50, 54, 64) : Color.FromArgb(220, 224, 230));
 
             this.BackColor = bg;
             this.ForeColor = fg;
@@ -82,7 +84,7 @@ namespace FreeRdpWrapper.UI
             // Card 1: Quick Connect
             Panel card1 = CreateCard(
                 iconSymbol: "⚡",
-                iconColor: Color.DodgerBlue,
+                iconColor: isMatrix ? Color.FromArgb(0, 255, 102) : Color.DodgerBlue,
                 title: "Quick connect",
                 description: "RDP, SSH, SDL3, Linux XRDP and more ad-hoc sessions.",
                 buttonText: "Connect",
@@ -91,13 +93,14 @@ namespace FreeRdpWrapper.UI
                 cardBorder: cardBorder,
                 fg: fg,
                 subFg: subFg,
+                isMatrix: isMatrix,
                 onClick: (s, e) => QuickConnectClicked?.Invoke(this, EventArgs.Empty)
             );
 
             // Card 2: Workspace & Vault
             Panel card2 = CreateCard(
                 iconSymbol: "🛡️",
-                iconColor: Color.Coral,
+                iconColor: isMatrix ? Color.FromArgb(0, 255, 170) : Color.Coral,
                 title: "Secure workspace",
                 description: "AES-256-GCM vault with optional master password and export.",
                 buttonText: "Manage Vault",
@@ -106,13 +109,14 @@ namespace FreeRdpWrapper.UI
                 cardBorder: cardBorder,
                 fg: fg,
                 subFg: subFg,
+                isMatrix: isMatrix,
                 onClick: (s, e) => ManageVaultClicked?.Invoke(this, EventArgs.Empty)
             );
 
             // Card 3: Import Entries
             Panel card3 = CreateCard(
                 iconSymbol: "📥",
-                iconColor: Color.RoyalBlue,
+                iconColor: isMatrix ? Color.FromArgb(0, 255, 102) : Color.RoyalBlue,
                 title: "Import entries",
                 description: "From Microsoft .rdp files, exported vault bundles, or scripts.",
                 buttonText: "Import...",
@@ -121,6 +125,7 @@ namespace FreeRdpWrapper.UI
                 cardBorder: cardBorder,
                 fg: fg,
                 subFg: subFg,
+                isMatrix: isMatrix,
                 onClick: (s, e) => ImportClicked?.Invoke(this, EventArgs.Empty)
             );
 
@@ -173,7 +178,7 @@ namespace FreeRdpWrapper.UI
             this.Controls.Add(mainLayout);
         }
 
-        private Panel CreateCard(string iconSymbol, Color iconColor, string title, string description, string buttonText, bool isPrimary, Color cardBg, Color cardBorder, Color fg, Color subFg, EventHandler onClick)
+        private Panel CreateCard(string iconSymbol, Color iconColor, string title, string description, string buttonText, bool isPrimary, Color cardBg, Color cardBorder, Color fg, Color subFg, bool isMatrix, EventHandler onClick)
         {
             Panel card = new Panel
             {
@@ -218,6 +223,12 @@ namespace FreeRdpWrapper.UI
                 Size = new Size(240, 48)
             };
 
+            Color btnBg = isMatrix
+                ? (isPrimary ? Color.FromArgb(0, 80, 25) : Color.FromArgb(10, 25, 10))
+                : (isPrimary ? Color.FromArgb(0, 120, 215) : Color.FromArgb(50, 55, 68));
+
+            Color btnBorder = isMatrix ? Color.FromArgb(0, 255, 102) : Color.Transparent;
+
             Button btnAction = new Button
             {
                 Text = buttonText,
@@ -226,10 +237,11 @@ namespace FreeRdpWrapper.UI
                 Height = 32,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold),
-                BackColor = isPrimary ? Color.FromArgb(0, 120, 215) : Color.FromArgb(50, 55, 68),
-                ForeColor = Color.White
+                BackColor = btnBg,
+                ForeColor = isMatrix ? Color.FromArgb(0, 255, 102) : Color.White
             };
-            btnAction.FlatAppearance.BorderSize = 0;
+            btnAction.FlatAppearance.BorderColor = btnBorder;
+            btnAction.FlatAppearance.BorderSize = isMatrix ? 1 : 0;
             btnAction.Click += onClick;
 
             card.Controls.Add(lblIcon);

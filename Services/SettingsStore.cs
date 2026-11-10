@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Security.Cryptography;
 using System.Text;
+using FreeRdpWrapper.Models;
 
 namespace FreeRdpWrapper.Services
 {
@@ -20,6 +21,11 @@ namespace FreeRdpWrapper.Services
         public LogLevelSetting LogLevel { get; set; } = LogLevelSetting.Info;
         public bool AutoShowLogsOnError { get; set; } = true;
         public bool ShowQuickConnectBar { get; set; } = true;
+        public bool ShowStandardToolbar { get; set; } = true;
+        public bool ShowSessionToolbar { get; set; } = true;
+        public bool ShowToolsToolbar { get; set; } = true;
+        public bool ShowStatusBar { get; set; } = true;
+        public AppTheme Theme { get; set; } = AppTheme.HighContrast;
     }
 
     public static class SettingsStore
@@ -78,7 +84,12 @@ namespace FreeRdpWrapper.Services
                         : string.Empty,
                     LogLevel = settings.LogLevel,
                     AutoShowLogsOnError = settings.AutoShowLogsOnError,
-                    ShowQuickConnectBar = settings.ShowQuickConnectBar
+                    ShowQuickConnectBar = settings.ShowQuickConnectBar,
+                    ShowStandardToolbar = settings.ShowStandardToolbar,
+                    ShowSessionToolbar = settings.ShowSessionToolbar,
+                    ShowToolsToolbar = settings.ShowToolsToolbar,
+                    ShowStatusBar = settings.ShowStatusBar,
+                    Theme = settings.Theme
                 };
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
