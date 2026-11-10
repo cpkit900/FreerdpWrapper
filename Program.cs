@@ -121,20 +121,23 @@ static class Program
         }
         Console.WriteLine("[PASS] Network Reachability & Port Probe");
 
-        // 7. Network Scanner Subnet & Range Generation
-        var cidrIps = NetworkScannerService.ParseIpRange("192.168.1.0/29");
-        if (cidrIps.Count != 6 || cidrIps[0] != "192.168.1.1" || cidrIps[5] != "192.168.1.6")
+        // 7. Network Scanner Active Adapters & Range Generation
+        var adapters = NetworkScannerService.GetActiveAdapters();
+        foreach (var ad in adapters)
         {
-            Console.WriteLine("[FAIL] NetworkScannerService CIDR parsing failed!");
+            if (ad.IpAddress.StartsWith("169.254."))
+            {
+                Console.WriteLine("[FAIL] APIPA 169.254 address not filtered from adapters!");
+                Environment.Exit(1);
+            }
+        }
+        var rangeIps = NetworkScannerService.GenerateIpRange("192.168.0.1", "192.168.0.10");
+        if (rangeIps.Count != 10 || rangeIps[0] != "192.168.0.1" || rangeIps[9] != "192.168.0.10")
+        {
+            Console.WriteLine("[FAIL] NetworkScannerService Range generation failed!");
             Environment.Exit(1);
         }
-        var rangeIps = NetworkScannerService.ParseIpRange("10.0.0.1-5");
-        if (rangeIps.Count != 5 || rangeIps[0] != "10.0.0.1" || rangeIps[4] != "10.0.0.5")
-        {
-            Console.WriteLine("[FAIL] NetworkScannerService Range parsing failed!");
-            Environment.Exit(1);
-        }
-        Console.WriteLine("[PASS] Network Scanner Subnet & CIDR Parser");
+        Console.WriteLine("[PASS] Network Scanner Active Adapters & IP Range Generator");
 
         Console.WriteLine("=== ALL SYSTEM TESTS PASSED SUCCESSFULLY! ===");
         Environment.Exit(0);

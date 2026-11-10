@@ -65,6 +65,7 @@ namespace FreeRdpWrapper
         private TabControl tabControl = default!;
         private TabPage? _quickStartTab = null;
         private TabPage? _aiTabPage = null;
+        private TabPage? _networkScanTab = null;
         private ToolTip _toolTip = new ToolTip { InitialDelay = 200, ReshowDelay = 100, AutoPopDelay = 5000 };
 
         // Clipboard timer
@@ -919,25 +920,39 @@ namespace FreeRdpWrapper
         // ════════════════════════════════════════════════════════════════════
         private void OpenNetworkScanner()
         {
-            var groups = _connections.Select(c => c.Group).Where(g => !string.IsNullOrEmpty(g)).Distinct().ToList();
-            using var dlg = new NetworkScannerDialog(groups);
+            ShowNetworkScanTab();
+        }
 
-            dlg.OnConnectionsAdded += (newConns) => {
+        private void ShowNetworkScanTab()
+        {
+            if (_networkScanTab != null && tabControl.TabPages.Contains(_networkScanTab))
+            {
+                tabControl.SelectedTab = _networkScanTab;
+                return;
+            }
+
+            _networkScanTab = new TabPage("Network scan");
+            var groups = _connections.Select(c => c.Group).Where(g => !string.IsNullOrEmpty(g)).Distinct().ToList();
+            var scannerControl = new NetworkScannerControl(groups);
+
+            scannerControl.OnConnectionsAdded += (newConns) => {
                 foreach (var conn in newConns)
                 {
                     _connections.Add(conn);
                 }
                 _store.SaveConnections(_connections);
                 RefreshTree();
-                LogMessage($"[Network Scanner] Added {newConns.Count} discovered host(s) to connection workspace.", LogLevelSetting.Info);
-                lblStatusText.Text = $"🌐 Network Scanner: Added {newConns.Count} host(s).";
+                LogMessage($"[Network Scanner] Imported {newConns.Count} connection(s).", LogLevelSetting.Info);
+                lblStatusText.Text = $"🌐 Network Scanner: Imported {newConns.Count} host(s).";
             };
 
-            dlg.OnQuickConnectRequested += (conn) => {
+            scannerControl.OnQuickConnectRequested += (conn) => {
                 LaunchSession(conn);
             };
 
-            dlg.ShowDialog(this);
+            _networkScanTab.Controls.Add(scannerControl);
+            tabControl.TabPages.Add(_networkScanTab);
+            tabControl.SelectedTab = _networkScanTab;
         }
 
         private async Task ProbeSelectedServer()
@@ -1600,6 +1615,15 @@ namespace FreeRdpWrapper
                 e.Graphics.FillEllipse(br, iconX + 8, iconY + 6, 2.5f, 2.5f);
                 e.Graphics.DrawLine(p, iconX + 7, iconY + 3, iconX + 7, iconY);
             }
+            else if (tabPage == _networkScanTab || title.Contains("Network", StringComparison.OrdinalIgnoreCase))
+            {
+                // Sleek Globe / Network vector icon
+                using var p = new Pen(isMatrix ? Color.FromArgb(0, 255, 200) : Color.FromArgb(0, 160, 255), 1.5f);
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                e.Graphics.DrawEllipse(p, iconX + 1, iconY + 1, 12, 12);
+                e.Graphics.DrawLine(p, iconX + 1, iconY + 7, iconX + 13, iconY + 7);
+                e.Graphics.DrawEllipse(p, iconX + 3, iconY + 1, 8, 12);
+            }
             else
             {
                 // Connected Server Status Indicator
@@ -1644,6 +1668,10 @@ namespace FreeRdpWrapper
             if (tabPage == _aiTabPage)
             {
                 _aiTabPage = null;
+            }
+            if (tabPage == _networkScanTab)
+            {
+                _networkScanTab = null;
             }
 
             if (tabPage.Controls.Count > 0 && tabPage.Controls[0] is FreeRdpContainer container)
