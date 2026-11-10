@@ -22,6 +22,12 @@ $binDir = "$releaseDir\Bin\FreeRDP"
 New-Item -ItemType Directory -Force -Path $binDir | Out-Null
 Copy-Item "$baseDir\Bin\FreeRDP\Compiled\bin\*" -Destination $binDir -Recurse -Force
 
+if (Test-Path "$baseDir\Assets") {
+    $assetsDir = "$releaseDir\Assets"
+    New-Item -ItemType Directory -Force -Path $assetsDir | Out-Null
+    Copy-Item "$baseDir\Assets\*" -Destination $assetsDir -Recurse -Force
+}
+
 Write-Host "Writing release notes..."
 @"
 AeroRemote Desktop $version

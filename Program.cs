@@ -36,11 +36,15 @@ static class Program
         // Only require Master Password dialog if a master password has actually been set
         if (!string.IsNullOrEmpty(settings.MasterPasswordHash))
         {
-            using var dialog = new UI.MasterPasswordDialog(isSetupMode: false, settings.MasterPasswordHash);
-            if (dialog.ShowDialog() != DialogResult.OK)
+            // Check if remember password on this machine token exists (master.bin)
+            if (!MasterPasswordTokenManager.TryAutoUnlock(settings.MasterPasswordHash))
             {
-                // User cancelled or failed authentication
-                return;
+                using var dialog = new UI.MasterPasswordDialog(isSetupMode: false, settings.MasterPasswordHash);
+                if (dialog.ShowDialog() != DialogResult.OK)
+                {
+                    // User cancelled or failed authentication
+                    return;
+                }
             }
         }
 

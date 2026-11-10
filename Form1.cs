@@ -72,6 +72,9 @@ namespace FreeRdpWrapper
         // Clipboard timer
         private System.Windows.Forms.Timer? _clipboardTimer;
 
+        // Reachability / Ping status cache for navigation items
+        private readonly Dictionary<string, bool> _pingStatusCache = new(StringComparer.OrdinalIgnoreCase);
+
         public Form1()
         {
             InitializeComponent();
@@ -87,7 +90,8 @@ namespace FreeRdpWrapper
             _credentialStore = new CredentialStore();
             _credentials = _credentialStore.LoadCredentials(_connections);
 
-            // Set application icon
+            // Set application icon & taskbar visibility
+            this.ShowIcon = true;
             try
             {
                 string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico");
@@ -95,11 +99,64 @@ namespace FreeRdpWrapper
                 {
                     this.Icon = new Icon(iconPath);
                 }
+                else
+                {
+                    var exeIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                    if (exeIcon != null)
+                    {
+                        this.Icon = exeIcon;
+                    }
+                }
             }
             catch { }
 
+            this.FormClosing += Form1_FormClosing;
+
             SetupUI();
             RefreshTree();
+
+            // Reopen tabs and restore layout if saved in settings
+            this.Shown += async (s, e) => {
+                if (_settings.SaveLayoutAndTabs)
+                {
+                    if (!_settings.IsNavCollapsed && _settings.NavSplitterDistance >= 100)
+                    {
+                        try
+                        {
+                            int maxDist = Math.Max(120, mainSplit.Width - 100);
+                            mainSplit.SplitterDistance = Math.Min(maxDist, _settings.NavSplitterDistance);
+                            _leftSavedWidth = mainSplit.SplitterDistance;
+                        }
+                        catch { }
+                    }
+
+                    if (_settings.OpenTabConnectionIds != null && _settings.OpenTabConnectionIds.Count > 0)
+                    {
+                        await Task.Delay(200);
+                        foreach (var connId in _settings.OpenTabConnectionIds)
+                        {
+                            var conn = _connections.FirstOrDefault(c => string.Equals(c.Id, connId, StringComparison.OrdinalIgnoreCase))
+                                    ?? _connections.FirstOrDefault(c => string.Equals(c.Name, connId, StringComparison.OrdinalIgnoreCase));
+                            if (conn != null)
+                            {
+                                LaunchSession(conn);
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(_settings.ActiveTabName))
+                        {
+                            foreach (TabPage tab in tabControl.TabPages)
+                            {
+                                if (tab.Text == _settings.ActiveTabName)
+                                {
+                                    tabControl.SelectedTab = tab;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         private void SetupUI()
@@ -108,6 +165,36 @@ namespace FreeRdpWrapper
             this.Width = 1320;
             this.Height = 880;
             this.StartPosition = FormStartPosition.CenterScreen;
+
+            if (_settings.SaveWindowPosition && _settings.WindowWidth > 200 && _settings.WindowHeight > 200)
+            {
+                var savedRect = new Rectangle(_settings.WindowX, _settings.WindowY, _settings.WindowWidth, _settings.WindowHeight);
+                bool isVisible = false;
+                foreach (var screen in Screen.AllScreens)
+                {
+                    if (screen.WorkingArea.IntersectsWith(savedRect))
+                    {
+                        isVisible = true;
+                        break;
+                    }
+                }
+
+                if (isVisible)
+                {
+                    this.StartPosition = FormStartPosition.Manual;
+                    this.Location = new Point(_settings.WindowX, _settings.WindowY);
+                    this.Size = new Size(_settings.WindowWidth, _settings.WindowHeight);
+                    if (_settings.WindowState == FormWindowState.Maximized)
+                    {
+                        this.WindowState = FormWindowState.Maximized;
+                    }
+                }
+            }
+
+            if (_settings.SaveLayoutAndTabs && _settings.NavSplitterDistance >= 120)
+            {
+                _leftSavedWidth = _settings.NavSplitterDistance;
+            }
 
             // ════════════════════════════════════════════════════════════════════
             // TOP CONTAINER: MENU STRIP + MODULAR TOOLBARS
@@ -145,7 +232,7 @@ namespace FreeRdpWrapper
             };
 
             // Toolbar A: Standard & Vault (Add, Import, Export, Vault, Scripts, Credentials)
-            pnlStandardToolbar = CreateToolbarGroup(new Control[] {
+            pnlStandardToolbar = CreateToolbarGroup("Standard", new Control[] {
                 CreateToolButton("➕", "New Connection (Ctrl+N)", (s, e) => AddConnection()),
                 CreateToolButton("📜", "New Automation Script (Bash / PowerShell)", (s, e) => AddScript()),
                 CreateToolButton("🔑", "New Credential Identity (AES-256-GCM Vault)", (s, e) => AddCredential()),
@@ -155,7 +242,7 @@ namespace FreeRdpWrapper
             });
 
             // Toolbar B: Session Actions (Connect, Reconnect, Screenshot, SAS, Fullscreen)
-            pnlSessionToolbar = CreateToolbarGroup(new Control[] {
+            pnlSessionToolbar = CreateToolbarGroup("Session", new Control[] {
                 CreateToolButton("🔁", "Reconnect Active Session", (s, e) => ReconnectActiveSession()),
                 CreateToolButton("📸", "Capture Screenshot (Copy to Clipboard & Save to Pictures)", (s, e) => CaptureActiveScreenshot()),
                 CreateToolButton("⌨️", "Send Ctrl+Alt+Del (SAS Keys) to Remote Desktop", (s, e) => SendActiveCtrlAltDel()),
@@ -163,7 +250,7 @@ namespace FreeRdpWrapper
             });
 
             // Toolbar C: Diagnostics & Tools (Probe, AI, Settings, Customize)
-            pnlToolsToolbar = CreateToolbarGroup(new Control[] {
+            pnlToolsToolbar = CreateToolbarGroup("Tools", new Control[] {
                 CreateToolButton("🌐", "Network Scanner (Discover RDP & SSH hosts on local subnet)", (s, e) => OpenNetworkScanner()),
                 CreateToolButton("⚡", "Ping & Probe TCP Port 3389 Reachability", async (s, e) => await ProbeSelectedServer()),
                 CreateToolButton("🤖", "AI Remote Ops Copilot (Error Diagnostician & Scripts)", (s, e) => ToggleAiCopilotTab()),
@@ -174,11 +261,10 @@ namespace FreeRdpWrapper
 
             toolbarContainer.Controls.AddRange(new Control[] {
                 pnlStandardToolbar,
-                CreateToolbarDivider(),
                 pnlSessionToolbar,
-                CreateToolbarDivider(),
                 pnlToolsToolbar
             });
+            ApplyToolbarOrder();
 
             // 3. Quick Connect Address Bar
             quickConnectRow = new Panel { Dock = DockStyle.Top, Height = 38, Padding = new Padding(6, 4, 6, 4) };
@@ -248,6 +334,13 @@ namespace FreeRdpWrapper
                 FixedPanel = FixedPanel.Panel1,
                 SplitterDistance = _leftSavedWidth,
                 SplitterWidth = 5
+            };
+            mainSplit.SplitterMoved += (s, e) => {
+                if (!_isLeftCollapsed && mainSplit.SplitterDistance >= 80)
+                {
+                    _leftSavedWidth = mainSplit.SplitterDistance;
+                    _settings.NavSplitterDistance = _leftSavedWidth;
+                }
             };
 
             leftNavHeader = new Panel { Dock = DockStyle.Top, Height = 78, Padding = new Padding(6, 4, 6, 4) };
@@ -454,6 +547,18 @@ namespace FreeRdpWrapper
                 if (e.KeyCode == Keys.F11) ToggleFullscreen();
             };
 
+            if (_settings.SaveLayoutAndTabs)
+            {
+                if (_settings.IsNavCollapsed && !_isLeftCollapsed)
+                {
+                    ToggleCollapseLeft();
+                }
+                if (_settings.IsLogsDrawerOpen && !_isLogsVisible)
+                {
+                    ToggleLogsDrawer();
+                }
+            }
+
             ApplyTheme(this);
         }
 
@@ -541,6 +646,7 @@ namespace FreeRdpWrapper
             pnlSessionToolbar.Visible = _settings.ShowSessionToolbar;
             pnlToolsToolbar.Visible = _settings.ShowToolsToolbar;
             quickConnectRow.Visible = _settings.ShowQuickConnectBar;
+            ApplyToolbarOrder();
         }
 
         private void ToggleMenuRetract()
@@ -550,28 +656,130 @@ namespace FreeRdpWrapper
             btnRetractMenu.Text = _isMenuRetracted ? "☰ Menu" : "☰";
         }
 
-        private FlowLayoutPanel CreateToolbarGroup(Control[] controls)
+        private Point _dragStartPoint;
+        private bool _isDraggingToolbar = false;
+        private FlowLayoutPanel? _draggingPanel = null;
+
+        private FlowLayoutPanel CreateToolbarGroup(string toolbarKey, Control[] controls)
         {
             var pnl = new FlowLayoutPanel
             {
                 AutoSize = true,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
-                Margin = new Padding(2, 0, 2, 0)
+                Margin = new Padding(2, 0, 4, 0),
+                Tag = toolbarKey
             };
+
+            // Tactile drag grip handle for moving/reordering toolbar
+            var lblGrip = new Label
+            {
+                Text = "⠿",
+                AutoSize = false,
+                Width = 14,
+                Height = 26,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9f),
+                Cursor = Cursors.SizeAll,
+                Margin = new Padding(0, 1, 2, 1),
+                ForeColor = Color.Gray
+            };
+            _toolTip.SetToolTip(lblGrip, $"Drag to move '{toolbarKey}' toolbar, or reorder via Customize Toolbars...");
+            AttachToolbarDrag(lblGrip, pnl);
+
+            pnl.Controls.Add(lblGrip);
             pnl.Controls.AddRange(controls);
+
+            // Self-contained divider
+            var lblDiv = new Label
+            {
+                Text = "│",
+                AutoSize = true,
+                ForeColor = Color.FromArgb(0, 150, 50),
+                Padding = new Padding(3, 4, 2, 0)
+            };
+            pnl.Controls.Add(lblDiv);
+
             return pnl;
         }
 
-        private Label CreateToolbarDivider()
+        private void AttachToolbarDrag(Control grip, FlowLayoutPanel targetPanel)
         {
-            return new Label
-            {
-                Text = "|",
-                AutoSize = true,
-                ForeColor = Color.FromArgb(0, 150, 50),
-                Padding = new Padding(2, 4, 2, 0)
+            grip.MouseDown += (s, e) => {
+                if (e.Button == MouseButtons.Left)
+                {
+                    _isDraggingToolbar = true;
+                    _dragStartPoint = e.Location;
+                    _draggingPanel = targetPanel;
+                }
             };
+
+            grip.MouseMove += (s, e) => {
+                if (_isDraggingToolbar && _draggingPanel == targetPanel && e.Button == MouseButtons.Left)
+                {
+                    int deltaX = e.X - _dragStartPoint.X;
+                    if (Math.Abs(deltaX) > 40)
+                    {
+                        int currentIndex = toolbarContainer.Controls.IndexOf(targetPanel);
+                        int targetIndex = deltaX > 0 ? currentIndex + 1 : currentIndex - 1;
+                        if (targetIndex >= 0 && targetIndex < toolbarContainer.Controls.Count)
+                        {
+                            toolbarContainer.Controls.SetChildIndex(targetPanel, targetIndex);
+                            _dragStartPoint = e.Location;
+                            SaveCurrentToolbarOrder();
+                        }
+                    }
+                }
+            };
+
+            grip.MouseUp += (s, e) => {
+                if (_isDraggingToolbar)
+                {
+                    _isDraggingToolbar = false;
+                    _draggingPanel = null;
+                    SaveCurrentToolbarOrder();
+                }
+            };
+        }
+
+        private void SaveCurrentToolbarOrder()
+        {
+            var newOrder = new List<string>();
+            foreach (Control c in toolbarContainer.Controls)
+            {
+                if (c is FlowLayoutPanel flp && flp.Tag is string key)
+                {
+                    newOrder.Add(key);
+                }
+            }
+            if (newOrder.Count > 0)
+            {
+                _settings.ToolbarOrder = newOrder;
+                SettingsStore.SaveSettings(_settings);
+            }
+        }
+
+        private void ApplyToolbarOrder()
+        {
+            if (_settings.ToolbarOrder == null || _settings.ToolbarOrder.Count == 0) return;
+
+            var panelMap = new Dictionary<string, FlowLayoutPanel>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Standard", pnlStandardToolbar },
+                { "Session", pnlSessionToolbar },
+                { "Tools", pnlToolsToolbar }
+            };
+
+            toolbarContainer.SuspendLayout();
+            for (int i = 0; i < _settings.ToolbarOrder.Count; i++)
+            {
+                string key = _settings.ToolbarOrder[i];
+                if (panelMap.TryGetValue(key, out var panel))
+                {
+                    toolbarContainer.Controls.SetChildIndex(panel, i);
+                }
+            }
+            toolbarContainer.ResumeLayout();
         }
 
         private Button CreateToolButton(string iconSymbol, string tooltipText, EventHandler onClick)
@@ -597,6 +805,7 @@ namespace FreeRdpWrapper
             dlg.ToolbarsChanged += () => {
                 _settings = SettingsStore.LoadSettings();
                 ApplyToolbarVisibility();
+                ApplyToolbarOrder();
                 BuildMenuStrip();
             };
             dlg.ShowDialog(this);
@@ -693,9 +902,82 @@ namespace FreeRdpWrapper
             using var dlg = new SettingsDialog();
             dlg.SettingsChanged += () => {
                 _settings = SettingsStore.LoadSettings();
+                ThemeSettings.CurrentTheme = _settings.Theme;
                 ApplyTheme(this);
+                ApplyToolbarOrder();
+                ApplyToolbarVisibility();
+                RefreshTree();
             };
             dlg.ShowDialog(this);
+        }
+
+        private void Form1_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            // 1. Warn if there are active connection sessions
+            var activeSessionTabs = tabControl.TabPages
+                .Cast<TabPage>()
+                .Where(tp => tp.Tag is SavedConnection || (tp.Controls.Count > 0 && tp.Controls[0] is FreeRdpContainer container && container.IsSessionActive))
+                .ToList();
+
+            if (activeSessionTabs.Count > 0)
+            {
+                string msg = activeSessionTabs.Count == 1
+                    ? $"There is 1 active remote session open ({activeSessionTabs[0].Text}).\n\nDo you want to disconnect and exit?"
+                    : $"There are {activeSessionTabs.Count} active remote sessions open.\n\nDo you want to disconnect all sessions and exit?";
+
+                var res = MessageBox.Show(this, msg, "Active Connection Sessions", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+                if (res != DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
+            // 2. Save window position & size if enabled
+            if (_settings.SaveWindowPosition)
+            {
+                _settings.WindowState = this.WindowState;
+                if (this.WindowState == FormWindowState.Normal)
+                {
+                    _settings.WindowX = this.Location.X;
+                    _settings.WindowY = this.Location.Y;
+                    _settings.WindowWidth = this.Size.Width;
+                    _settings.WindowHeight = this.Size.Height;
+                }
+                else
+                {
+                    _settings.WindowX = this.RestoreBounds.X;
+                    _settings.WindowY = this.RestoreBounds.Y;
+                    _settings.WindowWidth = this.RestoreBounds.Width;
+                    _settings.WindowHeight = this.RestoreBounds.Height;
+                }
+            }
+
+            // 3. Save workspace layout & open tabs if enabled
+            if (_settings.SaveLayoutAndTabs)
+            {
+                _settings.NavSplitterDistance = _isLeftCollapsed ? _leftSavedWidth : mainSplit.SplitterDistance;
+                _settings.IsNavCollapsed = _isLeftCollapsed;
+                _settings.IsLogsDrawerOpen = _isLogsVisible;
+                _settings.OpenTabConnectionIds = tabControl.TabPages
+                    .Cast<TabPage>()
+                    .Select(tp => tp.Tag as SavedConnection)
+                    .Where(c => c != null)
+                    .Select(c => c!.Id)
+                    .ToList();
+                _settings.ActiveTabName = tabControl.SelectedTab?.Text ?? string.Empty;
+            }
+
+            SettingsStore.SaveSettings(_settings);
+
+            // 4. Gracefully disconnect all sessions
+            foreach (TabPage tp in tabControl.TabPages)
+            {
+                if (tp.Controls.Count > 0 && tp.Controls[0] is FreeRdpContainer cont)
+                {
+                    cont.Disconnect();
+                }
+            }
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -712,7 +994,11 @@ namespace FreeRdpWrapper
             _isLeftCollapsed = !_isLeftCollapsed;
             if (_isLeftCollapsed)
             {
-                _leftSavedWidth = mainSplit.SplitterDistance;
+                if (mainSplit.SplitterDistance > 50)
+                {
+                    _leftSavedWidth = mainSplit.SplitterDistance;
+                    _settings.NavSplitterDistance = _leftSavedWidth;
+                }
                 mainSplit.SplitterDistance = 32;
                 btnCollapseLeft.Text = "▶";
             }
@@ -763,8 +1049,7 @@ namespace FreeRdpWrapper
                         connRoot.Nodes.Add(groupNode);
                     }
 
-                    string icon = c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️";
-                    groupNode.Nodes.Add(new TreeNode($"{icon} {c.Name} ({c.Host})") { Tag = c });
+                    groupNode.Nodes.Add(new TreeNode(FormatConnectionNodeText(c)) { Tag = c });
                 }
             }
             if (connRoot.Nodes.Count > 0)
@@ -800,9 +1085,7 @@ namespace FreeRdpWrapper
                 if (matches)
                 {
                     matchCount++;
-                    string displayUser = string.IsNullOrEmpty(cr.Domain) ? cr.Username : $"{cr.Domain}\\{cr.Username}";
-                    string label = string.IsNullOrEmpty(displayUser) ? cr.Title : $"{cr.Title} ({displayUser})";
-                    credRoot.Nodes.Add(new TreeNode($"🔑 {label}") { Tag = cr });
+                    credRoot.Nodes.Add(new TreeNode(FormatCredentialNodeText(cr)) { Tag = cr });
                 }
             }
             if (credRoot.Nodes.Count > 0)
@@ -936,6 +1219,9 @@ namespace FreeRdpWrapper
 
                 lblStatusText.Text = $"⚡ [{c.Name}] {result.SummaryText}";
                 LogMessage($"[Probe] {c.Name} ({c.Host}): {result.SummaryText}", LogLevelSetting.Info);
+
+                _pingStatusCache[c.Host] = result.IsPortOpen || result.IsPingSuccessful;
+                treeConnections.SelectedNode.Text = FormatConnectionNodeText(c);
 
                 MessageBox.Show($"Reachability probe for '{c.Name}' ({c.Host}):\r\n\r\n" +
                                 $"• TCP Port {result.Port}: {(result.IsPortOpen ? $"OPEN ({result.PortHandshakeMs} ms)" : "CLOSED / FIREWALLED")}\r\n" +
@@ -1308,6 +1594,43 @@ namespace FreeRdpWrapper
             }
         }
 
+        private string FormatConnectionNodeText(SavedConnection c)
+        {
+            string icon = c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️";
+            string pingPrefix = "";
+            if (_settings.ShowPingStatusInNavTree)
+            {
+                if (_pingStatusCache.TryGetValue(c.Host, out bool isOnline))
+                {
+                    pingPrefix = isOnline ? "🟢 " : "🔴 ";
+                }
+                else
+                {
+                    pingPrefix = "⚪ ";
+                }
+            }
+
+            var parts = new List<string>();
+            if (_settings.ShowHostInNavTree && !string.IsNullOrWhiteSpace(c.Host))
+            {
+                parts.Add(c.Host);
+            }
+            if (_settings.ShowUserInNavTree && !string.IsNullOrWhiteSpace(c.User))
+            {
+                parts.Add(c.User);
+            }
+
+            string details = parts.Count > 0 ? $" ({string.Join(" • ", parts)})" : "";
+            return $"{pingPrefix}{icon} {c.Name}{details}";
+        }
+
+        private string FormatCredentialNodeText(SavedCredential cr)
+        {
+            string displayUser = string.IsNullOrEmpty(cr.Domain) ? cr.Username : $"{cr.Domain}\\{cr.Username}";
+            string details = (_settings.ShowUserInNavTree && !string.IsNullOrEmpty(displayUser)) ? $" ({displayUser})" : "";
+            return $"🔑 {cr.Title}{details}";
+        }
+
         private void RefreshTree()
         {
             treeConnections.BeginUpdate();
@@ -1339,8 +1662,7 @@ namespace FreeRdpWrapper
                         _rootConnections.Nodes.Add(groupNode);
                     }
 
-                    string icon = c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️";
-                    var node = new TreeNode($"{icon} {c.Name} ({c.Host})") { Tag = c };
+                    var node = new TreeNode(FormatConnectionNodeText(c)) { Tag = c };
                     groupNode.Nodes.Add(node);
                 }
             }
@@ -1379,9 +1701,7 @@ namespace FreeRdpWrapper
             {
                 foreach (var cr in _credentials)
                 {
-                    string displayUser = string.IsNullOrEmpty(cr.Domain) ? cr.Username : $"{cr.Domain}\\{cr.Username}";
-                    string label = string.IsNullOrEmpty(displayUser) ? cr.Title : $"{cr.Title} ({displayUser})";
-                    _rootCredentials.Nodes.Add(new TreeNode($"🔑 {label}") { Tag = cr });
+                    _rootCredentials.Nodes.Add(new TreeNode(FormatCredentialNodeText(cr)) { Tag = cr });
                 }
             }
             treeConnections.Nodes.Add(_rootCredentials);
@@ -1930,7 +2250,7 @@ namespace FreeRdpWrapper
                 }
             }
 
-            var tabPage = new TabPage(config.Name);
+            var tabPage = new TabPage(config.Name) { Tag = config };
             var container = new FreeRdpContainer { Dock = DockStyle.Fill };
 
             container.OnLogMessage += (msg) => {

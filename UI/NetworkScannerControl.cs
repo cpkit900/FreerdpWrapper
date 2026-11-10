@@ -34,6 +34,8 @@ namespace FreeRdpWrapper.UI
         // Progress & Grid
         private ProgressBar progressBar = null!;
         private ListView lvResults = null!;
+        private CheckBox chkHeaderSelectAll = null!;
+        private bool _isUpdatingCheckAll = false;
 
         // State
         private CancellationTokenSource? _cts;
@@ -327,11 +329,33 @@ namespace FreeRdpWrapper.UI
                 BackColor = isMatrix ? Color.FromArgb(2, 6, 2) : (isDark ? Color.FromArgb(20, 22, 26) : Color.White),
                 ForeColor = fg
             };
-            lvResults.Columns.Add("Source / Interface / IP", 240);
+            lvResults.Columns.Add("      Source / Interface / IP", 240);
             lvResults.Columns.Add("Hostname", 220);
             lvResults.Columns.Add("Service", 140);
             lvResults.Columns.Add("Port", 90);
             lvResults.Columns.Add("Response time", 110);
+
+            // Header CheckBox for Select All / Unselect All
+            chkHeaderSelectAll = new CheckBox
+            {
+                Size = new Size(16, 16),
+                Location = new Point(5, 5),
+                Cursor = Cursors.Hand,
+                ThreeState = true,
+                BackColor = Color.Transparent
+            };
+            chkHeaderSelectAll.Click += (s, e) => ToggleSelectAll();
+            new ToolTip().SetToolTip(chkHeaderSelectAll, "Select all / Unselect all discovered hosts");
+
+            lvResults.Controls.Add(chkHeaderSelectAll);
+            lvResults.HandleCreated += (s, e) => chkHeaderSelectAll.BringToFront();
+
+            lvResults.ColumnClick += (s, e) => {
+                if (e.Column == 0)
+                {
+                    ToggleSelectAll();
+                }
+            };
 
             lvResults.ItemChecked += (s, e) => {
                 if (e.Item.Tag is DiscoveredDevice dev)
@@ -339,11 +363,28 @@ namespace FreeRdpWrapper.UI
                     dev.IsSelected = e.Item.Checked;
                 }
                 UpdateImportButtonCount();
+                UpdateHeaderCheckState();
             };
             lvResults.SelectedIndexChanged += (s, e) => {
                 btnConnect.Enabled = lvResults.SelectedItems.Count > 0;
             };
             lvResults.DoubleClick += (s, e) => BtnConnect_Click(s, e);
+
+            lvResults.KeyDown += (s, e) => {
+                if (e.Control && e.KeyCode == Keys.A)
+                {
+                    e.SuppressKeyPress = true;
+                    ToggleSelectAll(forceCheck: true);
+                }
+            };
+
+            var ctxResults = new ContextMenuStrip();
+            ctxResults.Items.Add("☑️ Select All (Ctrl+A)", null, (s, e) => ToggleSelectAll(forceCheck: true));
+            ctxResults.Items.Add("☐ Unselect All", null, (s, e) => ToggleSelectAll(forceCheck: false));
+            ctxResults.Items.Add("-");
+            ctxResults.Items.Add("🚀 Connect to Selected", null, (s, e) => BtnConnect_Click(s, e));
+            ctxResults.Items.Add("📥 Import Selected...", null, (s, e) => BtnImport_Click(s, e));
+            lvResults.ContextMenuStrip = ctxResults;
 
             mainLayout.Controls.Add(pnlTopBar, 0, 0);
             mainLayout.Controls.Add(pnlSecondBar, 0, 1);
@@ -510,6 +551,7 @@ namespace FreeRdpWrapper.UI
 
             _allDiscovered.Clear();
             lvResults.Items.Clear();
+            UpdateHeaderCheckState();
             lblResultsCount.Text = "Scanning...";
 
             _cts = new CancellationTokenSource();
@@ -571,6 +613,7 @@ namespace FreeRdpWrapper.UI
 
             lvResults.Items.Add(item);
             UpdateImportButtonCount();
+            UpdateHeaderCheckState();
         }
 
         private void ApplySearchFilter()
@@ -606,6 +649,7 @@ namespace FreeRdpWrapper.UI
             lvResults.EndUpdate();
             lblResultsCount.Text = $"{lvResults.Items.Count} Results";
             UpdateImportButtonCount();
+            UpdateHeaderCheckState();
         }
 
         private void UpdateImportButtonCount()
@@ -613,6 +657,55 @@ namespace FreeRdpWrapper.UI
             int selectedCount = lvResults.CheckedItems.Count;
             btnImport.Text = $"📥  Import ({selectedCount})";
             btnImport.Enabled = selectedCount > 0;
+        }
+
+        private void ToggleSelectAll(bool? forceCheck = null)
+        {
+            if (lvResults.Items.Count == 0) return;
+
+            _isUpdatingCheckAll = true;
+
+            bool targetChecked = forceCheck ?? (lvResults.CheckedItems.Count != lvResults.Items.Count);
+
+            lvResults.BeginUpdate();
+            foreach (ListViewItem item in lvResults.Items)
+            {
+                item.Checked = targetChecked;
+                if (item.Tag is DiscoveredDevice dev)
+                {
+                    dev.IsSelected = targetChecked;
+                }
+            }
+            lvResults.EndUpdate();
+
+            chkHeaderSelectAll.CheckState = targetChecked ? CheckState.Checked : CheckState.Unchecked;
+            _isUpdatingCheckAll = false;
+
+            UpdateImportButtonCount();
+        }
+
+        private void UpdateHeaderCheckState()
+        {
+            if (_isUpdatingCheckAll || chkHeaderSelectAll == null) return;
+            _isUpdatingCheckAll = true;
+
+            int total = lvResults.Items.Count;
+            int checkedCount = lvResults.CheckedItems.Count;
+
+            if (total == 0 || checkedCount == 0)
+            {
+                chkHeaderSelectAll.CheckState = CheckState.Unchecked;
+            }
+            else if (checkedCount == total)
+            {
+                chkHeaderSelectAll.CheckState = CheckState.Checked;
+            }
+            else
+            {
+                chkHeaderSelectAll.CheckState = CheckState.Indeterminate;
+            }
+
+            _isUpdatingCheckAll = false;
         }
 
         private void BtnOptions_Click(object? sender, EventArgs e)

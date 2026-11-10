@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows.Forms;
 using FreeRdpWrapper.Models;
 
 namespace FreeRdpWrapper.Services
@@ -26,6 +28,31 @@ namespace FreeRdpWrapper.Services
         public bool ShowToolsToolbar { get; set; } = true;
         public bool ShowStatusBar { get; set; } = true;
         public AppTheme Theme { get; set; } = AppTheme.HighContrast;
+
+        // Window position & size
+        public bool SaveWindowPosition { get; set; } = false;
+        public int WindowX { get; set; } = -1;
+        public int WindowY { get; set; } = -1;
+        public int WindowWidth { get; set; } = -1;
+        public int WindowHeight { get; set; } = -1;
+        public FormWindowState WindowState { get; set; } = FormWindowState.Normal;
+
+        // Workspace layout & tabs
+        public bool SaveLayoutAndTabs { get; set; } = false;
+        public int NavSplitterDistance { get; set; } = 280;
+        public bool IsNavCollapsed { get; set; } = false;
+        public int LogsSplitterDistance { get; set; } = 150;
+        public bool IsLogsDrawerOpen { get; set; } = false;
+        public List<string> OpenTabConnectionIds { get; set; } = new();
+        public string ActiveTabName { get; set; } = string.Empty;
+
+        // Movable toolbar order
+        public List<string> ToolbarOrder { get; set; } = new() { "Standard", "Session", "Tools" };
+
+        // Navigation Explorer Details (Header & Info Customization)
+        public bool ShowHostInNavTree { get; set; } = false;
+        public bool ShowUserInNavTree { get; set; } = false;
+        public bool ShowPingStatusInNavTree { get; set; } = false;
     }
 
     public static class SettingsStore
@@ -58,6 +85,11 @@ namespace FreeRdpWrapper.Services
                     }
                 }
 
+                if (settings != null && (settings.ToolbarOrder == null || settings.ToolbarOrder.Count == 0))
+                {
+                    settings.ToolbarOrder = new List<string> { "Standard", "Session", "Tools" };
+                }
+
                 return settings ?? new AppSettings();
             }
             catch (Exception ex)
@@ -77,20 +109,14 @@ namespace FreeRdpWrapper.Services
                     Directory.CreateDirectory(directory);
                 }
 
-                var settingsToSave = new AppSettings
+                // Deep copy using JSON serialize/deserialize so all properties are preserved
+                string rawJson = JsonSerializer.Serialize(settings);
+                var settingsToSave = JsonSerializer.Deserialize<AppSettings>(rawJson) ?? new AppSettings();
+
+                if (!string.IsNullOrEmpty(settingsToSave.MasterPasswordHash))
                 {
-                    MasterPasswordHash = !string.IsNullOrEmpty(settings.MasterPasswordHash)
-                        ? VaultCrypto.EncryptSecret(settings.MasterPasswordHash)
-                        : string.Empty,
-                    LogLevel = settings.LogLevel,
-                    AutoShowLogsOnError = settings.AutoShowLogsOnError,
-                    ShowQuickConnectBar = settings.ShowQuickConnectBar,
-                    ShowStandardToolbar = settings.ShowStandardToolbar,
-                    ShowSessionToolbar = settings.ShowSessionToolbar,
-                    ShowToolsToolbar = settings.ShowToolsToolbar,
-                    ShowStatusBar = settings.ShowStatusBar,
-                    Theme = settings.Theme
-                };
+                    settingsToSave.MasterPasswordHash = VaultCrypto.EncryptSecret(settingsToSave.MasterPasswordHash);
+                }
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 string json = JsonSerializer.Serialize(settingsToSave, options);

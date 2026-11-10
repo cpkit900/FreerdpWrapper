@@ -398,6 +398,8 @@ namespace FreeRdpWrapper.UI
 
         // ── Disconnect / cleanup ─────────────────────────────────────────────
 
+        public bool IsSessionActive => _rdpProcess != null && !_rdpProcess.HasExited;
+
         public void Disconnect()
         {
             if (_rdpProcess != null && !_rdpProcess.HasExited)

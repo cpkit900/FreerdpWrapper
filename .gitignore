@@ -13,6 +13,9 @@
 # FreeRDP Build Ignore (large generated directories — source, vcpkg)
 Bin/FreeRDP/vcpkg/
 Bin/FreeRDP/FreeRDP/
+.gradle/
+**/Studio/.gradle/
+**/Studio/build/
 
 # Keep build directory and pre-built binaries tracked
 !Bin/FreeRDP/build/

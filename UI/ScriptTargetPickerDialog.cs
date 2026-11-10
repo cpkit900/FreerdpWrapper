@@ -407,3 +407,4 @@ namespace FreeRdpWrapper.UI
         }
     }
 }
+
