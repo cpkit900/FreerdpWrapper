@@ -23,6 +23,13 @@ static class Program
         }
 
         ApplicationConfiguration.Initialize();
+        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+        AppDomain.CurrentDomain.UnhandledException += (s, e) => {
+            if (e.ExceptionObject is Exception ex)
+            {
+                MessageBox.Show($"Application encountered an error:\n\n{ex.Message}\n\nStack:\n{ex.StackTrace}", "FreeRDP Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        };
 
         var settings = SettingsStore.LoadSettings();
         
@@ -37,7 +44,14 @@ static class Program
             }
         }
 
-        Application.Run(new Form1());
+        try
+        {
+            Application.Run(new Form1());
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Fatal Application Error:\n\n{ex.Message}\n\nStack Trace:\n{ex.StackTrace}", "Error Loading Application", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private static void RunSelfTests()

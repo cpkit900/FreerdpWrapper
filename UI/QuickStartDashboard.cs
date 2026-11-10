@@ -227,7 +227,9 @@ namespace FreeRdpWrapper.UI
                 ? (isPrimary ? Color.FromArgb(0, 80, 25) : Color.FromArgb(10, 25, 10))
                 : (isPrimary ? Color.FromArgb(0, 120, 215) : Color.FromArgb(50, 55, 68));
 
-            Color btnBorder = isMatrix ? Color.FromArgb(0, 255, 102) : Color.Transparent;
+            Color btnBorder = isMatrix 
+                ? Color.FromArgb(0, 255, 102) 
+                : (isPrimary ? Color.FromArgb(0, 100, 190) : cardBorder);
 
             Button btnAction = new Button
             {
@@ -241,7 +243,7 @@ namespace FreeRdpWrapper.UI
                 ForeColor = isMatrix ? Color.FromArgb(0, 255, 102) : Color.White
             };
             btnAction.FlatAppearance.BorderColor = btnBorder;
-            btnAction.FlatAppearance.BorderSize = isMatrix ? 1 : 0;
+            btnAction.FlatAppearance.BorderSize = 1;
             btnAction.Click += onClick;
 
             card.Controls.Add(lblIcon);
