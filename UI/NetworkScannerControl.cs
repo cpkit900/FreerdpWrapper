@@ -635,10 +635,10 @@ namespace FreeRdpWrapper.UI
             var chkDns = new CheckBox { Text = "Resolve hostnames via reverse DNS", Checked = _scanOptions.ResolveHostnames, Location = new Point(20, 50), AutoSize = true };
 
             var lblPingTimeout = new Label { Text = "Ping Timeout (ms):", Location = new Point(20, 95), AutoSize = true };
-            var numPing = new NumericUpDown { Value = _scanOptions.PingTimeoutMs, Minimum = 100, Maximum = 5000, Increment = 50, Location = new Point(170, 92), Width = 80 };
+            var numPing = new NumericUpDown { Minimum = 100, Maximum = 5000, Value = _scanOptions.PingTimeoutMs, Increment = 50, Location = new Point(170, 92), Width = 80 };
 
             var lblServiceTimeout = new Label { Text = "Service Timeout (ms):", Location = new Point(20, 135), AutoSize = true };
-            var numService = new NumericUpDown { Value = _scanOptions.ServiceTimeoutMs, Minimum = 100, Maximum = 5000, Increment = 50, Location = new Point(170, 132), Width = 80 };
+            var numService = new NumericUpDown { Minimum = 100, Maximum = 5000, Value = _scanOptions.ServiceTimeoutMs, Increment = 50, Location = new Point(170, 132), Width = 80 };
 
             var btnOk = new Button { Text = "Apply", DialogResult = DialogResult.OK, Location = new Point(190, 220), Width = 90, Height = 28 };
             var btnCancel = new Button { Text = "Cancel", DialogResult = DialogResult.Cancel, Location = new Point(290, 220), Width = 90, Height = 28 };
@@ -759,3 +759,4 @@ namespace FreeRdpWrapper.UI
         }
     }
 }
+
