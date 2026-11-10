@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using FreeRdpWrapper.Models;
@@ -47,8 +47,11 @@ namespace FreeRdpWrapper.UI
         private CheckBox chkDisableUdp = null!;
 
         private ComboBox cmbProtocol = null!;
+        private Label lblSshKey = null!;
         private TextBox txtSshKey = null!;
         private Button btnBrowseSshKey = null!;
+        private Label lblSshEngine = null!;
+        private ComboBox cmbSshEngine = null!;
         private TabControl tabs = null!;
         private TabPage tabGeneral = null!;
         private TabPage tabDisplay = null!;
@@ -154,7 +157,8 @@ namespace FreeRdpWrapper.UI
             chkAdminSession = new CheckBox { Text = "Connect to Console/Admin Session (+admin)", Location = new Point(120, y), Width = 250 };
             tabGeneral.Controls.Add(chkAdminSession); y += 30;
 
-            tabGeneral.Controls.Add(new Label { Text = "SSH Key:", Location = new Point(20, y), Width = lblW });
+            lblSshKey = new Label { Text = "SSH Key:", Location = new Point(20, y), Width = lblW };
+            tabGeneral.Controls.Add(lblSshKey);
             txtSshKey = new TextBox { Location = new Point(120, y), Width = 170 };
             tabGeneral.Controls.Add(txtSshKey);
             btnBrowseSshKey = new Button { Text = "Browse", Location = new Point(295, y - 1), Width = 75 };
@@ -162,13 +166,27 @@ namespace FreeRdpWrapper.UI
                 using var ofd = new OpenFileDialog { Filter = "Key Files (*.pem;*.ppk)|*.pem;*.ppk|All Files (*.*)|*.*" };
                 if (ofd.ShowDialog() == DialogResult.OK) txtSshKey.Text = ofd.FileName;
             };
-            tabGeneral.Controls.Add(btnBrowseSshKey);
+            tabGeneral.Controls.Add(btnBrowseSshKey); y += 30;
+
+            lblSshEngine = new Label { Text = "SSH Engine:", Location = new Point(20, y), Width = lblW };
+            tabGeneral.Controls.Add(lblSshEngine);
+            cmbSshEngine = new ComboBox { Location = new Point(120, y), Width = txtW, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbSshEngine.Items.AddRange(new object[] { "Integrated Tab (SSH.NET)", "PuTTY (Interactive GUI)", "Windows OpenSSH Console" });
+            cmbSshEngine.SelectedIndex = 0;
+            tabGeneral.Controls.Add(cmbSshEngine);
 
             cmbProtocol.SelectedIndexChanged += (s, e) => {
                 bool isSsh = cmbProtocol.SelectedIndex == 1;
                 txtDomain.Enabled = !isSsh;
                 chkCredGuard.Enabled = !isSsh;
                 chkAdminSession.Enabled = !isSsh;
+
+                lblSshKey.Enabled = isSsh;
+                txtSshKey.Enabled = isSsh;
+                btnBrowseSshKey.Enabled = isSsh;
+                lblSshEngine.Enabled = isSsh;
+                cmbSshEngine.Enabled = isSsh;
+
                 if (isSsh) {
                     if (tabs.TabPages.Contains(tabDisplay)) tabs.TabPages.Remove(tabDisplay);
                     if (tabs.TabPages.Contains(tabResources)) tabs.TabPages.Remove(tabResources);
@@ -304,6 +322,12 @@ namespace FreeRdpWrapper.UI
         private void LoadData()
         {
             cmbProtocol.SelectedIndex = Connection.Protocol == ConnectionProtocol.SSH ? 1 : 0;
+            cmbSshEngine.SelectedIndex = Connection.SshEngine switch
+            {
+                SshClientEngine.PuTTY => 1,
+                SshClientEngine.OpenSshConsole => 2,
+                _ => 0
+            };
             txtName.Text = Connection.Name;
             txtGroup.Text = Connection.Group;
             txtHost.Text = Connection.Host;
@@ -372,6 +396,12 @@ namespace FreeRdpWrapper.UI
             }
 
             Connection.Protocol = cmbProtocol.SelectedIndex == 1 ? ConnectionProtocol.SSH : ConnectionProtocol.RDP;
+            Connection.SshEngine = cmbSshEngine.SelectedIndex switch
+            {
+                1 => SshClientEngine.PuTTY,
+                2 => SshClientEngine.OpenSshConsole,
+                _ => SshClientEngine.IntegratedTab
+            };
             Connection.Name = txtName.Text;
             Connection.Group = string.IsNullOrWhiteSpace(txtGroup.Text) ? "Default" : txtGroup.Text;
             Connection.Host = txtHost.Text;

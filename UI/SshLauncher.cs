@@ -80,6 +80,90 @@ namespace FreeRdpWrapper.UI
             };
         }
 
+        public static string? FindPuttyExecutable()
+        {
+            string[] searchPaths = new[]
+            {
+                @"C:\Program Files\PuTTY\putty.exe",
+                @"C:\Program Files (x86)\PuTTY\putty.exe",
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Bin", "PuTTY", "putty.exe"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "putty.exe")
+            };
+
+            foreach (var path in searchPaths)
+            {
+                if (File.Exists(path)) return path;
+            }
+
+            var pathEnv = Environment.GetEnvironmentVariable("PATH") ?? "";
+            foreach (var p in pathEnv.Split(Path.PathSeparator))
+            {
+                try
+                {
+                    string candidate = Path.Combine(p.Trim(), "putty.exe");
+                    if (File.Exists(candidate)) return candidate;
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        public static bool IsPuttyAvailable => FindPuttyExecutable() != null;
+
+        public static bool LaunchPutty(SavedConnection connection, out string errorMessage)
+        {
+            try
+            {
+                string? puttyPath = FindPuttyExecutable();
+                if (puttyPath == null)
+                {
+                    errorMessage = "PuTTY executable (putty.exe) was not found on your system.\r\nPlease install PuTTY or place putty.exe in 'C:\\Program Files\\PuTTY\\' or in the 'Bin\\PuTTY' directory.";
+                    return false;
+                }
+
+                string host = connection.Host.Trim();
+                int port = 22;
+                if (host.Contains(":"))
+                {
+                    var parts = host.Split(':');
+                    host = parts[0];
+                    if (int.TryParse(parts[1], out int p)) port = p;
+                }
+
+                string user = connection.User.Trim();
+                string plainPass = !string.IsNullOrEmpty(connection.Pass) 
+                    ? VaultCrypto.DecryptSecret(connection.Pass) 
+                    : string.Empty;
+                if (string.IsNullOrEmpty(plainPass) && !string.IsNullOrEmpty(connection.Pass))
+                    plainPass = connection.Pass;
+
+                var args = new System.Text.StringBuilder($"-ssh \"{host}\" -P {port}");
+                if (!string.IsNullOrEmpty(user))
+                    args.Append($" -l \"{user}\"");
+                if (!string.IsNullOrEmpty(plainPass))
+                    args.Append($" -pw \"{plainPass}\"");
+                if (!string.IsNullOrEmpty(connection.SshKeyPath) && File.Exists(connection.SshKeyPath))
+                    args.Append($" -i \"{connection.SshKeyPath}\"");
+
+                var psi = new ProcessStartInfo
+                {
+                    FileName = puttyPath,
+                    Arguments = args.ToString(),
+                    UseShellExecute = true
+                };
+
+                Process.Start(psi);
+                errorMessage = string.Empty;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return false;
+            }
+        }
+
         public static void LaunchInteractiveSession(SavedConnection connection)
         {
             try

@@ -28,10 +28,15 @@ namespace FreeRdpWrapper.UI
         private Button _btnPaste = null!;
         private Button _btnClear = null!;
         private Button _btnReconnect = null!;
+        private Button _btnPutty = null!;
         private Button _btnExternal = null!;
         private Button _btnDisconnect = null!;
 
         private RichTextBox _txtTerminal = null!;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
+        private const int WM_SETREDRAW = 0x000B;
 
         public event Action<string>? OnLogMessage;
         public event Action? OnDisconnected;
@@ -91,10 +96,11 @@ namespace FreeRdpWrapper.UI
             _btnPaste = CreateTopButton("📋 Paste", (s, e) => PasteClipboard());
             _btnClear = CreateTopButton("⚡ Clear", (s, e) => ClearTerminal());
             _btnReconnect = CreateTopButton("🔄 Reconnect", (s, e) => Reconnect());
+            _btnPutty = CreateTopButton("🐱 PuTTY", (s, e) => LaunchPutty());
             _btnExternal = CreateTopButton("↗️ External", (s, e) => LaunchExternal());
             _btnDisconnect = CreateTopButton("❌ Disconnect", (s, e) => Disconnect());
 
-            pnlButtons.Controls.AddRange(new Control[] { _btnCopy, _btnPaste, _btnClear, _btnReconnect, _btnExternal, _btnDisconnect });
+            pnlButtons.Controls.AddRange(new Control[] { _btnCopy, _btnPaste, _btnClear, _btnReconnect, _btnPutty, _btnExternal, _btnDisconnect });
             _topBar.Controls.Add(pnlButtons);
 
             // ── Terminal Output Control ──────────────────────────────────────────
@@ -123,6 +129,7 @@ namespace FreeRdpWrapper.UI
             cm.Items.Add("🛑 Send SIGINT (Ctrl+C)", null, (s, e) => SendToShell("\x03"));
             cm.Items.Add(new ToolStripSeparator());
             cm.Items.Add("🔄 Reconnect", null, (s, e) => Reconnect());
+            cm.Items.Add("🐱 Open in PuTTY", null, (s, e) => LaunchPutty());
             cm.Items.Add("↗️ Open in External Console", null, (s, e) => LaunchExternal());
             _txtTerminal.ContextMenuStrip = cm;
 
@@ -224,7 +231,8 @@ namespace FreeRdpWrapper.UI
 
                 var terminalModes = new Dictionary<TerminalModes, uint>
                 {
-                    { TerminalModes.ECHO, 1 }
+                    { TerminalModes.ECHO, 1 },
+                    { TerminalModes.VERASE, 0x08 }
                 };
 
                 _stream = _client.CreateShellStream("xterm-256color", cols, rows, (uint)_txtTerminal.ClientSize.Width, (uint)_txtTerminal.ClientSize.Height, 4096, terminalModes);
@@ -352,6 +360,17 @@ namespace FreeRdpWrapper.UI
             }
         }
 
+        private void LaunchPutty()
+        {
+            if (_connection != null)
+            {
+                if (!SshLauncher.LaunchPutty(_connection, out string error))
+                {
+                    MessageBox.Show(error, "PuTTY", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
         // ════════════════════════════════════════════════════════════════════
         // TERMINAL RENDERING & ANSI ESCAPE HANDLING
         // ════════════════════════════════════════════════════════════════════
@@ -400,14 +419,60 @@ namespace FreeRdpWrapper.UI
         {
             if (string.IsNullOrEmpty(text)) return;
 
-            // Handle backspace \b in streaming output
-            if (text.Contains("\b"))
+            // Handle backspace sequences: Linux readline sends \b \b (BS, Space, BS) to erase a character
+            if (text.Contains("\b \b"))
             {
-                foreach (char c in text)
+                text = text.Replace("\b \b", "\b");
+            }
+
+            try
+            {
+                SendMessage(_txtTerminal.Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
+
+                // Handle \r in-place line update (e.g. apt-get progress percentage updates)
+                if (text.Contains("\r") && !text.Contains("\r\n"))
+                {
+                    var lines = text.Split('\r');
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            int currentLineIndex = _txtTerminal.GetLineFromCharIndex(_txtTerminal.TextLength);
+                            int lineStart = _txtTerminal.GetFirstCharIndexFromLine(currentLineIndex);
+                            if (lineStart >= 0 && lineStart <= _txtTerminal.TextLength)
+                            {
+                                _txtTerminal.Select(lineStart, _txtTerminal.TextLength - lineStart);
+                                _txtTerminal.SelectedText = "";
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(lines[i]))
+                        {
+                            AppendChunkWithBackspaces(lines[i]);
+                        }
+                    }
+                }
+                else
+                {
+                    AppendChunkWithBackspaces(text);
+                }
+            }
+            finally
+            {
+                SendMessage(_txtTerminal.Handle, WM_SETREDRAW, new IntPtr(1), IntPtr.Zero);
+                _txtTerminal.Invalidate();
+            }
+        }
+
+        private void AppendChunkWithBackspaces(string chunk)
+        {
+            if (chunk.Contains("\b"))
+            {
+                foreach (char c in chunk)
                 {
                     if (c == '\b')
                     {
-                        if (_txtTerminal.TextLength > 0)
+                        if (_txtTerminal.TextLength > 0 && _txtTerminal.Text[_txtTerminal.TextLength - 1] != '\n')
                         {
                             _txtTerminal.Select(_txtTerminal.TextLength - 1, 1);
                             _txtTerminal.SelectedText = "";
@@ -420,12 +485,13 @@ namespace FreeRdpWrapper.UI
                         _txtTerminal.AppendText(c.ToString());
                     }
                 }
-                return;
             }
-
-            _txtTerminal.SelectionStart = _txtTerminal.TextLength;
-            _txtTerminal.SelectionColor = _currentForeColor;
-            _txtTerminal.AppendText(text);
+            else
+            {
+                _txtTerminal.SelectionStart = _txtTerminal.TextLength;
+                _txtTerminal.SelectionColor = _currentForeColor;
+                _txtTerminal.AppendText(chunk);
+            }
         }
 
         private void ProcessAnsiCommand(string code)
@@ -554,7 +620,7 @@ namespace FreeRdpWrapper.UI
                     e.SuppressKeyPress = true;
                     break;
                 case Keys.Back:
-                    SendToShell("\x7F");
+                    SendToShell("\x08");
                     e.Handled = true;
                     e.SuppressKeyPress = true;
                     break;

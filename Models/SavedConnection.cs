@@ -8,11 +8,19 @@ namespace FreeRdpWrapper.Models
         public string Name { get; set; } = string.Empty;
         public string Group { get; set; } = "Default";
         public ConnectionProtocol Protocol { get; set; } = ConnectionProtocol.RDP;
+        public SshClientEngine SshEngine { get; set; } = SshClientEngine.IntegratedTab;
     }
 
     public enum ConnectionProtocol
     {
         RDP,
         SSH
+    }
+
+    public enum SshClientEngine
+    {
+        IntegratedTab,
+        PuTTY,
+        OpenSshConsole
     }
 }

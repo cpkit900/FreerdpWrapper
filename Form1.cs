@@ -1832,6 +1832,13 @@ namespace FreeRdpWrapper
             if (node?.Tag is SavedConnection c)
             {
                 menu.Items.Add("🚀 Connect", null, (s, e) => LaunchSession(c));
+                if (c.Protocol == ConnectionProtocol.SSH)
+                {
+                    menu.Items.Add("🐱 Open in PuTTY...", null, (s, e) => {
+                        if (!SshLauncher.LaunchPutty(c, out string err))
+                            MessageBox.Show(err, "PuTTY Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    });
+                }
                 string probeLabel = c.Protocol == ConnectionProtocol.SSH ? "⚡ Ping & Probe SSH (Port 22)" : "⚡ Ping & Probe RDP (Port 3389)";
                 menu.Items.Add(probeLabel, null, async (s, e) => await ProbeSelectedServer());
                 menu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
@@ -2308,6 +2315,22 @@ namespace FreeRdpWrapper
         {
             if (config.Protocol == ConnectionProtocol.SSH)
             {
+                if (config.SshEngine == SshClientEngine.PuTTY)
+                {
+                    LogMessage($"[{config.Name}] Launching PuTTY session...", LogLevelSetting.Info);
+                    if (!SshLauncher.LaunchPutty(config, out string err))
+                    {
+                        MessageBox.Show(err, "PuTTY Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    return;
+                }
+                else if (config.SshEngine == SshClientEngine.OpenSshConsole)
+                {
+                    LogMessage($"[{config.Name}] Launching external OpenSSH session...", LogLevelSetting.Info);
+                    SshLauncher.LaunchInteractiveSession(config);
+                    return;
+                }
+
                 LogMessage($"[{config.Name}] Opening integrated SSH terminal tab...", LogLevelSetting.Info);
 
                 var sshTabPage = new TabPage($"🐧 {config.Name}") { Tag = config };
