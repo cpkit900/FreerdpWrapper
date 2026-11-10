@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework Condition="'$(NETCoreSdkVersion)' &gt;= '10.0'">net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework Condition="'$(NETCoreSdkVersion)' &lt; '10.0' or '$(TargetFramework)' == ''">net9.0-windows10.0.19041.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>

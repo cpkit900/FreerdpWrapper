@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 using FreeRdpWrapper.Models;
+using FreeRdpWrapper.Services;
 
 namespace FreeRdpWrapper.UI
 {
@@ -98,8 +99,46 @@ namespace FreeRdpWrapper.UI
             tabGeneral.Controls.Add(txtHost); y += 30;
 
             tabGeneral.Controls.Add(new Label { Text = "Username:", Location = new Point(20, y), Width = lblW });
-            txtUser = new TextBox { Location = new Point(120, y), Width = txtW };
-            tabGeneral.Controls.Add(txtUser); y += 30;
+            txtUser = new TextBox { Location = new Point(120, y), Width = txtW - 38 };
+            tabGeneral.Controls.Add(txtUser);
+
+            var btnPickCred = new Button { Text = "🔑", Location = new Point(120 + txtW - 34, y - 1), Width = 34, Height = 24, FlatStyle = FlatStyle.Flat };
+            var tip = new ToolTip();
+            tip.SetToolTip(btnPickCred, "Fill from Stored Credentials in Vault");
+            btnPickCred.Click += (s, e) => {
+                var credStore = new CredentialStore();
+                var creds = credStore.LoadCredentials();
+                if (creds.Count == 0)
+                {
+                    if (MessageBox.Show("No stored credentials found in vault. Would you like to create one now?", "No Credentials", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        using var dlg = new CredentialEditDialog();
+                        if (dlg.ShowDialog() == DialogResult.OK)
+                        {
+                            creds.Add(dlg.Credential);
+                            credStore.SaveCredentials(creds);
+                            txtUser.Text = dlg.Credential.Username;
+                            txtPass.Text = dlg.Credential.Password;
+                            if (!string.IsNullOrEmpty(dlg.Credential.Domain)) txtDomain.Text = dlg.Credential.Domain;
+                        }
+                    }
+                    return;
+                }
+
+                var menu = new ContextMenuStrip();
+                foreach (var cr in creds)
+                {
+                    string label = string.IsNullOrEmpty(cr.Domain) ? $"{cr.Title} ({cr.Username})" : $"{cr.Title} ({cr.Domain}\\{cr.Username})";
+                    menu.Items.Add($"🔑 {label}", null, (s2, e2) => {
+                        txtUser.Text = cr.Username;
+                        txtPass.Text = cr.Password;
+                        if (!string.IsNullOrEmpty(cr.Domain)) txtDomain.Text = cr.Domain;
+                    });
+                }
+                menu.Show(btnPickCred, new Point(0, btnPickCred.Height));
+            };
+            tabGeneral.Controls.Add(btnPickCred);
+            y += 30;
 
             tabGeneral.Controls.Add(new Label { Text = "Password:", Location = new Point(20, y), Width = lblW });
             txtPass = new TextBox { Location = new Point(120, y), Width = txtW, PasswordChar = '*' };

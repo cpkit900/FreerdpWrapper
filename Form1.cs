@@ -17,6 +17,8 @@ namespace FreeRdpWrapper
         private List<SavedConnection> _connections = new();
         private ScriptStore _scriptStore = default!;
         private List<SavedScript> _scripts = new();
+        private CredentialStore _credentialStore = default!;
+        private List<SavedCredential> _credentials = new();
         private AppSettings _settings = default!;
 
         // Top Zone: Retractable Menu Bar & Modular Toolbars
@@ -34,7 +36,6 @@ namespace FreeRdpWrapper
 
         // Layout zones
         private SplitContainer mainSplit = default!; // Left: Nav, Right: Workspace & Logs
-        private SplitContainer leftSplit = default!; // Left Top: Connections, Left Bottom: Scripts
         private SplitContainer rightSplit = default!; // Center: TabControl, Bottom: Hidden Logs Drawer
 
         // Navigation Zone
@@ -43,9 +44,9 @@ namespace FreeRdpWrapper
         private Button btnClearSearch = default!;
         private Label lblSearchStats = default!;
         private TreeView treeConnections = default!;
-        private TreeView treeScripts = default!;
-        private ContextMenuStrip treeContextMenu = default!;
-        private ContextMenuStrip scriptContextMenu = default!;
+        private TreeNode _rootConnections = null!;
+        private TreeNode _rootScripts = null!;
+        private TreeNode _rootCredentials = null!;
 
         // Pinning & Retracting states
         private bool _isLeftPinned = true;
@@ -83,6 +84,8 @@ namespace FreeRdpWrapper
             _connections = _store.LoadConnections();
             _scriptStore = new ScriptStore();
             _scripts = _scriptStore.LoadScripts();
+            _credentialStore = new CredentialStore();
+            _credentials = _credentialStore.LoadCredentials(_connections);
 
             // Set application icon
             try
@@ -97,7 +100,6 @@ namespace FreeRdpWrapper
 
             SetupUI();
             RefreshTree();
-            RefreshScriptsTree();
         }
 
         private void SetupUI()
@@ -142,10 +144,11 @@ namespace FreeRdpWrapper
                 Padding = new Padding(4, 2, 4, 2)
             };
 
-            // Toolbar A: Standard & Vault (Add, Import, Export, Vault, Scripts)
+            // Toolbar A: Standard & Vault (Add, Import, Export, Vault, Scripts, Credentials)
             pnlStandardToolbar = CreateToolbarGroup(new Control[] {
                 CreateToolButton("➕", "New Connection (Ctrl+N)", (s, e) => AddConnection()),
                 CreateToolButton("📜", "New Automation Script (Bash / PowerShell)", (s, e) => AddScript()),
+                CreateToolButton("🔑", "New Credential Identity (AES-256-GCM Vault)", (s, e) => AddCredential()),
                 CreateToolButton("📥", "Import Microsoft .rdp File", (s, e) => ImportRdpFile()),
                 CreateToolButton("📤", "Export Encrypted Vault Backup (.frdpvault)", (s, e) => ExportVaultArchive()),
                 CreateToolButton("🔓", "Unlock & Import Vault Backup", (s, e) => ImportVaultArchive())
@@ -263,7 +266,7 @@ namespace FreeRdpWrapper
             navTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
             Panel navTopRow = new Panel { Dock = DockStyle.Fill, Margin = Padding.Empty };
-            Label lblNavTitle = new Label { Text = "🌍 NAVIGATION", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
+            Label lblNavTitle = new Label { Text = "💼 WORKSPACE", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
 
             btnPinLeft = new Button { Text = "📌", Dock = DockStyle.Right, Width = 26, FlatStyle = FlatStyle.Flat, Margin = Padding.Empty };
             btnPinLeft.FlatAppearance.BorderSize = 0;
@@ -305,10 +308,10 @@ namespace FreeRdpWrapper
                 ItemHeight = 24,
                 Font = new Font("Segoe UI", 9.5f),
                 BorderStyle = BorderStyle.None,
-                CheckBoxes = true,
                 DrawMode = TreeViewDrawMode.OwnerDrawText
             };
             treeConnections.DrawNode += (s, e) => {
+                if (e.Node == null) return;
                 bool isSelected = (e.State & TreeNodeStates.Selected) != 0;
                 bool isMatrix = ThemeSettings.CurrentTheme == AppTheme.HighContrast;
                 Color bg = isSelected 
@@ -316,111 +319,24 @@ namespace FreeRdpWrapper
                     : treeConnections.BackColor;
                 Color fg = isSelected 
                     ? (isMatrix ? Color.FromArgb(0, 255, 102) : Color.White) 
-                    : treeConnections.ForeColor;
+                    : (e.Node.Level == 0 ? (isMatrix ? Color.FromArgb(0, 255, 170) : Color.FromArgb(0, 102, 204)) : treeConnections.ForeColor);
 
                 using (var brush = new SolidBrush(bg))
                 {
                     e.Graphics.FillRectangle(brush, e.Bounds);
                 }
-                if (e.Node != null)
-                {
-                    TextRenderer.DrawText(e.Graphics, e.Node.Text, e.Node.NodeFont ?? treeConnections.Font, e.Bounds, fg, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-                }
-            };
-            treeConnections.AfterCheck += (s, e) => {
-                if (e.Action != TreeViewAction.Unknown && e.Node != null)
-                {
-                    foreach (TreeNode child in e.Node.Nodes)
-                        child.Checked = e.Node.Checked;
-                }
+                Font nodeFont = e.Node.NodeFont ?? treeConnections.Font;
+                TextRenderer.DrawText(e.Graphics, e.Node.Text, nodeFont, e.Bounds, fg, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
             };
             treeConnections.NodeMouseDoubleClick += TreeConnections_NodeMouseDoubleClick;
             treeConnections.MouseUp += TreeConnections_MouseUp;
 
-            treeContextMenu = new ContextMenuStrip();
-            treeContextMenu.Items.Add("🚀 Connect", null, (s, e) => {
-                if (treeConnections.SelectedNode?.Tag is SavedConnection c) LaunchSession(c);
-            });
-            treeContextMenu.Items.Add("⚡ Ping & Probe Port 3389", null, async (s, e) => await ProbeSelectedServer());
-            treeContextMenu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
-            treeContextMenu.Items.Add("📋 Copy Decrypted Password", null, (s, e) => CopySelectedPassword());
-            treeContextMenu.Items.Add("📑 Duplicate Connection", null, (s, e) => DuplicateConnection());
-            treeContextMenu.Items.Add("-");
-            treeContextMenu.Items.Add("✏️ Edit Connection", null, (s, e) => EditConnection());
-            treeContextMenu.Items.Add("🗑️ Delete Connection", null, (s, e) => DeleteConnection());
-            treeContextMenu.Items.Add("📤 Export to .rdp...", null, (s, e) => ExportSelectedToRdp());
-            treeContextMenu.Items.Add("-");
-            treeContextMenu.Items.Add("▶ Run Script on Selected...", null, (s, e) => RunScriptOnSelected());
+            Panel pnlNav = new Panel { Dock = DockStyle.Fill };
+            pnlNav.Controls.Add(treeConnections);
+            pnlNav.Controls.Add(leftNavHeader);
+            treeConnections.BringToFront();
 
-            treeScripts = new TreeView
-            {
-                Dock = DockStyle.Fill,
-                FullRowSelect = true,
-                HideSelection = false,
-                ShowLines = false,
-                ItemHeight = 22,
-                Font = new Font("Segoe UI", 9f),
-                BorderStyle = BorderStyle.None,
-                DrawMode = TreeViewDrawMode.OwnerDrawText
-            };
-            treeScripts.DrawNode += (s, e) => {
-                bool isSelected = (e.State & TreeNodeStates.Selected) != 0;
-                bool isMatrix = ThemeSettings.CurrentTheme == AppTheme.HighContrast;
-                Color bg = isSelected 
-                    ? (isMatrix ? Color.FromArgb(0, 70, 25) : Color.FromArgb(0, 120, 215)) 
-                    : treeScripts.BackColor;
-                Color fg = isSelected 
-                    ? (isMatrix ? Color.FromArgb(0, 255, 102) : Color.White) 
-                    : treeScripts.ForeColor;
-
-                using (var brush = new SolidBrush(bg))
-                {
-                    e.Graphics.FillRectangle(brush, e.Bounds);
-                }
-                if (e.Node != null)
-                {
-                    TextRenderer.DrawText(e.Graphics, e.Node.Text, e.Node.NodeFont ?? treeScripts.Font, e.Bounds, fg, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-                }
-            };
-            treeScripts.NodeMouseDoubleClick += TreeScripts_NodeMouseDoubleClick;
-            treeScripts.MouseUp += TreeScripts_MouseUp;
-
-            scriptContextMenu = new ContextMenuStrip();
-            scriptContextMenu.Items.Add("➕ Add Script", null, (s, e) => AddScript());
-            scriptContextMenu.Items.Add("✏️ Edit Script", null, (s, e) => EditScript());
-            scriptContextMenu.Items.Add("🗑️ Delete Script", null, (s, e) => DeleteScript());
-
-            leftSplit = new SplitContainer
-            {
-                Dock = DockStyle.Fill,
-                Orientation = Orientation.Horizontal,
-                SplitterDistance = 460,
-                SplitterWidth = 4
-            };
-
-            Panel pnlConn = new Panel { Dock = DockStyle.Fill };
-            pnlConn.Controls.Add(treeConnections);
-            pnlConn.Controls.Add(leftNavHeader);
-            leftNavHeader.BringToFront();
-
-            Panel pnlScripts = new Panel { Dock = DockStyle.Fill };
-            Panel scriptsHeader = new Panel { Dock = DockStyle.Top, Height = 28, Padding = new Padding(6, 2, 6, 2) };
-            Label lblScriptsTitle = new Label { Text = "📜 SAVED SCRIPTS", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
-            Button btnAddSc = new Button { Text = "➕", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
-            btnAddSc.FlatAppearance.BorderSize = 0;
-            btnAddSc.Click += (s, e) => AddScript();
-            _toolTip.SetToolTip(btnAddSc, "Add New Automation Script");
-            scriptsHeader.Controls.Add(lblScriptsTitle);
-            scriptsHeader.Controls.Add(btnAddSc);
-
-            pnlScripts.Controls.Add(treeScripts);
-            pnlScripts.Controls.Add(scriptsHeader);
-            scriptsHeader.BringToFront();
-
-            leftSplit.Panel1.Controls.Add(pnlConn);
-            leftSplit.Panel2.Controls.Add(pnlScripts);
-
-            mainSplit.Panel1.Controls.Add(leftSplit);
+            mainSplit.Panel1.Controls.Add(pnlNav);
 
             // ════════════════════════════════════════════════════════════════════
             // CENTER WORKSPACE & CONFIGURABLE LOGS DRAWER (DEVOLUTIONS STYLE)
@@ -552,6 +468,7 @@ namespace FreeRdpWrapper
             var mnuFile = new ToolStripMenuItem("&Environment");
             mnuFile.DropDownItems.Add("➕ New Connection...", null, (s, e) => AddConnection());
             mnuFile.DropDownItems.Add("📜 New Automation Script...", null, (s, e) => AddScript());
+            mnuFile.DropDownItems.Add("🔑 New Credential Identity...", null, (s, e) => AddCredential());
             mnuFile.DropDownItems.Add(new ToolStripSeparator());
             mnuFile.DropDownItems.Add("📥 Import Microsoft .rdp...", null, (s, e) => ImportRdpFile());
             mnuFile.DropDownItems.Add("📤 Export Vault Backup (.frdpvault)...", null, (s, e) => ExportVaultArchive());
@@ -590,6 +507,7 @@ namespace FreeRdpWrapper
             mnuTools.DropDownItems.Add("🌐 Network Scanner...", null, (s, e) => OpenNetworkScanner());
             mnuTools.DropDownItems.Add("⚡ Ping & Probe Port 3389...", null, async (s, e) => await ProbeSelectedServer());
             mnuTools.DropDownItems.Add("📜 Manage Automation Scripts...", null, (s, e) => AddScript());
+            mnuTools.DropDownItems.Add("🔑 Manage Stored Credentials...", null, (s, e) => AddCredential());
             mnuTools.DropDownItems.Add("🔒 Vault Security...", null, (s, e) => OpenSettings());
             mnuTools.DropDownItems.Add("⚙️ Settings...", null, (s, e) => OpenSettings());
 
@@ -597,7 +515,7 @@ namespace FreeRdpWrapper
             var mnuHelp = new ToolStripMenuItem("&Help");
             mnuHelp.DropDownItems.Add("🤖 AI Troubleshooting Guide", null, (s, e) => ToggleAiCopilotTab());
             mnuHelp.DropDownItems.Add("ℹ️ About AeroRemote Desktop", null, (s, e) => {
-                MessageBox.Show("AeroRemote Desktop\r\nVersion 3.3.0 (.NET 10 WinForms)\r\nBuilt against FreeRDP 3.33.0 & SDL3\r\n\r\nFeatures:\r\n• Matrix World & High-Contrast Themes\r\n• Authenticated AES-256-GCM Vault\r\n• Modular Retractable Toolbars\r\n• AI Remote Ops Copilot", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("AeroRemote Desktop\r\nVersion 3.4.0 (.NET 10 WinForms)\r\nBuilt against FreeRDP 3.33.0 & SDL3\r\n\r\nFeatures:\r\n• Matrix World & High-Contrast Themes\r\n• Authenticated AES-256-GCM Vault\r\n• Modular Retractable Toolbars\r\n• Unified Workspace (Connections, Scripts, Credentials)\r\n• Network Scanner & AI Remote Ops Copilot", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
             });
 
             menuStrip.Items.AddRange(new ToolStripItem[] { mnuFile, mnuEdit, mnuView, mnuTools, mnuHelp });
@@ -818,9 +736,14 @@ namespace FreeRdpWrapper
                 return;
             }
 
+            treeConnections.BeginUpdate();
             treeConnections.Nodes.Clear();
-            var dict = new Dictionary<string, TreeNode>();
             int matchCount = 0;
+            var boldFont = new Font(treeConnections.Font, FontStyle.Bold);
+
+            // 1. Filter Connections
+            var connRoot = new TreeNode("🌐 Connections") { NodeFont = boldFont, Tag = "root_connections" };
+            var groupDict = new Dictionary<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var c in _connections)
             {
@@ -832,19 +755,63 @@ namespace FreeRdpWrapper
                 if (matches)
                 {
                     matchCount++;
-                    if (!dict.ContainsKey(c.Group))
+                    string groupName = string.IsNullOrWhiteSpace(c.Group) ? "Default" : c.Group;
+                    if (!groupDict.TryGetValue(groupName, out var groupNode))
                     {
-                        var groupNode = new TreeNode($"📁 {c.Group}");
-                        dict[c.Group] = groupNode;
-                        treeConnections.Nodes.Add(groupNode);
+                        groupNode = new TreeNode($"📁 {groupName}") { Tag = "group_" + groupName };
+                        groupDict[groupName] = groupNode;
+                        connRoot.Nodes.Add(groupNode);
                     }
 
-                    var node = new TreeNode($"🖥️ {c.Name} ({c.Host})") { Tag = c };
-                    dict[c.Group].Nodes.Add(node);
+                    string icon = c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️";
+                    groupNode.Nodes.Add(new TreeNode($"{icon} {c.Name} ({c.Host})") { Tag = c });
                 }
+            }
+            if (connRoot.Nodes.Count > 0)
+            {
+                treeConnections.Nodes.Add(connRoot);
+            }
+
+            // 2. Filter Scripts
+            var scriptRoot = new TreeNode("📜 Saved Scripts") { NodeFont = boldFont, Tag = "root_scripts" };
+            foreach (var sc in _scripts)
+            {
+                bool matches = sc.Name.ToLowerInvariant().Contains(query) ||
+                               sc.Content.ToLowerInvariant().Contains(query);
+                if (matches)
+                {
+                    matchCount++;
+                    scriptRoot.Nodes.Add(new TreeNode($"📜 {sc.Name}") { Tag = sc });
+                }
+            }
+            if (scriptRoot.Nodes.Count > 0)
+            {
+                treeConnections.Nodes.Add(scriptRoot);
+            }
+
+            // 3. Filter Credentials
+            var credRoot = new TreeNode("🔑 Credentials") { NodeFont = boldFont, Tag = "root_credentials" };
+            foreach (var cr in _credentials)
+            {
+                bool matches = cr.Title.ToLowerInvariant().Contains(query) ||
+                               cr.Username.ToLowerInvariant().Contains(query) ||
+                               cr.Domain.ToLowerInvariant().Contains(query) ||
+                               cr.Description.ToLowerInvariant().Contains(query);
+                if (matches)
+                {
+                    matchCount++;
+                    string displayUser = string.IsNullOrEmpty(cr.Domain) ? cr.Username : $"{cr.Domain}\\{cr.Username}";
+                    string label = string.IsNullOrEmpty(displayUser) ? cr.Title : $"{cr.Title} ({displayUser})";
+                    credRoot.Nodes.Add(new TreeNode($"🔑 {label}") { Tag = cr });
+                }
+            }
+            if (credRoot.Nodes.Count > 0)
+            {
+                treeConnections.Nodes.Add(credRoot);
             }
 
             treeConnections.ExpandAll();
+            treeConnections.EndUpdate();
             lblSearchStats.Text = $"  Found {matchCount} match(es)";
         }
 
@@ -1308,9 +1275,6 @@ namespace FreeRdpWrapper
             treeConnections.BackColor = treeBg;
             treeConnections.ForeColor = fg;
 
-            treeScripts.BackColor = treeBg;
-            treeScripts.ForeColor = fg;
-
             txtLogs.BackColor = logBg;
             txtLogs.ForeColor = fg;
 
@@ -1346,23 +1310,96 @@ namespace FreeRdpWrapper
 
         private void RefreshTree()
         {
+            treeConnections.BeginUpdate();
             treeConnections.Nodes.Clear();
-            var dict = new Dictionary<string, TreeNode>();
 
-            foreach (var c in _connections)
+            var boldFont = new Font(treeConnections.Font, FontStyle.Bold);
+
+            // 1. Root Node: Connections
+            _rootConnections = new TreeNode("🌐 Connections")
             {
-                if (!dict.ContainsKey(c.Group))
-                {
-                    var groupNode = new TreeNode($"📁 {c.Group}");
-                    dict[c.Group] = groupNode;
-                    treeConnections.Nodes.Add(groupNode);
-                }
+                NodeFont = boldFont,
+                Tag = "root_connections"
+            };
 
-                var node = new TreeNode($"🖥️ {c.Name} ({c.Host})") { Tag = c };
-                dict[c.Group].Nodes.Add(node);
+            var groupDict = new Dictionary<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
+            if (_connections.Count == 0)
+            {
+                _rootConnections.Nodes.Add(new TreeNode("➕ (Click to add new connection)") { Tag = "add_connection" });
             }
+            else
+            {
+                foreach (var c in _connections)
+                {
+                    string groupName = string.IsNullOrWhiteSpace(c.Group) ? "Default" : c.Group;
+                    if (!groupDict.TryGetValue(groupName, out var groupNode))
+                    {
+                        groupNode = new TreeNode($"📁 {groupName}") { Tag = "group_" + groupName };
+                        groupDict[groupName] = groupNode;
+                        _rootConnections.Nodes.Add(groupNode);
+                    }
 
-            treeConnections.ExpandAll();
+                    string icon = c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️";
+                    var node = new TreeNode($"{icon} {c.Name} ({c.Host})") { Tag = c };
+                    groupNode.Nodes.Add(node);
+                }
+            }
+            treeConnections.Nodes.Add(_rootConnections);
+
+            // 2. Root Node: Saved Scripts
+            _rootScripts = new TreeNode("📜 Saved Scripts")
+            {
+                NodeFont = boldFont,
+                Tag = "root_scripts"
+            };
+            if (_scripts.Count == 0)
+            {
+                _rootScripts.Nodes.Add(new TreeNode("➕ (Click to add new script)") { Tag = "add_script" });
+            }
+            else
+            {
+                foreach (var sc in _scripts)
+                {
+                    _rootScripts.Nodes.Add(new TreeNode($"📜 {sc.Name}") { Tag = sc });
+                }
+            }
+            treeConnections.Nodes.Add(_rootScripts);
+
+            // 3. Root Node: Credentials
+            _rootCredentials = new TreeNode("🔑 Credentials")
+            {
+                NodeFont = boldFont,
+                Tag = "root_credentials"
+            };
+            if (_credentials.Count == 0)
+            {
+                _rootCredentials.Nodes.Add(new TreeNode("➕ (Click to add new credential)") { Tag = "add_credential" });
+            }
+            else
+            {
+                foreach (var cr in _credentials)
+                {
+                    string displayUser = string.IsNullOrEmpty(cr.Domain) ? cr.Username : $"{cr.Domain}\\{cr.Username}";
+                    string label = string.IsNullOrEmpty(displayUser) ? cr.Title : $"{cr.Title} ({displayUser})";
+                    _rootCredentials.Nodes.Add(new TreeNode($"🔑 {label}") { Tag = cr });
+                }
+            }
+            treeConnections.Nodes.Add(_rootCredentials);
+
+            _rootConnections.Expand();
+            foreach (TreeNode grp in _rootConnections.Nodes)
+            {
+                grp.Expand();
+            }
+            _rootScripts.Expand();
+            _rootCredentials.Expand();
+
+            treeConnections.EndUpdate();
+        }
+
+        private void RefreshScriptsTree()
+        {
+            RefreshTree();
         }
 
         private void TreeConnections_MouseUp(object? sender, MouseEventArgs e)
@@ -1371,8 +1408,73 @@ namespace FreeRdpWrapper
             {
                 TreeNode? node = treeConnections.GetNodeAt(e.X, e.Y);
                 if (node != null) treeConnections.SelectedNode = node;
-                treeContextMenu.Show(treeConnections, e.Location);
+                ShowContextMenuForNode(node, e.Location);
             }
+        }
+
+        private void ShowContextMenuForNode(TreeNode? node, Point location)
+        {
+            var menu = new ContextMenuStrip();
+
+            if (node?.Tag is SavedConnection c)
+            {
+                menu.Items.Add("🚀 Connect", null, (s, e) => LaunchSession(c));
+                menu.Items.Add("⚡ Ping & Probe Port 3389", null, async (s, e) => await ProbeSelectedServer());
+                menu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
+                menu.Items.Add("📋 Copy Decrypted Password", null, (s, e) => CopySelectedPassword());
+                menu.Items.Add("📑 Duplicate Connection", null, (s, e) => DuplicateConnection());
+                menu.Items.Add("-");
+                menu.Items.Add("✏️ Edit Connection", null, (s, e) => EditConnection());
+                menu.Items.Add("🗑️ Delete Connection", null, (s, e) => DeleteConnection());
+                menu.Items.Add("📤 Export to .rdp...", null, (s, e) => ExportSelectedToRdp());
+                if (c.Protocol == ConnectionProtocol.SSH)
+                {
+                    menu.Items.Add("-");
+                    menu.Items.Add("▶ Run Automation Script...", null, (s, e) => RunScriptOnConnection(c));
+                }
+            }
+            else if (node?.Tag is SavedScript sc)
+            {
+                menu.Items.Add("✏️ Edit Script", null, (s, e) => EditScript(sc));
+                menu.Items.Add("▶ Run Script on Server...", null, (s, e) => RunSpecificScriptPrompt(sc));
+                menu.Items.Add("🗑️ Delete Script", null, (s, e) => DeleteScript(sc));
+                menu.Items.Add("-");
+                menu.Items.Add("➕ Add New Script...", null, (s, e) => AddScript());
+            }
+            else if (node?.Tag is SavedCredential cr)
+            {
+                menu.Items.Add("✏️ Edit Credential", null, (s, e) => EditCredential(cr));
+                menu.Items.Add("📋 Copy Username", null, (s, e) => CopyCredentialUsername(cr));
+                menu.Items.Add("🔑 Copy Decrypted Password", null, (s, e) => CopyCredentialPassword(cr));
+                menu.Items.Add("🗑️ Delete Credential", null, (s, e) => DeleteCredential(cr));
+                menu.Items.Add("-");
+                menu.Items.Add("➕ Add New Credential...", null, (s, e) => AddCredential());
+            }
+            else if (node != null && node.Tag is string tag)
+            {
+                if (tag == "root_connections" || tag.StartsWith("group_") || tag == "add_connection")
+                {
+                    menu.Items.Add("➕ New Connection...", null, (s, e) => AddConnection());
+                    menu.Items.Add("📥 Import Microsoft .rdp...", null, (s, e) => ImportRdpFile());
+                    menu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
+                }
+                else if (tag == "root_scripts" || tag == "add_script")
+                {
+                    menu.Items.Add("📜 New Automation Script...", null, (s, e) => AddScript());
+                }
+                else if (tag == "root_credentials" || tag == "add_credential")
+                {
+                    menu.Items.Add("🔑 New Credential Identity...", null, (s, e) => AddCredential());
+                }
+            }
+            else
+            {
+                menu.Items.Add("➕ New Connection...", null, (s, e) => AddConnection());
+                menu.Items.Add("📜 New Automation Script...", null, (s, e) => AddScript());
+                menu.Items.Add("🔑 New Credential...", null, (s, e) => AddCredential());
+            }
+
+            menu.Show(treeConnections, location);
         }
 
         private void AddConnection()
@@ -1412,42 +1514,6 @@ namespace FreeRdpWrapper
             }
         }
 
-        private void RefreshScriptsTree()
-        {
-            treeScripts.Nodes.Clear();
-            if (_scripts.Count == 0)
-            {
-                treeScripts.Nodes.Add(new TreeNode("➕ (Click to add new script)") { Tag = null });
-                return;
-            }
-            foreach (var sc in _scripts)
-            {
-                treeScripts.Nodes.Add(new TreeNode($"📜 {sc.Name}") { Tag = sc });
-            }
-        }
-
-        private void TreeScripts_MouseUp(object? sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                TreeNode? node = treeScripts.GetNodeAt(e.X, e.Y);
-                if (node != null) treeScripts.SelectedNode = node;
-                scriptContextMenu.Show(treeScripts, e.Location);
-            }
-        }
-
-        private void TreeScripts_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node?.Tag is SavedScript)
-            {
-                EditScript();
-            }
-            else
-            {
-                AddScript();
-            }
-        }
-
         private void AddScript()
         {
             using var dlg = new ScriptEditDialog();
@@ -1455,53 +1521,129 @@ namespace FreeRdpWrapper
             {
                 _scripts.Add(dlg.Script);
                 _scriptStore.SaveScripts(_scripts);
-                RefreshScriptsTree();
+                RefreshTree();
             }
         }
 
-        private void EditScript()
+        private void EditScript(SavedScript? scriptToEdit = null)
         {
-            if (treeScripts.SelectedNode?.Tag is SavedScript sc)
+            var sc = scriptToEdit ?? (treeConnections.SelectedNode?.Tag as SavedScript);
+            if (sc != null)
             {
                 using var dlg = new ScriptEditDialog(sc);
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     _scriptStore.SaveScripts(_scripts);
-                    RefreshScriptsTree();
+                    RefreshTree();
                 }
             }
         }
 
-        private void DeleteScript()
+        private void DeleteScript(SavedScript? scriptToDelete = null)
         {
-            if (treeScripts.SelectedNode?.Tag is SavedScript sc)
+            var sc = scriptToDelete ?? (treeConnections.SelectedNode?.Tag as SavedScript);
+            if (sc != null)
             {
                 if (MessageBox.Show($"Delete script '{sc.Name}'?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     _scripts.Remove(sc);
                     _scriptStore.SaveScripts(_scripts);
-                    RefreshScriptsTree();
+                    RefreshTree();
                 }
             }
         }
 
-        private async void RunScriptOnSelected()
+        private void AddCredential()
         {
-            var selectedConnections = new List<SavedConnection>();
-            foreach (TreeNode groupNode in treeConnections.Nodes)
+            using var dlg = new CredentialEditDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
             {
-                foreach (TreeNode node in groupNode.Nodes)
+                _credentials.Add(dlg.Credential);
+                _credentialStore.SaveCredentials(_credentials);
+                RefreshTree();
+                LogMessage($"[Vault] Added credential identity '{dlg.Credential.Title}'.", LogLevelSetting.Info);
+                lblStatusText.Text = $"🔑 Added credential: {dlg.Credential.Title}";
+            }
+        }
+
+        private void EditCredential(SavedCredential? credentialToEdit = null)
+        {
+            var cr = credentialToEdit ?? (treeConnections.SelectedNode?.Tag as SavedCredential);
+            if (cr != null)
+            {
+                using var dlg = new CredentialEditDialog(cr);
+                if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    if (node.Checked && node.Tag is SavedConnection c && c.Protocol == ConnectionProtocol.SSH)
-                    {
-                        selectedConnections.Add(c);
-                    }
+                    _credentialStore.SaveCredentials(_credentials);
+                    RefreshTree();
+                    LogMessage($"[Vault] Updated credential identity '{cr.Title}'.", LogLevelSetting.Info);
                 }
             }
+        }
 
-            if (selectedConnections.Count == 0)
+        private void DeleteCredential(SavedCredential? credentialToDelete = null)
+        {
+            var cr = credentialToDelete ?? (treeConnections.SelectedNode?.Tag as SavedCredential);
+            if (cr != null)
             {
-                MessageBox.Show("Please check the boxes next to the SSH connections you want to run a script against.", "No SSH Connections Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (MessageBox.Show($"Delete credential '{cr.Title}'?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    _credentials.Remove(cr);
+                    _credentialStore.SaveCredentials(_credentials);
+                    RefreshTree();
+                    LogMessage($"[Vault] Deleted credential identity '{cr.Title}'.", LogLevelSetting.Info);
+                }
+            }
+        }
+
+        private void CopyCredentialPassword(SavedCredential cr)
+        {
+            if (string.IsNullOrEmpty(cr.Password))
+            {
+                MessageBox.Show("No password saved for this credential.", "Empty Password", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                Clipboard.SetText(cr.Password);
+                LogMessage($"Password for credential '{cr.Title}' copied to clipboard (wipes in 30s).", LogLevelSetting.Info);
+
+                _clipboardTimer?.Stop();
+                _clipboardTimer?.Dispose();
+                _clipboardTimer = new System.Windows.Forms.Timer { Interval = 30000 };
+                _clipboardTimer.Tick += (s, e) => {
+                    try {
+                        if (Clipboard.GetText() == cr.Password) Clipboard.Clear();
+                    } catch { }
+                    _clipboardTimer.Stop();
+                    _clipboardTimer.Dispose();
+                };
+                _clipboardTimer.Start();
+
+                MessageBox.Show("Password copied to clipboard.\r\nIt will be automatically wiped in 30 seconds for security.", "Password Copied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to copy password: {ex.Message}", "Clipboard Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void CopyCredentialUsername(SavedCredential cr)
+        {
+            string u = string.IsNullOrEmpty(cr.Domain) ? cr.Username : $"{cr.Domain}\\{cr.Username}";
+            if (!string.IsNullOrEmpty(u))
+            {
+                Clipboard.SetText(u);
+                lblStatusText.Text = $"📋 Copied username: {u}";
+            }
+        }
+
+        private async void RunScriptOnConnection(SavedConnection conn)
+        {
+            if (conn.Protocol != ConnectionProtocol.SSH)
+            {
+                MessageBox.Show("Automation scripts execute over SSH remote shell. This connection is configured for RDP.", "SSH Protocol Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -1515,31 +1657,72 @@ namespace FreeRdpWrapper
                 return;
             }
 
-            using var picker = new Form { Text = "Select Script to Run", Size = new Size(300, 150), FormBorderStyle = FormBorderStyle.FixedDialog, StartPosition = FormStartPosition.CenterParent, MaximizeBox = false, MinimizeBox = false };
-            var cmb = new ComboBox { Location = new Point(20, 20), Width = 240, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Name", DataSource = scripts };
-            var btnRun = new Button { Text = "Run", Location = new Point(180, 60), Width = 80 };
+            using var picker = new Form { Text = $"Run Script on {conn.Name}", Size = new Size(340, 160), FormBorderStyle = FormBorderStyle.FixedDialog, StartPosition = FormStartPosition.CenterParent, MaximizeBox = false, MinimizeBox = false };
+            var lbl = new Label { Text = "Select script to execute:", Location = new Point(20, 15), AutoSize = true };
+            var cmb = new ComboBox { Location = new Point(20, 38), Width = 280, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Name", DataSource = scripts };
+            var btnRun = new Button { Text = "▶ Execute", Location = new Point(190, 80), Width = 110, Height = 28 };
             btnRun.Click += (s, e) => { picker.DialogResult = DialogResult.OK; picker.Close(); };
+            picker.Controls.Add(lbl);
             picker.Controls.Add(cmb);
             picker.Controls.Add(btnRun);
 
             if (picker.ShowDialog() == DialogResult.OK && cmb.SelectedItem is SavedScript selectedScript)
             {
-                LogMessage($"\n--- Starting Bulk Execution: {selectedScript.Name} ---", LogLevelSetting.Info);
-                foreach (var conn in selectedConnections)
-                {
-                    LogMessage($"[{conn.Name}] Executing script...", LogLevelSetting.Info);
-                    string result = await SshLauncher.ExecuteBackgroundCommandAsync(conn, selectedScript.Content);
-                    LogMessage($"[{conn.Name}] Result:\n{result}", LogLevelSetting.Info);
-                }
-                LogMessage("--- Bulk Execution Complete ---\n", LogLevelSetting.Info);
+                LogMessage($"\n--- Executing Script '{selectedScript.Name}' on {conn.Name} ({conn.Host}) ---", LogLevelSetting.Info);
+                string result = await SshLauncher.ExecuteBackgroundCommandAsync(conn, selectedScript.Content);
+                LogMessage($"[{conn.Name}] Result:\n{result}", LogLevelSetting.Info);
+                LogMessage("--- Execution Complete ---\n", LogLevelSetting.Info);
+            }
+        }
+
+        private async void RunSpecificScriptPrompt(SavedScript sc)
+        {
+            var sshConns = _connections.Where(c => c.Protocol == ConnectionProtocol.SSH).ToList();
+            if (sshConns.Count == 0)
+            {
+                MessageBox.Show("No SSH connections configured in your workspace to run this script against.", "No SSH Servers", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var picker = new Form { Text = $"Execute '{sc.Name}' on SSH Server", Size = new Size(360, 170), FormBorderStyle = FormBorderStyle.FixedDialog, StartPosition = FormStartPosition.CenterParent, MaximizeBox = false, MinimizeBox = false };
+            var lbl = new Label { Text = "Select target SSH server:", Location = new Point(20, 15), AutoSize = true };
+            var cmb = new ComboBox { Location = new Point(20, 38), Width = 300, DropDownStyle = ComboBoxStyle.DropDownList, DisplayMember = "Name", DataSource = sshConns };
+            var btnRun = new Button { Text = "▶ Run Script", Location = new Point(210, 85), Width = 110, Height = 28 };
+            btnRun.Click += (s, e) => { picker.DialogResult = DialogResult.OK; picker.Close(); };
+            picker.Controls.Add(lbl);
+            picker.Controls.Add(cmb);
+            picker.Controls.Add(btnRun);
+
+            if (picker.ShowDialog() == DialogResult.OK && cmb.SelectedItem is SavedConnection targetConn)
+            {
+                LogMessage($"\n--- Executing '{sc.Name}' on {targetConn.Name} ({targetConn.Host}) ---", LogLevelSetting.Info);
+                string result = await SshLauncher.ExecuteBackgroundCommandAsync(targetConn, sc.Content);
+                LogMessage($"[{targetConn.Name}] Result:\n{result}", LogLevelSetting.Info);
+                LogMessage("--- Execution Complete ---\n", LogLevelSetting.Info);
             }
         }
 
         private void TreeConnections_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node?.Tag is SavedConnection c)
+            if (e.Node == null) return;
+
+            if (e.Node.Tag is SavedConnection c)
             {
                 LaunchSession(c);
+            }
+            else if (e.Node.Tag is SavedScript sc)
+            {
+                EditScript(sc);
+            }
+            else if (e.Node.Tag is SavedCredential cr)
+            {
+                EditCredential(cr);
+            }
+            else if (e.Node.Tag is string tag)
+            {
+                if (tag == "add_connection" || tag == "root_connections") AddConnection();
+                else if (tag == "add_script" || tag == "root_scripts") AddScript();
+                else if (tag == "add_credential" || tag == "root_credentials") AddCredential();
             }
         }
 
