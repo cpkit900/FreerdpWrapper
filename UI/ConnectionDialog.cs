@@ -86,7 +86,7 @@ namespace FreeRdpWrapper.UI
             
             tabGeneral.Controls.Add(new Label { Text = "Protocol:", Location = new Point(20, y), Width = lblW });
             cmbProtocol = new ComboBox { Location = new Point(120, y), Width = txtW, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbProtocol.Items.AddRange(new string[] { "RDP", "SSH" });
+            cmbProtocol.Items.AddRange(new string[] { "RDP", "SSH", "SSH (PuTTY)" });
             tabGeneral.Controls.Add(cmbProtocol); y += 30;
 
             tabGeneral.Controls.Add(new Label { Text = "Profile Name:", Location = new Point(20, y), Width = lblW });
@@ -176,7 +176,7 @@ namespace FreeRdpWrapper.UI
             tabGeneral.Controls.Add(cmbSshEngine);
 
             cmbProtocol.SelectedIndexChanged += (s, e) => {
-                bool isSsh = cmbProtocol.SelectedIndex == 1;
+                bool isSsh = cmbProtocol.SelectedIndex >= 1;
                 txtDomain.Enabled = !isSsh;
                 chkCredGuard.Enabled = !isSsh;
                 chkAdminSession.Enabled = !isSsh;
@@ -186,6 +186,15 @@ namespace FreeRdpWrapper.UI
                 btnBrowseSshKey.Enabled = isSsh;
                 lblSshEngine.Enabled = isSsh;
                 cmbSshEngine.Enabled = isSsh;
+
+                if (cmbProtocol.SelectedIndex == 2)
+                {
+                    cmbSshEngine.SelectedIndex = 1; // PuTTY
+                }
+                else if (cmbProtocol.SelectedIndex == 1 && cmbSshEngine.SelectedIndex == 1)
+                {
+                    cmbSshEngine.SelectedIndex = 0; // Integrated Tab
+                }
 
                 if (isSsh) {
                     if (tabs.TabPages.Contains(tabDisplay)) tabs.TabPages.Remove(tabDisplay);
@@ -321,7 +330,12 @@ namespace FreeRdpWrapper.UI
 
         private void LoadData()
         {
-            cmbProtocol.SelectedIndex = Connection.Protocol == ConnectionProtocol.SSH ? 1 : 0;
+            cmbProtocol.SelectedIndex = Connection.Protocol switch
+            {
+                ConnectionProtocol.SSH_Putty => 2,
+                ConnectionProtocol.SSH => 1,
+                _ => 0
+            };
             cmbSshEngine.SelectedIndex = Connection.SshEngine switch
             {
                 SshClientEngine.PuTTY => 1,
@@ -395,7 +409,12 @@ namespace FreeRdpWrapper.UI
                 return;
             }
 
-            Connection.Protocol = cmbProtocol.SelectedIndex == 1 ? ConnectionProtocol.SSH : ConnectionProtocol.RDP;
+            Connection.Protocol = cmbProtocol.SelectedIndex switch
+            {
+                2 => ConnectionProtocol.SSH_Putty,
+                1 => ConnectionProtocol.SSH,
+                _ => ConnectionProtocol.RDP
+            };
             Connection.SshEngine = cmbSshEngine.SelectedIndex switch
             {
                 1 => SshClientEngine.PuTTY,

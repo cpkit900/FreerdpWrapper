@@ -12,7 +12,7 @@ namespace FreeRdpWrapper.Services
     {
         public static async Task<string> ExecuteScriptAsync(SavedConnection connection, string scriptContent)
         {
-            if (connection.Protocol == ConnectionProtocol.SSH)
+            if (connection.Protocol.IsSsh())
             {
                 return await SshLauncher.ExecuteBackgroundCommandAsync(connection, scriptContent);
             }

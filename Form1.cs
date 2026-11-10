@@ -468,6 +468,11 @@ namespace FreeRdpWrapper
                         await Task.Delay(50);
                         sshControl.FocusTerminal();
                     }
+                    else if (tabControl.SelectedTab.Controls[0] is PuttyContainer puttyControl)
+                    {
+                        await Task.Delay(50);
+                        puttyControl.FocusPutty();
+                    }
                 }
             };
 
@@ -934,7 +939,8 @@ namespace FreeRdpWrapper
                 .Cast<TabPage>()
                 .Where(tp => tp.Tag is SavedConnection || 
                              (tp.Controls.Count > 0 && tp.Controls[0] is FreeRdpContainer container && container.IsSessionActive) ||
-                             (tp.Controls.Count > 0 && tp.Controls[0] is SshTerminalControl sshControl && sshControl.IsConnected))
+                             (tp.Controls.Count > 0 && tp.Controls[0] is SshTerminalControl sshControl && sshControl.IsConnected) ||
+                             (tp.Controls.Count > 0 && tp.Controls[0] is PuttyContainer puttyControl && puttyControl.IsSessionActive))
                 .ToList();
 
             if (activeSessionTabs.Count > 0)
@@ -1000,6 +1006,10 @@ namespace FreeRdpWrapper
                     else if (tp.Controls[0] is SshTerminalControl ssh)
                     {
                         ssh.Disconnect();
+                    }
+                    else if (tp.Controls[0] is PuttyContainer putty)
+                    {
+                        putty.Disconnect();
                     }
                 }
             }
@@ -1140,6 +1150,11 @@ namespace FreeRdpWrapper
                     sshControl.Reconnect();
                     LogMessage("Reconnected active SSH session.", LogLevelSetting.Info);
                 }
+                else if (tabControl.SelectedTab.Controls[0] is PuttyContainer puttyControl)
+                {
+                    puttyControl.Reconnect();
+                    LogMessage("Reconnected active PuTTY session.", LogLevelSetting.Info);
+                }
             }
             else
             {
@@ -1247,8 +1262,8 @@ namespace FreeRdpWrapper
         {
             if (treeConnections.SelectedNode?.Tag is SavedConnection c)
             {
-                int targetPort = c.Protocol == ConnectionProtocol.SSH ? 22 : 3389;
-                string protoName = c.Protocol == ConnectionProtocol.SSH ? "SSH" : "RDP";
+                int targetPort = c.Protocol.IsSsh() ? 22 : 3389;
+                string protoName = c.Protocol == ConnectionProtocol.SSH_Putty ? "SSH (PuTTY)" : (c.Protocol == ConnectionProtocol.SSH ? "SSH" : "RDP");
 
                 lblStatusText.Text = $"⚡ Probing {c.Host} ({protoName}:{targetPort})...";
                 var result = await NetworkTester.ProbeConnectionAsync(c);
@@ -1689,7 +1704,7 @@ namespace FreeRdpWrapper
 
         private string FormatConnectionNodeText(SavedConnection c)
         {
-            string icon = c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️";
+            string icon = c.Protocol == ConnectionProtocol.SSH_Putty ? "🐱" : (c.Protocol == ConnectionProtocol.SSH ? "🐧" : "🖥️");
             string pingPrefix = "";
             if (_settings.ShowPingStatusInNavTree)
             {
@@ -1832,14 +1847,14 @@ namespace FreeRdpWrapper
             if (node?.Tag is SavedConnection c)
             {
                 menu.Items.Add("🚀 Connect", null, (s, e) => LaunchSession(c));
-                if (c.Protocol == ConnectionProtocol.SSH)
+                if (c.Protocol.IsSsh())
                 {
-                    menu.Items.Add("🐱 Open in PuTTY...", null, (s, e) => {
+                    menu.Items.Add("🐱 Open in PuTTY (Pop Out)...", null, (s, e) => {
                         if (!SshLauncher.LaunchPutty(c, out string err))
                             MessageBox.Show(err, "PuTTY Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     });
                 }
-                string probeLabel = c.Protocol == ConnectionProtocol.SSH ? "⚡ Ping & Probe SSH (Port 22)" : "⚡ Ping & Probe RDP (Port 3389)";
+                string probeLabel = c.Protocol.IsSsh() ? "⚡ Ping & Probe SSH (Port 22)" : "⚡ Ping & Probe RDP (Port 3389)";
                 menu.Items.Add(probeLabel, null, async (s, e) => await ProbeSelectedServer());
                 menu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
                 menu.Items.Add("📋 Copy Decrypted Password", null, (s, e) => CopySelectedPassword());
@@ -2303,6 +2318,11 @@ namespace FreeRdpWrapper
                     sshControl.Disconnect();
                     sshControl.Dispose();
                 }
+                else if (tabPage.Controls[0] is PuttyContainer puttyControl)
+                {
+                    puttyControl.Disconnect();
+                    puttyControl.Dispose();
+                }
             }
             tabControl.TabPages.Remove(tabPage);
             tabPage.Dispose();
@@ -2313,18 +2333,37 @@ namespace FreeRdpWrapper
         // ════════════════════════════════════════════════════════════════════
         private void LaunchSession(SavedConnection config)
         {
+            if (config.Protocol == ConnectionProtocol.SSH_Putty || (config.Protocol == ConnectionProtocol.SSH && config.SshEngine == SshClientEngine.PuTTY))
+            {
+                LogMessage($"[{config.Name}] Opening embedded PuTTY session tab...", LogLevelSetting.Info);
+
+                var puttyTabPage = new TabPage($"🐱 {config.Name}") { Tag = config };
+                var puttyContainer = new PuttyContainer { Dock = DockStyle.Fill };
+
+                puttyContainer.OnLogMessage += (msg) => {
+                    LogMessage($"[{config.Name}] {msg}", LogLevelSetting.Info);
+                };
+
+                puttyContainer.OnDisconnected += () => {
+                    if (tabControl.IsHandleCreated && !tabControl.Disposing)
+                    {
+                        tabControl.Invoke((MethodInvoker)delegate {
+                            LogMessage($"[{config.Name}] PuTTY Session Disconnected.", LogLevelSetting.Info);
+                        });
+                    }
+                };
+
+                puttyTabPage.Controls.Add(puttyContainer);
+                tabControl.TabPages.Add(puttyTabPage);
+                tabControl.SelectedTab = puttyTabPage;
+
+                puttyContainer.LaunchSession(config);
+                return;
+            }
+
             if (config.Protocol == ConnectionProtocol.SSH)
             {
-                if (config.SshEngine == SshClientEngine.PuTTY)
-                {
-                    LogMessage($"[{config.Name}] Launching PuTTY session...", LogLevelSetting.Info);
-                    if (!SshLauncher.LaunchPutty(config, out string err))
-                    {
-                        MessageBox.Show(err, "PuTTY Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    return;
-                }
-                else if (config.SshEngine == SshClientEngine.OpenSshConsole)
+                if (config.SshEngine == SshClientEngine.OpenSshConsole)
                 {
                     LogMessage($"[{config.Name}] Launching external OpenSSH session...", LogLevelSetting.Info);
                     SshLauncher.LaunchInteractiveSession(config);

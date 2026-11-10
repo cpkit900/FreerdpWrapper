@@ -292,8 +292,8 @@ namespace FreeRdpWrapper.UI
             var filtered = _allConnections.Where(c =>
             {
                 // Protocol filter
-                if (selectedProto == "SSH Only" && c.Protocol != ConnectionProtocol.SSH) return false;
-                if (selectedProto == "Windows / WinRM Only" && c.Protocol == ConnectionProtocol.SSH) return false;
+                if (selectedProto == "SSH Only" && !c.Protocol.IsSsh()) return false;
+                if (selectedProto == "Windows / WinRM Only" && c.Protocol.IsSsh()) return false;
 
                 // Group filter
                 string groupName = string.IsNullOrWhiteSpace(c.Group) ? "Default" : c.Group.Trim();
@@ -314,7 +314,7 @@ namespace FreeRdpWrapper.UI
 
             foreach (var conn in filtered)
             {
-                string protoStr = conn.Protocol == ConnectionProtocol.SSH ? "SSH" : "Windows (WinRM)";
+                string protoStr = conn.Protocol.IsSsh() ? (conn.Protocol == ConnectionProtocol.SSH_Putty ? "SSH (PuTTY)" : "SSH") : "Windows (WinRM)";
                 var lvi = new ListViewItem(conn.Name)
                 {
                     Tag = conn

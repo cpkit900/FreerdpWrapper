@@ -14,7 +14,16 @@ namespace FreeRdpWrapper.Models
     public enum ConnectionProtocol
     {
         RDP,
-        SSH
+        SSH,
+        SSH_Putty
+    }
+
+    public static class ConnectionProtocolExtensions
+    {
+        public static bool IsSsh(this ConnectionProtocol protocol)
+        {
+            return protocol == ConnectionProtocol.SSH || protocol == ConnectionProtocol.SSH_Putty;
+        }
     }
 
     public enum SshClientEngine

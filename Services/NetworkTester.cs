@@ -2,6 +2,7 @@ using System;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using FreeRdpWrapper.Models;
 
 namespace FreeRdpWrapper.Services
 {
@@ -33,9 +34,9 @@ namespace FreeRdpWrapper.Services
     {
         public static async Task<NetworkProbeResult> ProbeConnectionAsync(FreeRdpWrapper.Models.SavedConnection connection, int timeoutMs = 2000)
         {
-            int defaultPort = connection.Protocol == FreeRdpWrapper.Models.ConnectionProtocol.SSH ? 22 : 3389;
+            int defaultPort = connection.Protocol.IsSsh() ? 22 : 3389;
             var res = await ProbeHostAsync(connection.Host, defaultPort, timeoutMs);
-            res.ProtocolName = connection.Protocol == FreeRdpWrapper.Models.ConnectionProtocol.SSH ? "SSH" : "RDP";
+            res.ProtocolName = connection.Protocol == FreeRdpWrapper.Models.ConnectionProtocol.SSH_Putty ? "SSH (PuTTY)" : (connection.Protocol == FreeRdpWrapper.Models.ConnectionProtocol.SSH ? "SSH" : "RDP");
             return res;
         }
 
