@@ -452,10 +452,18 @@ namespace FreeRdpWrapper
             tabControl.DrawItem += TabControl_DrawItem;
             tabControl.MouseDown += TabControl_MouseDown;
             tabControl.SelectedIndexChanged += async (s, e) => {
-                if (tabControl.SelectedTab?.Controls.Count > 0 && tabControl.SelectedTab.Controls[0] is FreeRdpContainer container)
+                if (tabControl.SelectedTab?.Controls.Count > 0)
                 {
-                    await Task.Delay(50);
-                    container.FocusRdpWindow();
+                    if (tabControl.SelectedTab.Controls[0] is FreeRdpContainer container)
+                    {
+                        await Task.Delay(50);
+                        container.FocusRdpWindow();
+                    }
+                    else if (tabControl.SelectedTab.Controls[0] is SshTerminalControl sshControl)
+                    {
+                        await Task.Delay(50);
+                        sshControl.FocusTerminal();
+                    }
                 }
             };
 
@@ -916,7 +924,9 @@ namespace FreeRdpWrapper
             // 1. Warn if there are active connection sessions
             var activeSessionTabs = tabControl.TabPages
                 .Cast<TabPage>()
-                .Where(tp => tp.Tag is SavedConnection || (tp.Controls.Count > 0 && tp.Controls[0] is FreeRdpContainer container && container.IsSessionActive))
+                .Where(tp => tp.Tag is SavedConnection || 
+                             (tp.Controls.Count > 0 && tp.Controls[0] is FreeRdpContainer container && container.IsSessionActive) ||
+                             (tp.Controls.Count > 0 && tp.Controls[0] is SshTerminalControl sshControl && sshControl.IsConnected))
                 .ToList();
 
             if (activeSessionTabs.Count > 0)
@@ -973,9 +983,16 @@ namespace FreeRdpWrapper
             // 4. Gracefully disconnect all sessions
             foreach (TabPage tp in tabControl.TabPages)
             {
-                if (tp.Controls.Count > 0 && tp.Controls[0] is FreeRdpContainer cont)
+                if (tp.Controls.Count > 0)
                 {
-                    cont.Disconnect();
+                    if (tp.Controls[0] is FreeRdpContainer cont)
+                    {
+                        cont.Disconnect();
+                    }
+                    else if (tp.Controls[0] is SshTerminalControl ssh)
+                    {
+                        ssh.Disconnect();
+                    }
                 }
             }
         }
@@ -1103,14 +1120,22 @@ namespace FreeRdpWrapper
         // ════════════════════════════════════════════════════════════════════
         private void ReconnectActiveSession()
         {
-            if (tabControl.SelectedTab?.Controls.Count > 0 && tabControl.SelectedTab.Controls[0] is FreeRdpContainer container)
+            if (tabControl.SelectedTab?.Controls.Count > 0)
             {
-                container.Reconnect();
-                LogMessage("Reconnected active session.", LogLevelSetting.Info);
+                if (tabControl.SelectedTab.Controls[0] is FreeRdpContainer container)
+                {
+                    container.Reconnect();
+                    LogMessage("Reconnected active RDP session.", LogLevelSetting.Info);
+                }
+                else if (tabControl.SelectedTab.Controls[0] is SshTerminalControl sshControl)
+                {
+                    sshControl.Reconnect();
+                    LogMessage("Reconnected active SSH session.", LogLevelSetting.Info);
+                }
             }
             else
             {
-                MessageBox.Show("No active RDP session selected.", "Reconnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("No active session selected.", "Reconnect", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -2190,10 +2215,18 @@ namespace FreeRdpWrapper
                 _networkScanTab = null;
             }
 
-            if (tabPage.Controls.Count > 0 && tabPage.Controls[0] is FreeRdpContainer container)
+            if (tabPage.Controls.Count > 0)
             {
-                container.Disconnect();
-                container.Dispose();
+                if (tabPage.Controls[0] is FreeRdpContainer container)
+                {
+                    container.Disconnect();
+                    container.Dispose();
+                }
+                else if (tabPage.Controls[0] is SshTerminalControl sshControl)
+                {
+                    sshControl.Disconnect();
+                    sshControl.Dispose();
+                }
             }
             tabControl.TabPages.Remove(tabPage);
             tabPage.Dispose();
@@ -2206,8 +2239,29 @@ namespace FreeRdpWrapper
         {
             if (config.Protocol == ConnectionProtocol.SSH)
             {
-                LogMessage($"[{config.Name}] Launching external SSH terminal...", LogLevelSetting.Info);
-                SshLauncher.LaunchInteractiveSession(config);
+                LogMessage($"[{config.Name}] Opening integrated SSH terminal tab...", LogLevelSetting.Info);
+
+                var sshTabPage = new TabPage($"🐧 {config.Name}") { Tag = config };
+                var sshTerminal = new SshTerminalControl { Dock = DockStyle.Fill };
+
+                sshTerminal.OnLogMessage += (msg) => {
+                    LogMessage($"[{config.Name}] {msg}", LogLevelSetting.Info);
+                };
+
+                sshTerminal.OnDisconnected += () => {
+                    if (tabControl.IsHandleCreated && !tabControl.Disposing)
+                    {
+                        tabControl.Invoke((MethodInvoker)delegate {
+                            LogMessage($"[{config.Name}] SSH Session Disconnected.", LogLevelSetting.Info);
+                        });
+                    }
+                };
+
+                sshTabPage.Controls.Add(sshTerminal);
+                tabControl.TabPages.Add(sshTabPage);
+                tabControl.SelectedTab = sshTabPage;
+
+                sshTerminal.Connect(config);
                 return;
             }
 
