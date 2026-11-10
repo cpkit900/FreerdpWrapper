@@ -157,7 +157,7 @@ namespace FreeRdpWrapper.UI
 
             Button btnScan = new Button
             {
-                Text = "🌐  Probe / Scan reachability",
+                Text = "🌐  Scan network",
                 Height = 36,
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,

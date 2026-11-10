@@ -159,6 +159,7 @@ namespace FreeRdpWrapper
 
             // Toolbar C: Diagnostics & Tools (Probe, AI, Settings, Customize)
             pnlToolsToolbar = CreateToolbarGroup(new Control[] {
+                CreateToolButton("🌐", "Network Scanner (Discover RDP & SSH hosts on local subnet)", (s, e) => OpenNetworkScanner()),
                 CreateToolButton("⚡", "Ping & Probe TCP Port 3389 Reachability", async (s, e) => await ProbeSelectedServer()),
                 CreateToolButton("🤖", "AI Remote Ops Copilot (Error Diagnostician & Scripts)", (s, e) => ToggleAiCopilotTab()),
                 CreateToolButton("⚙️", "Settings (Logging, Vault Security, Theme)", (s, e) => OpenSettings()),
@@ -244,16 +245,29 @@ namespace FreeRdpWrapper
                 SplitterWidth = 5
             };
 
-            leftNavHeader = new Panel { Dock = DockStyle.Top, Height = 60, Padding = new Padding(6, 4, 6, 2) };
+            leftNavHeader = new Panel { Dock = DockStyle.Top, Height = 78, Padding = new Padding(6, 4, 6, 4) };
 
-            Panel navTopRow = new Panel { Dock = DockStyle.Top, Height = 26 };
-            Label lblNavTitle = new Label { Text = "🌍 NAVIGATION", Dock = DockStyle.Left, Width = 140, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
+            var navTable = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 3,
+                ColumnCount = 1,
+                Margin = Padding.Empty,
+                Padding = Padding.Empty
+            };
+            navTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 26)); // Top title + pin/collapse
+            navTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 28)); // Search bar
+            navTable.RowStyles.Add(new RowStyle(SizeType.Absolute, 16)); // Search stats
+            navTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-            btnPinLeft = new Button { Text = "📌", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
+            Panel navTopRow = new Panel { Dock = DockStyle.Fill, Margin = Padding.Empty };
+            Label lblNavTitle = new Label { Text = "🌍 NAVIGATION", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
+
+            btnPinLeft = new Button { Text = "📌", Dock = DockStyle.Right, Width = 26, FlatStyle = FlatStyle.Flat, Margin = Padding.Empty };
             btnPinLeft.FlatAppearance.BorderSize = 0;
             btnPinLeft.Click += (s, e) => TogglePinLeft();
 
-            btnCollapseLeft = new Button { Text = "◀", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
+            btnCollapseLeft = new Button { Text = "◀", Dock = DockStyle.Right, Width = 26, FlatStyle = FlatStyle.Flat, Margin = Padding.Empty };
             btnCollapseLeft.FlatAppearance.BorderSize = 0;
             btnCollapseLeft.Click += (s, e) => ToggleCollapseLeft();
 
@@ -261,22 +275,24 @@ namespace FreeRdpWrapper
             navTopRow.Controls.Add(btnPinLeft);
             navTopRow.Controls.Add(btnCollapseLeft);
 
-            Panel searchPanel = new Panel { Dock = DockStyle.Bottom, Height = 28, Padding = new Padding(1) };
+            Panel searchPanel = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0, 2, 0, 2) };
             txtSearch = new TextBox { Dock = DockStyle.Fill, PlaceholderText = "🔍 Filter entries...", Font = new Font("Segoe UI", 9f) };
             txtSearch.TextChanged += (s, e) => FilterTree(txtSearch.Text);
 
-            btnClearSearch = new Button { Text = "✖", Dock = DockStyle.Right, Width = 24, FlatStyle = FlatStyle.Flat };
+            btnClearSearch = new Button { Text = "✖", Dock = DockStyle.Right, Width = 24, FlatStyle = FlatStyle.Flat, Margin = Padding.Empty };
             btnClearSearch.FlatAppearance.BorderSize = 0;
             btnClearSearch.Click += (s, e) => txtSearch.Clear();
 
             searchPanel.Controls.Add(txtSearch);
             searchPanel.Controls.Add(btnClearSearch);
 
-            lblSearchStats = new Label { Dock = DockStyle.Bottom, Height = 13, Font = new Font("Segoe UI", 7.5f), ForeColor = Color.Gray, Text = "" };
+            lblSearchStats = new Label { Dock = DockStyle.Fill, Margin = Padding.Empty, Font = new Font("Segoe UI", 7.5f), ForeColor = Color.Gray, Text = "", TextAlign = ContentAlignment.MiddleLeft };
 
-            leftNavHeader.Controls.Add(navTopRow);
-            leftNavHeader.Controls.Add(searchPanel);
-            leftNavHeader.Controls.Add(lblSearchStats);
+            navTable.Controls.Add(navTopRow, 0, 0);
+            navTable.Controls.Add(searchPanel, 0, 1);
+            navTable.Controls.Add(lblSearchStats, 0, 2);
+
+            leftNavHeader.Controls.Add(navTable);
 
             treeConnections = new TreeView
             {
@@ -287,7 +303,27 @@ namespace FreeRdpWrapper
                 ItemHeight = 24,
                 Font = new Font("Segoe UI", 9.5f),
                 BorderStyle = BorderStyle.None,
-                CheckBoxes = true
+                CheckBoxes = true,
+                DrawMode = TreeViewDrawMode.OwnerDrawText
+            };
+            treeConnections.DrawNode += (s, e) => {
+                bool isSelected = (e.State & TreeNodeStates.Selected) != 0;
+                bool isMatrix = ThemeSettings.CurrentTheme == AppTheme.HighContrast;
+                Color bg = isSelected 
+                    ? (isMatrix ? Color.FromArgb(0, 70, 25) : Color.FromArgb(0, 120, 215)) 
+                    : treeConnections.BackColor;
+                Color fg = isSelected 
+                    ? (isMatrix ? Color.FromArgb(0, 255, 102) : Color.White) 
+                    : treeConnections.ForeColor;
+
+                using (var brush = new SolidBrush(bg))
+                {
+                    e.Graphics.FillRectangle(brush, e.Bounds);
+                }
+                if (e.Node != null)
+                {
+                    TextRenderer.DrawText(e.Graphics, e.Node.Text, e.Node.NodeFont ?? treeConnections.Font, e.Bounds, fg, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                }
             };
             treeConnections.AfterCheck += (s, e) => {
                 if (e.Action != TreeViewAction.Unknown && e.Node != null)
@@ -304,6 +340,7 @@ namespace FreeRdpWrapper
                 if (treeConnections.SelectedNode?.Tag is SavedConnection c) LaunchSession(c);
             });
             treeContextMenu.Items.Add("⚡ Ping & Probe Port 3389", null, async (s, e) => await ProbeSelectedServer());
+            treeContextMenu.Items.Add("🌐 Scan Network for Devices...", null, (s, e) => OpenNetworkScanner());
             treeContextMenu.Items.Add("📋 Copy Decrypted Password", null, (s, e) => CopySelectedPassword());
             treeContextMenu.Items.Add("📑 Duplicate Connection", null, (s, e) => DuplicateConnection());
             treeContextMenu.Items.Add("-");
@@ -321,7 +358,27 @@ namespace FreeRdpWrapper
                 ShowLines = false,
                 ItemHeight = 22,
                 Font = new Font("Segoe UI", 9f),
-                BorderStyle = BorderStyle.None
+                BorderStyle = BorderStyle.None,
+                DrawMode = TreeViewDrawMode.OwnerDrawText
+            };
+            treeScripts.DrawNode += (s, e) => {
+                bool isSelected = (e.State & TreeNodeStates.Selected) != 0;
+                bool isMatrix = ThemeSettings.CurrentTheme == AppTheme.HighContrast;
+                Color bg = isSelected 
+                    ? (isMatrix ? Color.FromArgb(0, 70, 25) : Color.FromArgb(0, 120, 215)) 
+                    : treeScripts.BackColor;
+                Color fg = isSelected 
+                    ? (isMatrix ? Color.FromArgb(0, 255, 102) : Color.White) 
+                    : treeScripts.ForeColor;
+
+                using (var brush = new SolidBrush(bg))
+                {
+                    e.Graphics.FillRectangle(brush, e.Bounds);
+                }
+                if (e.Node != null)
+                {
+                    TextRenderer.DrawText(e.Graphics, e.Node.Text, e.Node.NodeFont ?? treeScripts.Font, e.Bounds, fg, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+                }
             };
             treeScripts.NodeMouseDoubleClick += TreeScripts_NodeMouseDoubleClick;
             treeScripts.MouseUp += TreeScripts_MouseUp;
@@ -342,6 +399,7 @@ namespace FreeRdpWrapper
             Panel pnlConn = new Panel { Dock = DockStyle.Fill };
             pnlConn.Controls.Add(treeConnections);
             pnlConn.Controls.Add(leftNavHeader);
+            leftNavHeader.BringToFront();
 
             Panel pnlScripts = new Panel { Dock = DockStyle.Fill };
             Panel scriptsHeader = new Panel { Dock = DockStyle.Top, Height = 26 };
@@ -523,6 +581,7 @@ namespace FreeRdpWrapper
 
             // Tools Menu
             var mnuTools = new ToolStripMenuItem("&Tools");
+            mnuTools.DropDownItems.Add("🌐 Network Scanner...", null, (s, e) => OpenNetworkScanner());
             mnuTools.DropDownItems.Add("⚡ Ping & Probe Port 3389...", null, async (s, e) => await ProbeSelectedServer());
             mnuTools.DropDownItems.Add("📜 Manage Automation Scripts...", null, (s, e) => AddScript());
             mnuTools.DropDownItems.Add("🔒 Vault Security...", null, (s, e) => OpenSettings());
@@ -646,12 +705,7 @@ namespace FreeRdpWrapper
             dashboard.AddEntryClicked += (s, e) => AddConnection();
             dashboard.ImportClicked += (s, e) => ImportRdpFile();
             dashboard.ManageVaultClicked += (s, e) => OpenSettings();
-            dashboard.ProbeNetworkClicked += (s, e) => {
-                if (treeConnections.SelectedNode?.Tag is SavedConnection)
-                    _ = ProbeSelectedServer();
-                else
-                    MessageBox.Show("Select a server from the connection tree on the left to probe its reachability.", "Probe Network", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            };
+            dashboard.ProbeNetworkClicked += (s, e) => OpenNetworkScanner();
 
             _quickStartTab.Controls.Add(dashboard);
             tabControl.TabPages.Insert(0, _quickStartTab);
@@ -861,8 +915,31 @@ namespace FreeRdpWrapper
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // REACHABILITY PROBE
+        // NETWORK SCANNER & REACHABILITY PROBE
         // ════════════════════════════════════════════════════════════════════
+        private void OpenNetworkScanner()
+        {
+            var groups = _connections.Select(c => c.Group).Where(g => !string.IsNullOrEmpty(g)).Distinct().ToList();
+            using var dlg = new NetworkScannerDialog(groups);
+
+            dlg.OnConnectionsAdded += (newConns) => {
+                foreach (var conn in newConns)
+                {
+                    _connections.Add(conn);
+                }
+                _store.SaveConnections(_connections);
+                RefreshTree();
+                LogMessage($"[Network Scanner] Added {newConns.Count} discovered host(s) to connection workspace.", LogLevelSetting.Info);
+                lblStatusText.Text = $"🌐 Network Scanner: Added {newConns.Count} host(s).";
+            };
+
+            dlg.OnQuickConnectRequested += (conn) => {
+                LaunchSession(conn);
+            };
+
+            dlg.ShowDialog(this);
+        }
+
         private async Task ProbeSelectedServer()
         {
             if (treeConnections.SelectedNode?.Tag is SavedConnection c)

@@ -121,6 +121,21 @@ static class Program
         }
         Console.WriteLine("[PASS] Network Reachability & Port Probe");
 
+        // 7. Network Scanner Subnet & Range Generation
+        var cidrIps = NetworkScannerService.ParseIpRange("192.168.1.0/29");
+        if (cidrIps.Count != 6 || cidrIps[0] != "192.168.1.1" || cidrIps[5] != "192.168.1.6")
+        {
+            Console.WriteLine("[FAIL] NetworkScannerService CIDR parsing failed!");
+            Environment.Exit(1);
+        }
+        var rangeIps = NetworkScannerService.ParseIpRange("10.0.0.1-5");
+        if (rangeIps.Count != 5 || rangeIps[0] != "10.0.0.1" || rangeIps[4] != "10.0.0.5")
+        {
+            Console.WriteLine("[FAIL] NetworkScannerService Range parsing failed!");
+            Environment.Exit(1);
+        }
+        Console.WriteLine("[PASS] Network Scanner Subnet & CIDR Parser");
+
         Console.WriteLine("=== ALL SYSTEM TESTS PASSED SUCCESSFULLY! ===");
         Environment.Exit(0);
     }
