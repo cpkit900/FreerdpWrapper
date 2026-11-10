@@ -142,9 +142,10 @@ namespace FreeRdpWrapper
                 Padding = new Padding(4, 2, 4, 2)
             };
 
-            // Toolbar A: Standard & Vault (Add, Import, Export, Vault)
+            // Toolbar A: Standard & Vault (Add, Import, Export, Vault, Scripts)
             pnlStandardToolbar = CreateToolbarGroup(new Control[] {
                 CreateToolButton("➕", "New Connection (Ctrl+N)", (s, e) => AddConnection()),
+                CreateToolButton("📜", "New Automation Script (Bash / PowerShell)", (s, e) => AddScript()),
                 CreateToolButton("📥", "Import Microsoft .rdp File", (s, e) => ImportRdpFile()),
                 CreateToolButton("📤", "Export Encrypted Vault Backup (.frdpvault)", (s, e) => ExportVaultArchive()),
                 CreateToolButton("🔓", "Unlock & Import Vault Backup", (s, e) => ImportVaultArchive())
@@ -403,16 +404,18 @@ namespace FreeRdpWrapper
             leftNavHeader.BringToFront();
 
             Panel pnlScripts = new Panel { Dock = DockStyle.Fill };
-            Panel scriptsHeader = new Panel { Dock = DockStyle.Top, Height = 26 };
-            Label lblScriptsTitle = new Label { Text = "📜 SAVED SCRIPTS", Dock = DockStyle.Left, Width = 150, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
+            Panel scriptsHeader = new Panel { Dock = DockStyle.Top, Height = 28, Padding = new Padding(6, 2, 6, 2) };
+            Label lblScriptsTitle = new Label { Text = "📜 SAVED SCRIPTS", Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Segoe UI", 8.5f, FontStyle.Bold) };
             Button btnAddSc = new Button { Text = "➕", Dock = DockStyle.Right, Width = 28, FlatStyle = FlatStyle.Flat };
             btnAddSc.FlatAppearance.BorderSize = 0;
             btnAddSc.Click += (s, e) => AddScript();
+            _toolTip.SetToolTip(btnAddSc, "Add New Automation Script");
             scriptsHeader.Controls.Add(lblScriptsTitle);
             scriptsHeader.Controls.Add(btnAddSc);
 
             pnlScripts.Controls.Add(treeScripts);
             pnlScripts.Controls.Add(scriptsHeader);
+            scriptsHeader.BringToFront();
 
             leftSplit.Panel1.Controls.Add(pnlConn);
             leftSplit.Panel2.Controls.Add(pnlScripts);
@@ -548,6 +551,8 @@ namespace FreeRdpWrapper
             // Environment / File Menu
             var mnuFile = new ToolStripMenuItem("&Environment");
             mnuFile.DropDownItems.Add("➕ New Connection...", null, (s, e) => AddConnection());
+            mnuFile.DropDownItems.Add("📜 New Automation Script...", null, (s, e) => AddScript());
+            mnuFile.DropDownItems.Add(new ToolStripSeparator());
             mnuFile.DropDownItems.Add("📥 Import Microsoft .rdp...", null, (s, e) => ImportRdpFile());
             mnuFile.DropDownItems.Add("📤 Export Vault Backup (.frdpvault)...", null, (s, e) => ExportVaultArchive());
             mnuFile.DropDownItems.Add("📥 Import Vault Backup...", null, (s, e) => ImportVaultArchive());
@@ -1410,6 +1415,11 @@ namespace FreeRdpWrapper
         private void RefreshScriptsTree()
         {
             treeScripts.Nodes.Clear();
+            if (_scripts.Count == 0)
+            {
+                treeScripts.Nodes.Add(new TreeNode("➕ (Click to add new script)") { Tag = null });
+                return;
+            }
             foreach (var sc in _scripts)
             {
                 treeScripts.Nodes.Add(new TreeNode($"📜 {sc.Name}") { Tag = sc });
@@ -1428,7 +1438,14 @@ namespace FreeRdpWrapper
 
         private void TreeScripts_NodeMouseDoubleClick(object? sender, TreeNodeMouseClickEventArgs e)
         {
-            EditScript();
+            if (e.Node?.Tag is SavedScript)
+            {
+                EditScript();
+            }
+            else
+            {
+                AddScript();
+            }
         }
 
         private void AddScript()
@@ -1491,7 +1508,10 @@ namespace FreeRdpWrapper
             var scripts = _scriptStore.LoadScripts();
             if (scripts.Count == 0)
             {
-                MessageBox.Show("No scripts found. Please create one using 'Manage SSH Scripts'.", "No Scripts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (MessageBox.Show("No saved automation scripts found. Would you like to create one now?", "No Scripts", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                {
+                    AddScript();
+                }
                 return;
             }
 
