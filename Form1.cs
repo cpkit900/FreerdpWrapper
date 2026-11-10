@@ -376,7 +376,7 @@ namespace FreeRdpWrapper
             {
                 Dock = DockStyle.Fill,
                 DrawMode = TabDrawMode.OwnerDrawFixed,
-                Padding = new Point(16, 5)
+                Padding = new Point(22, 5)
             };
             tabControl.DrawItem += TabControl_DrawItem;
             tabControl.MouseDown += TabControl_MouseDown;
@@ -630,7 +630,7 @@ namespace FreeRdpWrapper
                 return;
             }
 
-            _quickStartTab = new TabPage("🚀 Quick start");
+            _quickStartTab = new TabPage("Quick start");
             var dashboard = new QuickStartDashboard();
             dashboard.QuickConnectClicked += (s, e) => {
                 quickConnectRow.Visible = true;
@@ -849,7 +849,7 @@ namespace FreeRdpWrapper
                 return;
             }
 
-            _aiTabPage = new TabPage("🤖 AI Remote Ops Copilot");
+            _aiTabPage = new TabPage("AI Remote Ops Copilot");
             var aiPanel = new AiAssistantPanel
             {
                 Dock = DockStyle.Fill,
@@ -1136,7 +1136,7 @@ namespace FreeRdpWrapper
 
                 this.FormBorderStyle = FormBorderStyle.Sizable;
                 this.WindowState = FormWindowState.Normal;
-                tabControl.Padding = new Point(16, 5);
+                tabControl.Padding = new Point(22, 5);
             }
         }
 
@@ -1492,14 +1492,54 @@ namespace FreeRdpWrapper
             string title = tabPage.Text;
             Font font = e.Font ?? tabControl.Font;
 
-            e.Graphics.DrawString(title, font, new SolidBrush(textFg), new PointF(tabRect.X + 6, tabRect.Y + 5));
+            // 1. Draw Icon
+            int iconX = tabRect.X + 6;
+            int iconY = tabRect.Y + (tabRect.Height - 14) / 2;
 
-            if (tabPage != _quickStartTab)
+            if (tabPage == _quickStartTab || title.Equals("Quick start", StringComparison.OrdinalIgnoreCase))
             {
-                var closeRect = new Rectangle(tabRect.Right - 16, tabRect.Y + 6, 12, 12);
-                Color xCol = isMatrix ? Color.FromArgb(0, 255, 102) : Color.IndianRed;
-                e.Graphics.DrawString("×", new Font("Arial", 9, FontStyle.Bold), new SolidBrush(xCol), closeRect);
+                // Sleek Rocket / Launch Arrow vector icon
+                using var p = new Pen(isMatrix ? Color.FromArgb(0, 255, 102) : Color.FromArgb(0, 150, 255), 1.6f);
+                p.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                p.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                PointF[] pts = new PointF[] {
+                    new PointF(iconX + 6, iconY),
+                    new PointF(iconX + 2, iconY + 7),
+                    new PointF(iconX + 7, iconY + 7),
+                    new PointF(iconX + 3, iconY + 14)
+                };
+                e.Graphics.DrawLines(p, pts);
             }
+            else if (tabPage == _aiTabPage || title.Contains("AI", StringComparison.OrdinalIgnoreCase))
+            {
+                // AI Copilot Robot / Chip vector icon
+                using var p = new Pen(isMatrix ? Color.FromArgb(0, 255, 170) : Color.FromArgb(170, 100, 255), 1.4f);
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                e.Graphics.DrawRectangle(p, iconX + 1, iconY + 3, 11, 9);
+                using var br = new SolidBrush(isMatrix ? Color.FromArgb(0, 255, 170) : Color.FromArgb(170, 100, 255));
+                e.Graphics.FillEllipse(br, iconX + 3, iconY + 6, 2.5f, 2.5f);
+                e.Graphics.FillEllipse(br, iconX + 8, iconY + 6, 2.5f, 2.5f);
+                e.Graphics.DrawLine(p, iconX + 7, iconY + 3, iconX + 7, iconY);
+            }
+            else
+            {
+                // Connected Server Status Indicator
+                using var br = new SolidBrush(isMatrix ? Color.FromArgb(0, 255, 102) : Color.FromArgb(46, 204, 113));
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                e.Graphics.FillEllipse(br, iconX + 2, iconY + 3, 8, 8);
+                using var pen = new Pen(Color.FromArgb(100, 255, 150), 1f);
+                e.Graphics.DrawEllipse(pen, iconX + 2, iconY + 3, 8, 8);
+            }
+
+            // 2. Draw Tab Title
+            e.Graphics.DrawString(title, font, new SolidBrush(textFg), new PointF(tabRect.X + 22, tabRect.Y + 5));
+
+            // 3. Draw Close Button '×' (For ALL tabs including Quick start)
+            var closeRect = new Rectangle(tabRect.Right - 17, tabRect.Y + 5, 13, 13);
+            Color xCol = isMatrix ? Color.FromArgb(0, 255, 102) : Color.IndianRed;
+            e.Graphics.DrawString("×", new Font("Arial", 9.5f, FontStyle.Bold), new SolidBrush(xCol), closeRect);
 
             backBrush.Dispose();
         }
@@ -1508,10 +1548,8 @@ namespace FreeRdpWrapper
         {
             for (int i = 0; i < tabControl.TabPages.Count; i++)
             {
-                if (tabControl.TabPages[i] == _quickStartTab) continue;
-
                 Rectangle r = tabControl.GetTabRect(i);
-                Rectangle closeRect = new Rectangle(r.Right - 18, r.Y + 4, 14, 14);
+                Rectangle closeRect = new Rectangle(r.Right - 19, r.Y + 4, 15, 15);
                 if (closeRect.Contains(e.Location))
                 {
                     CloseTab(tabControl.TabPages[i]);
@@ -1522,6 +1560,15 @@ namespace FreeRdpWrapper
 
         private void CloseTab(TabPage tabPage)
         {
+            if (tabPage == _quickStartTab)
+            {
+                _quickStartTab = null;
+            }
+            if (tabPage == _aiTabPage)
+            {
+                _aiTabPage = null;
+            }
+
             if (tabPage.Controls.Count > 0 && tabPage.Controls[0] is FreeRdpContainer container)
             {
                 container.Disconnect();
@@ -1582,7 +1629,7 @@ namespace FreeRdpWrapper
                 }
             }
 
-            var tabPage = new TabPage($"🟢 {config.Name}");
+            var tabPage = new TabPage(config.Name);
             var container = new FreeRdpContainer { Dock = DockStyle.Fill };
 
             container.OnLogMessage += (msg) => {
