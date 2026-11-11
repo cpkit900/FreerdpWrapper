@@ -71,6 +71,30 @@ namespace FreeRdpWrapper.UI
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr SetFocus(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32.dll")]
+        private static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
+
+        [DllImport("user32.dll")]
+        private static extern int SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT { public int Left, Top, Right, Bottom; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT { public int X, Y; }
+
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         [DllImport("user32.dll")]
@@ -162,6 +186,16 @@ namespace FreeRdpWrapper.UI
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(12, 12, 12)
+            };
+            _puttyHostPanel.HandleCreated += (s, e) =>
+            {
+                try
+                {
+                    long pStyle = GetWindowLongAuto(_puttyHostPanel.Handle, GWL_STYLE).ToInt64();
+                    pStyle |= 0x02000000L; // WS_CLIPCHILDREN
+                    SetWindowLongAuto(_puttyHostPanel.Handle, GWL_STYLE, new IntPtr(pStyle));
+                }
+                catch { }
             };
             _puttyHostPanel.Resize += (s, e) => ResizePuttyWindow();
 
@@ -305,25 +339,31 @@ namespace FreeRdpWrapper.UI
                     elapsed += 100;
                     _puttyProcess.Refresh();
 
-                    if (_puttyProcess.MainWindowHandle != IntPtr.Zero)
+                    // Prefer PuTTY's main terminal window by class name "PuTTY"
+                    IntPtr found = IntPtr.Zero;
+                    EnumWindows((h, _) =>
                     {
-                        hwnd = _puttyProcess.MainWindowHandle;
-                    }
-                    else
-                    {
-                        // Fallback window search by process ID
-                        IntPtr found = IntPtr.Zero;
-                        EnumWindows((h, _) =>
+                        GetWindowThreadProcessId(h, out uint pid);
+                        if (pid == _puttyProcess.Id && IsWindowVisible(h))
                         {
-                            GetWindowThreadProcessId(h, out uint pid);
-                            if (pid == _puttyProcess.Id && IsWindowVisible(h))
+                            var sbClass = new StringBuilder(256);
+                            GetClassName(h, sbClass, 256);
+                            if (sbClass.ToString() == "PuTTY")
                             {
                                 found = h;
                                 return false;
                             }
-                            return true;
-                        }, IntPtr.Zero);
+                        }
+                        return true;
+                    }, IntPtr.Zero);
+
+                    if (found != IntPtr.Zero)
+                    {
                         hwnd = found;
+                    }
+                    else if (_puttyProcess.MainWindowHandle != IntPtr.Zero)
+                    {
+                        hwnd = _puttyProcess.MainWindowHandle;
                     }
                 }
 
@@ -459,10 +499,42 @@ namespace FreeRdpWrapper.UI
             {
                 try
                 {
+                    // 1. Re-assert basic child styles
                     StripWindowBorders(_puttyHwnd);
-                    SetWindowPos(_puttyHwnd, IntPtr.Zero, 0, 0, _puttyHostPanel.Width, _puttyHostPanel.Height,
+
+                    // 2. Measure actual non-client border offsets
+                    GetWindowRect(_puttyHwnd, out RECT wr);
+                    GetClientRect(_puttyHwnd, out RECT cr);
+                    POINT pt = new POINT { X = 0, Y = 0 };
+                    ClientToScreen(_puttyHwnd, ref pt);
+
+                    int borderLeft = Math.Max(0, pt.X - wr.Left);
+                    int borderTop = Math.Max(0, pt.Y - wr.Top);
+                    int borderRight = Math.Max(0, wr.Right - (pt.X + cr.Right));
+                    int borderBottom = Math.Max(0, wr.Bottom - (pt.Y + cr.Bottom));
+
+                    // Safe fallbacks for Windows standard frame metrics if uninitialized
+                    if (borderTop < 20) borderTop = 31;
+                    if (borderLeft < 4) borderLeft = 8;
+                    if (borderRight < 4) borderRight = 8;
+                    if (borderBottom < 4) borderBottom = 8;
+
+                    int targetX = -borderLeft;
+                    int targetY = -borderTop;
+                    int targetW = _puttyHostPanel.Width + borderLeft + borderRight;
+                    int targetH = _puttyHostPanel.Height + borderTop + borderBottom;
+
+                    // 3. Move and size PuTTY window so caption and borders lie outside the panel
+                    SetWindowPos(_puttyHwnd, IntPtr.Zero, targetX, targetY, targetW, targetH,
                         SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-                    MoveWindow(_puttyHwnd, 0, 0, _puttyHostPanel.Width, _puttyHostPanel.Height, true);
+                    MoveWindow(_puttyHwnd, targetX, targetY, targetW, targetH, true);
+
+                    // 4. Clip away the non-client frame so nothing outside the terminal client area renders
+                    IntPtr hRgn = CreateRectRgn(borderLeft, borderTop, borderLeft + _puttyHostPanel.Width, borderTop + _puttyHostPanel.Height);
+                    if (hRgn != IntPtr.Zero)
+                    {
+                        SetWindowRgn(_puttyHwnd, hRgn, true);
+                    }
                 }
                 catch { }
             }
@@ -474,6 +546,9 @@ namespace FreeRdpWrapper.UI
             {
                 try
                 {
+                    // Remove region clipping
+                    SetWindowRgn(_puttyHwnd, IntPtr.Zero, true);
+
                     // Restore window styles for standalone window
                     long style = GetWindowLongAuto(_puttyHwnd, GWL_STYLE).ToInt64();
                     style &= ~WS_CHILD;
