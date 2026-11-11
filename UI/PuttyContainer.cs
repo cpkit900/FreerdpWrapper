@@ -37,16 +37,16 @@ namespace FreeRdpWrapper.UI
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
 
-        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+        [DllImport("user32.dll", EntryPoint = "GetWindowLong", CharSet = CharSet.Auto)]
         private static extern IntPtr GetWindowLong32(IntPtr hWnd, int nIndex);
 
-        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW", CharSet = CharSet.Unicode)]
         private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
-        [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+        [DllImport("user32.dll", EntryPoint = "SetWindowLong", CharSet = CharSet.Auto)]
         private static extern IntPtr SetWindowLong32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
-        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", CharSet = CharSet.Unicode)]
         private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         private static IntPtr GetWindowLongAuto(IntPtr hWnd, int nIndex)
@@ -375,6 +375,44 @@ namespace FreeRdpWrapper.UI
                 // Reparent to our panel
                 SetParent(hwnd, _puttyHostPanel.Handle);
 
+                // Strip all styles, caption and borders
+                StripWindowBorders(hwnd);
+
+                // Resize and position to fill panel, force DWM / Windows to recalculate non-client area
+                ResizePuttyWindow();
+
+                _lblStatus.Text = "🟢 Connected (Embedded)";
+                _lblStatus.ForeColor = Color.FromArgb(80, 220, 100);
+
+                FocusPutty();
+                OnLogMessage?.Invoke("PuTTY session embedded successfully.");
+
+                // Follow-up pass to guarantee PuTTY's message loop doesn't re-assert frame styles on activation
+                Task.Delay(150).ContinueWith(_ =>
+                {
+                    SafeInvoke(() =>
+                    {
+                        if (_puttyHwnd != IntPtr.Zero)
+                        {
+                            StripWindowBorders(_puttyHwnd);
+                            ResizePuttyWindow();
+                            FocusPutty();
+                        }
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                OnLogMessage?.Invoke($"Error while setting parent for PuTTY: {ex.Message}");
+            }
+        }
+
+        private void StripWindowBorders(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero) return;
+
+            try
+            {
                 // Strip all top-level borders, caption, system menu, dialog frame, convert to WS_CHILD
                 long style = GetWindowLongAuto(hwnd, GWL_STYLE).ToInt64();
                 style &= ~WS_POPUP;
@@ -397,19 +435,10 @@ namespace FreeRdpWrapper.UI
                 exStyle &= ~WS_EX_APPWINDOW;
                 SetWindowLongAuto(hwnd, GWL_EXSTYLE, new IntPtr(exStyle));
 
-                // Resize and position to fill panel, force DWM / Windows to recalculate non-client area
-                ResizePuttyWindow();
-
-                _lblStatus.Text = "🟢 Connected (Embedded)";
-                _lblStatus.ForeColor = Color.FromArgb(80, 220, 100);
-
-                FocusPutty();
-                OnLogMessage?.Invoke("PuTTY session embedded successfully.");
+                SetWindowPos(hwnd, IntPtr.Zero, 0, 0, _puttyHostPanel.Width, _puttyHostPanel.Height,
+                    SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
             }
-            catch (Exception ex)
-            {
-                OnLogMessage?.Invoke($"Error while setting parent for PuTTY: {ex.Message}");
-            }
+            catch { }
         }
 
         public void FocusPutty()
@@ -430,6 +459,7 @@ namespace FreeRdpWrapper.UI
             {
                 try
                 {
+                    StripWindowBorders(_puttyHwnd);
                     SetWindowPos(_puttyHwnd, IntPtr.Zero, 0, 0, _puttyHostPanel.Width, _puttyHostPanel.Height,
                         SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
                     MoveWindow(_puttyHwnd, 0, 0, _puttyHostPanel.Width, _puttyHostPanel.Height, true);
