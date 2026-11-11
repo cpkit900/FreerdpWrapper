@@ -38,10 +38,26 @@ namespace FreeRdpWrapper.UI
         private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        private static extern IntPtr GetWindowLong32(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+        private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
-        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        private static extern IntPtr SetWindowLong32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
+        private static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        private static IntPtr GetWindowLongAuto(IntPtr hWnd, int nIndex)
+        {
+            return IntPtr.Size == 8 ? GetWindowLongPtr64(hWnd, nIndex) : GetWindowLong32(hWnd, nIndex);
+        }
+
+        private static IntPtr SetWindowLongAuto(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            return IntPtr.Size == 8 ? SetWindowLongPtr64(hWnd, nIndex, dwNewLong) : SetWindowLong32(hWnd, nIndex, dwNewLong);
+        }
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
@@ -61,13 +77,24 @@ namespace FreeRdpWrapper.UI
         private static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
 
         private const int GWL_STYLE = -16;
-        private const int WS_VISIBLE = 0x10000000;
-        private const int WS_CHILD = 0x40000000;
-        private const int WS_POPUP = unchecked((int)0x80000000);
-        private const int WS_CAPTION = 0x00C00000;
-        private const int WS_THICKFRAME = 0x00040000;
-        private const int WS_MINIMIZEBOX = 0x00020000;
-        private const int WS_MAXIMIZEBOX = 0x00010000;
+        private const int GWL_EXSTYLE = -20;
+
+        private const long WS_VISIBLE = 0x10000000L;
+        private const long WS_CHILD = 0x40000000L;
+        private const long WS_POPUP = 0x80000000L;
+        private const long WS_CAPTION = 0x00C00000L;
+        private const long WS_BORDER = 0x00800000L;
+        private const long WS_DLGFRAME = 0x00400000L;
+        private const long WS_SYSMENU = 0x00080000L;
+        private const long WS_THICKFRAME = 0x00040000L;
+        private const long WS_MINIMIZEBOX = 0x00020000L;
+        private const long WS_MAXIMIZEBOX = 0x00010000L;
+
+        private const long WS_EX_DLGMODALFRAME = 0x00000001L;
+        private const long WS_EX_WINDOWEDGE = 0x00000100L;
+        private const long WS_EX_CLIENTEDGE = 0x00000200L;
+        private const long WS_EX_STATICEDGE = 0x00020000L;
+        private const long WS_EX_APPWINDOW = 0x00040000L;
 
         private const uint SWP_NOZORDER = 0x0004;
         private const uint SWP_FRAMECHANGED = 0x0020;
@@ -321,17 +348,29 @@ namespace FreeRdpWrapper.UI
                 // Reparent to our panel
                 SetParent(hwnd, _puttyHostPanel.Handle);
 
-                // Strip top-level borders and caption, convert to WS_CHILD
-                int style = GetWindowLong(hwnd, GWL_STYLE);
+                // Strip all top-level borders, caption, system menu, dialog frame, convert to WS_CHILD
+                long style = GetWindowLongAuto(hwnd, GWL_STYLE).ToInt64();
                 style &= ~WS_POPUP;
                 style &= ~WS_CAPTION;
+                style &= ~WS_BORDER;
+                style &= ~WS_DLGFRAME;
+                style &= ~WS_SYSMENU;
                 style &= ~WS_THICKFRAME;
                 style &= ~WS_MINIMIZEBOX;
                 style &= ~WS_MAXIMIZEBOX;
-                style |= WS_CHILD | WS_VISIBLE;
-                SetWindowLong(hwnd, GWL_STYLE, style);
+                style |= (WS_CHILD | WS_VISIBLE);
+                SetWindowLongAuto(hwnd, GWL_STYLE, new IntPtr(style));
 
-                // Resize and position to fill panel
+                // Strip extended window borders and sunken/raised frames
+                long exStyle = GetWindowLongAuto(hwnd, GWL_EXSTYLE).ToInt64();
+                exStyle &= ~WS_EX_DLGMODALFRAME;
+                exStyle &= ~WS_EX_WINDOWEDGE;
+                exStyle &= ~WS_EX_CLIENTEDGE;
+                exStyle &= ~WS_EX_STATICEDGE;
+                exStyle &= ~WS_EX_APPWINDOW;
+                SetWindowLongAuto(hwnd, GWL_EXSTYLE, new IntPtr(exStyle));
+
+                // Resize and position to fill panel, force DWM / Windows to recalculate non-client area
                 ResizePuttyWindow();
 
                 _lblStatus.Text = "🟢 Connected (Embedded)";
@@ -379,10 +418,14 @@ namespace FreeRdpWrapper.UI
                 try
                 {
                     // Restore window styles for standalone window
-                    int style = GetWindowLong(_puttyHwnd, GWL_STYLE);
+                    long style = GetWindowLongAuto(_puttyHwnd, GWL_STYLE).ToInt64();
                     style &= ~WS_CHILD;
-                    style |= WS_POPUP | WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-                    SetWindowLong(_puttyHwnd, GWL_STYLE, style);
+                    style |= (WS_POPUP | WS_CAPTION | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE);
+                    SetWindowLongAuto(_puttyHwnd, GWL_STYLE, new IntPtr(style));
+
+                    long exStyle = GetWindowLongAuto(_puttyHwnd, GWL_EXSTYLE).ToInt64();
+                    exStyle |= WS_EX_WINDOWEDGE | WS_EX_APPWINDOW;
+                    SetWindowLongAuto(_puttyHwnd, GWL_EXSTYLE, new IntPtr(exStyle));
 
                     // Reparent back to desktop root
                     SetParent(_puttyHwnd, IntPtr.Zero);
@@ -484,3 +527,4 @@ namespace FreeRdpWrapper.UI
         }
     }
 }
+
