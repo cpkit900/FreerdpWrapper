@@ -7,9 +7,15 @@ $publishDir = "$baseDir\PublishOutput"
 $zipFile   = "$baseDir\FreeRdpWrapper_$version.zip"
 
 Write-Host "Cleaning up old directories..."
-if (Test-Path $releaseDir) { Remove-Item -Recurse -Force $releaseDir }
-if (Test-Path $publishDir) { Remove-Item -Recurse -Force $publishDir }
-if (Test-Path $zipFile)    { Remove-Item -Force $zipFile }
+if (Test-Path $releaseDir) { 
+    try { Remove-Item -Recurse -Force $releaseDir -ErrorAction Stop } 
+    catch { Get-ChildItem -Path $releaseDir | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue } 
+}
+if (Test-Path $publishDir) { 
+    try { Remove-Item -Recurse -Force $publishDir -ErrorAction Stop } 
+    catch { Get-ChildItem -Path $publishDir | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue } 
+}
+if (Test-Path $zipFile)    { Remove-Item -Force $zipFile -ErrorAction SilentlyContinue }
 
 Write-Host "Publishing .NET App..."
 dotnet publish "$baseDir\FreeRdpWrapper.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o $publishDir
