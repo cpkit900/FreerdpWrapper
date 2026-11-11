@@ -190,9 +190,40 @@ namespace FreeRdpWrapper.UI
             return btn;
         }
 
-        // ════════════════════════════════════════════════════════════════════
-        // SESSION LAUNCH & WIN32 EMBEDDING
-        // ════════════════════════════════════════════════════════════════════
+        private void SafeInvoke(Action action)
+        {
+            try
+            {
+                if (this.IsDisposed || this.Disposing) return;
+                if (!this.IsHandleCreated) return;
+
+                this.BeginInvoke((MethodInvoker)delegate
+                {
+                    try
+                    {
+                        if (!this.IsDisposed && !this.Disposing)
+                        {
+                            action();
+                        }
+                    }
+                    catch (ObjectDisposedException) { }
+                    catch (InvalidOperationException) { }
+                });
+            }
+            catch (ObjectDisposedException) { }
+            catch (InvalidOperationException) { }
+        }
+
+        private void OnPuttyProcessExited(object? sender, EventArgs e)
+        {
+            _puttyHwnd = IntPtr.Zero;
+            SafeInvoke(() =>
+            {
+                _lblStatus.Text = "🔴 Disconnected";
+                _lblStatus.ForeColor = Color.FromArgb(255, 90, 90);
+                OnDisconnected?.Invoke();
+            });
+        }
 
         public void LaunchSession(SavedConnection connection)
         {
@@ -255,19 +286,7 @@ namespace FreeRdpWrapper.UI
                 }
 
                 _puttyProcess.EnableRaisingEvents = true;
-                _puttyProcess.Exited += (s, e) =>
-                {
-                    _puttyHwnd = IntPtr.Zero;
-                    if (this.IsHandleCreated && !this.IsDisposed)
-                    {
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            _lblStatus.Text = "🔴 Disconnected";
-                            _lblStatus.ForeColor = Color.FromArgb(255, 90, 90);
-                            OnDisconnected?.Invoke();
-                        });
-                    }
-                };
+                _puttyProcess.Exited += OnPuttyProcessExited;
 
                 // Wait for PuTTY's main terminal window to appear
                 IntPtr hwnd = IntPtr.Zero;
@@ -276,6 +295,12 @@ namespace FreeRdpWrapper.UI
 
                 while (hwnd == IntPtr.Zero && elapsed < timeoutMs && !_puttyProcess.HasExited)
                 {
+                    if (this.IsDisposed || this.Disposing)
+                    {
+                        Disconnect();
+                        return;
+                    }
+
                     System.Threading.Thread.Sleep(100);
                     elapsed += 100;
                     _puttyProcess.Refresh();
@@ -312,29 +337,29 @@ namespace FreeRdpWrapper.UI
                     throw new Exception("Timed out waiting for PuTTY terminal window.");
                 }
 
+                if (this.IsDisposed || this.Disposing)
+                {
+                    Disconnect();
+                    return;
+                }
+
                 _puttyHwnd = hwnd;
 
                 // Embed the PuTTY window into _puttyHostPanel
-                if (this.IsHandleCreated && !this.IsDisposed)
+                SafeInvoke(() =>
                 {
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        EmbedWindow(_puttyHwnd);
-                    });
-                }
+                    EmbedWindow(_puttyHwnd);
+                });
             }
             catch (Exception ex)
             {
                 OnLogMessage?.Invoke($"PuTTY embedding failed: {ex.Message}");
-                if (this.IsHandleCreated && !this.IsDisposed)
+                SafeInvoke(() =>
                 {
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        _lblStatus.Text = "🔴 Failed";
-                        _lblStatus.ForeColor = Color.FromArgb(255, 90, 90);
-                        MessageBox.Show($"Failed to embed PuTTY session: {ex.Message}", "PuTTY Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    });
-                }
+                    _lblStatus.Text = "🔴 Failed";
+                    _lblStatus.ForeColor = Color.FromArgb(255, 90, 90);
+                    MessageBox.Show($"Failed to embed PuTTY session: {ex.Message}", "PuTTY Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                });
             }
         }
 
@@ -342,6 +367,8 @@ namespace FreeRdpWrapper.UI
         {
             try
             {
+                if (this.IsDisposed || this.Disposing) return;
+
                 // Ensure parent handle is created
                 if (!_puttyHostPanel.IsHandleCreated) _ = _puttyHostPanel.Handle;
 
@@ -446,9 +473,15 @@ namespace FreeRdpWrapper.UI
         {
             try
             {
-                if (_puttyProcess != null && !_puttyProcess.HasExited)
+                if (_puttyProcess != null)
                 {
-                    _puttyProcess.Kill();
+                    try { _puttyProcess.EnableRaisingEvents = false; } catch { }
+                    try { _puttyProcess.Exited -= OnPuttyProcessExited; } catch { }
+                    if (!_puttyProcess.HasExited)
+                    {
+                        _puttyProcess.Kill();
+                    }
+                    _puttyProcess.Dispose();
                 }
             }
             catch { }
@@ -456,11 +489,11 @@ namespace FreeRdpWrapper.UI
             _puttyHwnd = IntPtr.Zero;
             _puttyProcess = null;
 
-            if (this.IsHandleCreated && !this.IsDisposed)
+            SafeInvoke(() =>
             {
                 _lblStatus.Text = "🔴 Disconnected";
                 _lblStatus.ForeColor = Color.FromArgb(255, 90, 90);
-            }
+            });
         }
 
         public void Reconnect()

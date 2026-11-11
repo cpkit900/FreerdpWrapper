@@ -2345,12 +2345,16 @@ namespace FreeRdpWrapper
                 };
 
                 puttyContainer.OnDisconnected += () => {
-                    if (tabControl.IsHandleCreated && !tabControl.Disposing)
+                    try
                     {
-                        tabControl.Invoke((MethodInvoker)delegate {
-                            LogMessage($"[{config.Name}] PuTTY Session Disconnected.", LogLevelSetting.Info);
-                        });
+                        if (tabControl.IsHandleCreated && !tabControl.Disposing && !this.IsDisposed)
+                        {
+                            tabControl.BeginInvoke((MethodInvoker)delegate {
+                                try { LogMessage($"[{config.Name}] PuTTY Session Disconnected.", LogLevelSetting.Info); } catch { }
+                            });
+                        }
                     }
+                    catch { }
                 };
 
                 puttyTabPage.Controls.Add(puttyContainer);
