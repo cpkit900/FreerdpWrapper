@@ -2357,6 +2357,7 @@ namespace FreeRdpWrapper
                     catch { }
                 };
 
+                puttyTabPage.Enter += (s, e) => puttyContainer.FocusPutty();
                 puttyTabPage.Controls.Add(puttyContainer);
                 tabControl.TabPages.Add(puttyTabPage);
                 tabControl.SelectedTab = puttyTabPage;

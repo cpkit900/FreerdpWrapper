@@ -68,8 +68,28 @@ namespace FreeRdpWrapper.UI
         [DllImport("user32.dll")]
         private static extern bool IsWindowVisible(IntPtr hWnd);
 
+        [DllImport("kernel32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("user32.dll")]
+        private static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr SetFocus(IntPtr hWnd);
+
+        private const int SW_SHOW = 5;
+        private const uint WM_ACTIVATE = 0x0006;
+        private const uint WM_SETFOCUS = 0x0007;
+        private const int WA_ACTIVE = 1;
 
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
@@ -198,6 +218,9 @@ namespace FreeRdpWrapper.UI
                 catch { }
             };
             _puttyHostPanel.Resize += (s, e) => ResizePuttyWindow();
+            _puttyHostPanel.MouseDown += (s, e) => FocusPutty();
+            _puttyHostPanel.Click += (s, e) => FocusPutty();
+            this.MouseDown += (s, e) => FocusPutty();
 
             this.Controls.Add(_puttyHostPanel);
             this.Controls.Add(_topBar);
@@ -481,16 +504,56 @@ namespace FreeRdpWrapper.UI
             catch { }
         }
 
-        public void FocusPutty()
+        protected override void OnVisibleChanged(EventArgs e)
         {
-            if (_puttyHwnd != IntPtr.Zero)
+            base.OnVisibleChanged(e);
+            if (this.Visible && _puttyHwnd != IntPtr.Zero)
             {
                 try
                 {
-                    SetFocus(_puttyHwnd);
+                    ShowWindow(_puttyHwnd, SW_SHOW);
+                    ResizePuttyWindow();
+                    FocusPutty();
                 }
                 catch { }
             }
+        }
+
+        protected override void OnEnter(EventArgs e)
+        {
+            base.OnEnter(e);
+            FocusPutty();
+        }
+
+        public void FocusPutty()
+        {
+            if (_puttyHwnd == IntPtr.Zero) return;
+
+            try
+            {
+                uint targetThreadId = GetWindowThreadProcessId(_puttyHwnd, out _);
+                uint myThreadId = GetCurrentThreadId();
+
+                if (targetThreadId != 0 && targetThreadId != myThreadId)
+                {
+                    AttachThreadInput(myThreadId, targetThreadId, true);
+                    BringWindowToTop(_puttyHwnd);
+                    SetFocus(_puttyHwnd);
+                    SendMessage(_puttyHwnd, WM_ACTIVATE, (IntPtr)WA_ACTIVE, IntPtr.Zero);
+                    SendMessage(_puttyHwnd, WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+                    Task.Delay(100).ContinueWith(_ =>
+                    {
+                        try { AttachThreadInput(myThreadId, targetThreadId, false); } catch { }
+                    });
+                }
+                else
+                {
+                    BringWindowToTop(_puttyHwnd);
+                    SetFocus(_puttyHwnd);
+                    SendMessage(_puttyHwnd, WM_ACTIVATE, (IntPtr)WA_ACTIVE, IntPtr.Zero);
+                }
+            }
+            catch { }
         }
 
         private void ResizePuttyWindow()
@@ -524,17 +587,10 @@ namespace FreeRdpWrapper.UI
                     int targetW = _puttyHostPanel.Width + borderLeft + borderRight;
                     int targetH = _puttyHostPanel.Height + borderTop + borderBottom;
 
-                    // 3. Move and size PuTTY window so caption and borders lie outside the panel
+                    // 3. Move and size PuTTY window so caption and borders lie outside the clipping panel
                     SetWindowPos(_puttyHwnd, IntPtr.Zero, targetX, targetY, targetW, targetH,
                         SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
                     MoveWindow(_puttyHwnd, targetX, targetY, targetW, targetH, true);
-
-                    // 4. Clip away the non-client frame so nothing outside the terminal client area renders
-                    IntPtr hRgn = CreateRectRgn(borderLeft, borderTop, borderLeft + _puttyHostPanel.Width, borderTop + _puttyHostPanel.Height);
-                    if (hRgn != IntPtr.Zero)
-                    {
-                        SetWindowRgn(_puttyHwnd, hRgn, true);
-                    }
                 }
                 catch { }
             }
@@ -546,9 +602,6 @@ namespace FreeRdpWrapper.UI
             {
                 try
                 {
-                    // Remove region clipping
-                    SetWindowRgn(_puttyHwnd, IntPtr.Zero, true);
-
                     // Restore window styles for standalone window
                     long style = GetWindowLongAuto(_puttyHwnd, GWL_STYLE).ToInt64();
                     style &= ~WS_CHILD;
