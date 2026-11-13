@@ -2513,7 +2513,6 @@ fail:
 	return FALSE;
 }
 
-WINPR_ATTR_NODISCARD
 static BOOL tsg_transition_to_state(rdpTsg* tsg, TSG_STATE state)
 {
 	WINPR_ASSERT(tsg);
@@ -2831,7 +2830,7 @@ BOOL tsg_recv_pdu(rdpTsg* tsg, const RPC_PDU* pdu)
 			if (!tsg_transition_to_state(tsg, TSG_STATE_CHANNEL_CLOSE_PENDING))
 				return FALSE;
 
-			if (!TsProxyCloseChannelWriteRequest(tsg, nullptr))
+			if (!TsProxyCloseChannelWriteRequest(tsg, &tsg->ChannelContext))
 			{
 				WLog_Print(tsg->log, WLOG_ERROR, "TsProxyCloseChannelWriteRequest failure");
 				return FALSE;

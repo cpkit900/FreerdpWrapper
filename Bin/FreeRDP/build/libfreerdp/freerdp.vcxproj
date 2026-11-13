@@ -632,6 +632,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\$(Configuration)\prim_YUV_sse4.1.obj" />
     <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\$(Configuration)\prim_YUV_opencl.obj" />
     <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\$(Configuration)\prim_copy_avx2.obj" />
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\$(Configuration)\prim_YUV_avx2.obj" />
     <ResourceCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\version.rc" />
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\addin.h" />
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\include\freerdp\altsec.h" />

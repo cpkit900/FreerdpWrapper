@@ -87,6 +87,9 @@
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_clip.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_web_clip_offers.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

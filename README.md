@@ -3,9 +3,9 @@
 [![Latest Release](https://img.shields.io/github/v/release/cpkit900/FreerdpWrapper?color=00ff66&label=Release)](https://github.com/cpkit900/FreerdpWrapper/releases/latest)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-lightgrey.svg)](https://github.com/cpkit900/FreerdpWrapper)
-[![FreeRDP](https://img.shields.io/badge/FreeRDP-3.33.0-orange.svg)](https://github.com/FreeRDP/FreeRDP)
+[![FreeRDP](https://img.shields.io/badge/FreeRDP-3.33.1-orange.svg)](https://github.com/FreeRDP/FreeRDP)
 
-A modern, high-performance tabbed remote desktop connection manager and workspace for Windows, powered by **FreeRDP 3.33.0 (SDL3 / D3D11)** and **.NET WinForms**.
+A modern, high-performance tabbed remote desktop connection manager and workspace for Windows, powered by **FreeRDP 3.33.1 (SDL3 / D3D11)** and **.NET WinForms**.
 
 ---
 
@@ -44,7 +44,7 @@ A modern, high-performance tabbed remote desktop connection manager and workspac
 
 1. Download **`FreeRdpWrapper_v3.4.0.zip`** from the [Latest Releases](https://github.com/cpkit900/FreerdpWrapper/releases/latest).
 2. Extract the archive into a folder of your choice.
-3. Launch **`FreeRdpWrapper.exe`** (FreeRDP 3.33.0 and SDL3 binaries are bundled in `Bin\FreeRDP`).
+3. Launch **`FreeRdpWrapper.exe`** (FreeRDP 3.33.1 and SDL3 binaries are bundled in `Bin\FreeRDP`).
 
 ---
 

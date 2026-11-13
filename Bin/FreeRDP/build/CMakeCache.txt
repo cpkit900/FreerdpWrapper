@@ -916,6 +916,10 @@ WINPR_THREADPOOL_DEFAULT_MAX_COUNT:STRING=16
 //The minimum (default) number of threads in a pool
 WINPR_THREADPOOL_DEFAULT_MIN_COUNT:STRING=4
 
+//Least stack size in bytes of a thread created with the default
+// size (POSIX), 0 for the platform default
+WINPR_THREAD_DEFAULT_STACK_SIZE:STRING=8388608
+
 //use a resource directory of <base>/WinPR instead of <base>/<product>
 WINPR_USE_LEGACY_RESOURCE_DIR:BOOL=ON
 
@@ -1862,7 +1866,7 @@ VCPKG_MANIFEST_INSTALL:INTERNAL=OFF
 //ADVANCED property for variable: VCPKG_VERBOSE
 VCPKG_VERBOSE-ADVANCED:INTERNAL=1
 //dependencies
-WARN_EXPERIMENTAL_LIST_PRIVATE:INTERNAL=SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF
+WARN_EXPERIMENTAL_LIST_PRIVATE:INTERNAL=SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF
 //dependencies
 WARN_UNMAINTAINED_LIST_PRIVATE:INTERNAL=
 //Test WINPR_HAVE_ACCEPT4

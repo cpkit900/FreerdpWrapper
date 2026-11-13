@@ -1,5 +1,5 @@
 include(CMakeFindDependencyMacro)
-find_dependency(WinPR 3.33.0)
+find_dependency(WinPR 3.33.1)
 
 
 
@@ -30,7 +30,7 @@ endmacro()
 
 set(FreeRDP_VERSION_MAJOR "3")
 set(FreeRDP_VERSION_MINOR "33")
-set(FreeRDP_VERSION_REVISION "0")
+set(FreeRDP_VERSION_REVISION "1")
 
 set_and_check(FreeRDP_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/freerdp3/")
 

@@ -4540,3 +4540,325 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake:154 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake:277 (_ipo_run_language_check)"
+      - "cmake/CommonConfigOptions.cmake:31 (check_ipo_supported)"
+      - "CMakeLists.txt:530 (include)"
+    directories:
+      source: "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/src"
+      binary: "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/bin'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.40+3e7442088 for .NET Framework
+        Build started 13-11-2026 14:47:05.
+        
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" on node 1 (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" (1) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj" (2) on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "x64\\Debug\\ZERO_CHECK\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\".
+        InitializeBuildStatus:
+          Creating "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Deleting file "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild".
+          Touching "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj" (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" (1) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj" (3) on node 1 (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj" (3) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj" (4) on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "foo.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\".
+          Creating directory "foo.dir\\Debug\\foo.tlog\\".
+        InitializeBuildStatus:
+          Creating "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"foo.dir\\Debug\\\\" /Fd"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35222 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"foo.dir\\Debug\\\\" /Fd"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          foo.c
+        Lib:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG  /machine:x64 foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Deleting file "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild".
+          Touching "foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj" (default targets).
+        PrepareForBuild:
+          Creating directory "boo.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "boo.dir\\Debug\\boo.tlog\\".
+        InitializeBuildStatus:
+          Creating "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35222 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          main.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.lib" /MACHINE:X64  /machine:x64 boo.dir\\Debug\\main.obj
+          Generating code
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Finished generating code
+          boo.vcxproj -> C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Deleting file "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild".
+          Touching "boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj" (default targets).
+        PrepareForBuild:
+          Creating directory "x64\\Debug\\ALL_BUILD\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\".
+        InitializeBuildStatus:
+          Creating "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Deleting file "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild".
+          Touching "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:03.54
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake:154 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake:277 (_ipo_run_language_check)"
+      - "cmake/CommonConfigOptions.cmake:31 (check_ipo_supported)"
+      - "client/SDL/CMakeLists.txt:33 (include)"
+    directories:
+      source: "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/src"
+      binary: "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.40+3e7442088 for .NET Framework
+        Build started 13-11-2026 14:47:19.
+        
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj" on node 1 (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj" (1) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj" (2) on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "x64\\Debug\\ZERO_CHECK\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\".
+        InitializeBuildStatus:
+          Creating "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Deleting file "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild".
+          Touching "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ZERO_CHECK.vcxproj" (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj" (1) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj" (3) on node 1 (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj" (3) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj" (4) on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "foo.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\".
+          Creating directory "foo.dir\\Debug\\foo.tlog\\".
+        InitializeBuildStatus:
+          Creating "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"foo.dir\\Debug\\\\" /Fd"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35222 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"foo.dir\\Debug\\\\" /Fd"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\foo.cpp"
+          foo.cpp
+        Lib:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG  /machine:x64 foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Deleting file "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild".
+          Touching "foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\foo.vcxproj" (default targets).
+        PrepareForBuild:
+          Creating directory "boo.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "boo.dir\\Debug\\boo.tlog\\".
+        InitializeBuildStatus:
+          Creating "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35222 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\src\\main.cpp"
+          main.cpp
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/bin/Debug/boo.lib" /MACHINE:X64  /machine:x64 boo.dir\\Debug\\main.obj
+          Generating code
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Finished generating code
+          boo.vcxproj -> C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Deleting file "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild".
+          Touching "boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\boo.vcxproj" (default targets).
+        PrepareForBuild:
+          Creating directory "x64\\Debug\\ALL_BUILD\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\".
+        InitializeBuildStatus:
+          Creating "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-CXX/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Deleting file "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild".
+          Touching "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-CXX\\bin\\ALL_BUILD.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:02.66
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake:154 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckIPOSupported.cmake:277 (_ipo_run_language_check)"
+      - "cmake/CommonConfigOptions.cmake:31 (check_ipo_supported)"
+      - "client/SDL/CMakeLists.txt:33 (include)"
+    directories:
+      source: "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/src"
+      binary: "C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/bin"
+    buildResult:
+      variable: "_IPO_LANGUAGE_CHECK_RESULT"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/bin'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" ALL_BUILD.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.40+3e7442088 for .NET Framework
+        Build started 13-11-2026 14:47:22.
+        
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" on node 1 (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" (1) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj" (2) on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "x64\\Debug\\ZERO_CHECK\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\".
+        InitializeBuildStatus:
+          Creating "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          1>Checking Build System
+        FinalizeBuildStatus:
+          Deleting file "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\unsuccessfulbuild".
+          Touching "x64\\Debug\\ZERO_CHECK\\ZERO_CHECK.tlog\\ZERO_CHECK.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ZERO_CHECK.vcxproj" (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" (1) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj" (3) on node 1 (default targets).
+        Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj" (3) is building "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj" (4) on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "foo.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\".
+          Creating directory "foo.dir\\Debug\\foo.tlog\\".
+        InitializeBuildStatus:
+          Creating "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"foo.dir\\Debug\\\\" /Fd"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35222 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"foo.dir\\Debug\\\\" /Fd"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\src\\foo.c"
+          foo.c
+        Lib:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\Lib.exe /OUT:"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib" /NOLOGO /MACHINE:X64 /LTCG  /machine:x64 foo.dir\\Debug\\foo.obj
+          foo.vcxproj -> C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\foo.lib
+        FinalizeBuildStatus:
+          Deleting file "foo.dir\\Debug\\foo.tlog\\unsuccessfulbuild".
+          Touching "foo.dir\\Debug\\foo.tlog\\foo.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\foo.vcxproj" (default targets).
+        PrepareForBuild:
+          Creating directory "boo.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "boo.dir\\Debug\\boo.tlog\\".
+        InitializeBuildStatus:
+          Creating "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35222 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /GL /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"boo.dir\\Debug\\\\" /Fd"boo.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\src\\main.c"
+          main.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe" /NOLOGO Debug\\foo.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"boo.dir\\Debug\\boo.iobj" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/bin/Debug/boo.lib" /MACHINE:X64  /machine:x64 boo.dir\\Debug\\main.obj
+          Generating code
+          Not all modules are compiled with -Gy (function comdat), build without incremental LTCG.
+          Finished generating code
+          boo.vcxproj -> C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\Debug\\boo.exe
+        FinalizeBuildStatus:
+          Deleting file "boo.dir\\Debug\\boo.tlog\\unsuccessfulbuild".
+          Touching "boo.dir\\Debug\\boo.tlog\\boo.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\boo.vcxproj" (default targets).
+        PrepareForBuild:
+          Creating directory "x64\\Debug\\ALL_BUILD\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\".
+        InitializeBuildStatus:
+          Creating "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild".
+        CustomBuild:
+          Building Custom Rule C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/SDL/CMakeFiles/_CMakeLTOTest-C/src/CMakeLists.txt
+        FinalizeBuildStatus:
+          Deleting file "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\unsuccessfulbuild".
+          Touching "x64\\Debug\\ALL_BUILD\\ALL_BUILD.tlog\\ALL_BUILD.lastbuildstate".
+        Done Building Project "C:\\Users\\Junnu\\Freerdp Wrapper\\Bin\\FreeRDP\\build\\client\\SDL\\CMakeFiles\\_CMakeLTOTest-C\\bin\\ALL_BUILD.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:02.25
+        
+      exitCode: 0
+...

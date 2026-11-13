@@ -79,6 +79,9 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\sse\prim_copy_avx2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\sse\prim_YUV_avx2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\prim_add.h">

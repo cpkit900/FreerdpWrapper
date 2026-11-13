@@ -18,7 +18,11 @@
 
 #include <freerdp/config.h>
 
+#include <errno.h>
+#include <stdlib.h>
+
 #include <winpr/assert.h>
+#include <winpr/sysinfo.h>
 
 #include "shadow.h"
 
@@ -470,6 +474,18 @@ static int shadow_encoder_uninit(rdpShadowEncoder* encoder)
 
 	shadow_encoder_uninit_progressive(encoder);
 
+	/* Release the RFX dirty tile skip snapshot. shadow_encoder_reset also
+	 * routes through here, so after a reset/free the next frame is always
+	 * encoded in full. */
+	free(encoder->gfxSnapshot);
+	encoder->gfxSnapshot = nullptr;
+	free(encoder->gfxTileEncoded);
+	encoder->gfxTileEncoded = nullptr;
+	encoder->gfxSnapshotValid = FALSE;
+	encoder->gfxSnapshotWidth = 0;
+	encoder->gfxSnapshotHeight = 0;
+	encoder->gfxSnapshotStep = 0;
+
 	return 1;
 }
 
@@ -498,6 +514,8 @@ int shadow_encoder_reset(rdpShadowEncoder* encoder)
 	encoder->maxFps = 32;
 	encoder->frameId = 0;
 	encoder->lastAckframeId = 0;
+	encoder->lastAckTick = GetTickCount64();
+	encoder->gfxHeld = FALSE;
 	encoder->frameAck = freerdp_settings_get_bool(settings, FreeRDP_SurfaceFrameMarkerEnabled);
 	return 1;
 }
@@ -590,6 +608,23 @@ rdpShadowEncoder* shadow_encoder_new(rdpShadowClient* client)
 	encoder->server = server;
 	encoder->fps = 16;
 	encoder->maxFps = 32;
+	encoder->lastAckTick = GetTickCount64();
+	{
+		/* like xrdp's XRDP_GFX_FRAMES_IN_FLIGHT; 0 turns the limit off */
+		// NOLINTNEXTLINE(concurrency-mt-unsafe)
+		const char* env = getenv("FREERDP_SHADOW_GFX_FRAMES_IN_FLIGHT");
+		encoder->maxInFlight = SHADOW_GFX_FRAMES_IN_FLIGHT;
+		if (env && *env)
+		{
+			char* end = nullptr;
+			errno = 0;
+			const unsigned long value = strtoul(env, &end, 10);
+			if ((errno == 0) && end && (*end == '\0') && (value <= 1000))
+				encoder->maxInFlight = (UINT32)value;
+			else
+				WLog_WARN(TAG, "FREERDP_SHADOW_GFX_FRAMES_IN_FLIGHT=%s ignored: 0 to 1000", env);
+		}
+	}
 
 	if (shadow_encoder_init(encoder) < 0)
 	{

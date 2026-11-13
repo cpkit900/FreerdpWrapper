@@ -534,7 +534,7 @@ namespace FreeRdpWrapper
 
             lblStatusText = new Label
             {
-                Text = $"⚡ Ready • {Environment.UserName} • 🔒 Matrix Vault: Active • FreeRDP 3.33.0 (.NET 10)",
+                Text = $"⚡ Ready • {Environment.UserName} • 🔒 Matrix Vault: Active • FreeRDP 3.33.1 (.NET 10)",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font("Segoe UI", 8.5f),
@@ -637,7 +637,7 @@ namespace FreeRdpWrapper
             var mnuHelp = new ToolStripMenuItem("&Help");
             mnuHelp.DropDownItems.Add("🤖 AI Troubleshooting Guide", null, (s, e) => ToggleAiCopilotTab());
             mnuHelp.DropDownItems.Add("ℹ️ About AeroRemote Desktop", null, (s, e) => {
-                MessageBox.Show("AeroRemote Desktop\r\nVersion 3.4.0 (.NET 10 WinForms)\r\nBuilt against FreeRDP 3.33.0 & SDL3\r\n\r\nFeatures:\r\n• Matrix World & High-Contrast Themes\r\n• Authenticated AES-256-GCM Vault\r\n• Modular Retractable Toolbars\r\n• Unified Workspace (Connections, Scripts, Credentials)\r\n• Network Scanner & AI Remote Ops Copilot", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("AeroRemote Desktop\r\nVersion 3.4.0 (.NET 10 WinForms)\r\nBuilt against FreeRDP 3.33.1 & SDL3\r\n\r\nFeatures:\r\n• Matrix World & High-Contrast Themes\r\n• Authenticated AES-256-GCM Vault\r\n• Modular Retractable Toolbars\r\n• Unified Workspace (Connections, Scripts, Credentials)\r\n• Network Scanner & AI Remote Ops Copilot", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
             });
 
             menuStrip.Items.AddRange(new ToolStripItem[] { mnuFile, mnuEdit, mnuView, mnuTools, mnuHelp });

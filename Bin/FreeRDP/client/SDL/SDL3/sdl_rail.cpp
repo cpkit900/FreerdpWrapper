@@ -24,6 +24,7 @@
 #include <winpr/assert.h>
 #include <winpr/platform.h>
 #include <winpr/cast.h>
+#include <winpr/string.h>
 
 #include <freerdp/freerdp.h>
 #include <freerdp/log.h>
@@ -469,6 +470,7 @@ void SdlRail::enableRemoteAppMode(bool enable)
 	_enabled = enable;
 	if (enable)
 		_desktopReleased = true;
+	queueScreenSaverUpdate();
 }
 
 /* Show the desktop anyway after this: not every logon prompt is announced. */
@@ -844,9 +846,11 @@ bool SdlRail::init(RailClientContext* rail)
 
 	rail->custom = this;
 	rail->ServerExecuteResult = SdlRail::server_execute_result;
+	rail->ServerGetAppIdResponse = SdlRail::server_app_id;
 	/* ServerSystemParam not implemented: the server only sends screensaver state here. */
 	rail->ServerLocalMoveSize = SdlRail::server_local_move_size;
 	rail->ServerMinMaxInfo = SdlRail::server_min_max_info;
+	rail->ServerPowerDisplayRequest = SdlRail::server_power_display_request;
 	/* Keep default ServerHandshake. */
 
 	WLog_WARN(TAG, "RemoteApp/RAIL support in the SDL client is experimental");
@@ -862,12 +866,32 @@ bool SdlRail::init(RailClientContext* rail)
 #if SDL_VERSION_ATLEAST(3, 4, 10)
 	/* Synchronize WM-driven X11 resizes via _NET_WM_SYNC_REQUEST to prevent torn frames. */
 	if (sdl::utils::isX11Driver())
-		SDL_SetHint(SDL_HINT_VIDEO_X11_ENABLE_XSYNC_EXT, "1");
+	{
+		if (!SDL_SetHint(SDL_HINT_VIDEO_X11_ENABLE_XSYNC_EXT, "1"))
+			WLog_WARN(TAG, "SDL_SetHint(SDL_HINT_VIDEO_X11_ENABLE_XSYNC_EXT) failed: %s",
+			          SDL_GetError());
+	}
 #endif
 	/* Like Windows, the click that activates a window also reaches the app. */
 	if (!SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1"))
 		WLog_WARN(TAG, "SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH) failed: %s", SDL_GetError());
 	return true;
+}
+
+/* RemoteApp windows are ordinary local windows. */
+void SdlRail::updateScreenSaver()
+{
+	const bool allowed = _context->allowScreenSaver().value_or(_enabled);
+	const bool on = allowed && !_displayRequested;
+	if (!(on ? SDL_EnableScreenSaver() : SDL_DisableScreenSaver()))
+		WLog_WARN(TAG, "changing the screen saver failed: %s", SDL_GetError());
+}
+
+void SdlRail::queueScreenSaverUpdate()
+{
+	if (!SDL_RunOnMainThread([](void* rail) { static_cast<SdlRail*>(rail)->updateScreenSaver(); },
+	                         this, false))
+		WLog_WARN(TAG, "could not queue the screen saver change: %s", SDL_GetError());
 }
 
 bool SdlRail::uninit(WINPR_ATTR_UNUSED RailClientContext* rail)
@@ -898,6 +922,8 @@ bool SdlRail::uninit(WINPR_ATTR_UNUSED RailClientContext* rail)
 	/* The next connection logs on again: hold its logon desktop back too. */
 	_desktopReleased = false;
 	_desktopHoldUntil = 0;
+	_displayRequested = false;
+	queueScreenSaverUpdate();
 
 	(void)sdl_push_user_event(SDL_EVENT_USER_UPDATE);
 	return true;
@@ -919,6 +945,27 @@ void SdlRail::registerUpdateCallbacks(rdpUpdate* update)
 }
 
 /* --- server callbacks --- */
+
+UINT SdlRail::server_app_id(RailClientContext* context, const RAIL_GET_APPID_RESP_ORDER* response)
+{
+	WINPR_ASSERT(context);
+	WINPR_ASSERT(response);
+	auto rail = static_cast<SdlRail*>(context->custom);
+	if (!rail)
+		return CHANNEL_RC_OK; /* late order after disconnect */
+
+	char* appId = ConvertWCharToUtf8Alloc(response->applicationId, nullptr);
+	if (!appId)
+		return CHANNEL_RC_NO_MEMORY;
+	{
+		std::unique_lock lock(rail->_windowsLock);
+		if (auto window = rail->getWindow(response->windowId))
+			window->setAppId(appId);
+	}
+	free(appId);
+	(void)sdl_push_user_event(SDL_EVENT_USER_UPDATE);
+	return CHANNEL_RC_OK;
+}
 
 UINT SdlRail::server_execute_result(RailClientContext* context,
                                     const RAIL_EXEC_RESULT_ORDER* execResult)
@@ -1034,9 +1081,9 @@ UINT SdlRail::server_local_move_size(RailClientContext* context,
 					sdlId = appWindow->sdlId();
 				}
 			}
-			if (sdlId != 0)
-				rail->syncGeometry(sdlId);
 		}
+		if (sdlId != 0)
+			rail->syncGeometry(sdlId);
 	}
 	return CHANNEL_RC_OK;
 }
@@ -1104,15 +1151,27 @@ void SdlRail::nativeResize(void* userdata, SDL_WindowID id, int moveType, bool e
 
 void SdlRail::handleLocalMoveRequested(uint32_t windowId, uint16_t moveType)
 {
+	/* Native modal loop: runs unlocked until the drag ends. */
+	SDL_Window* sdlWindow = beginLocalMove(windowId, moveType);
+	if (!sdlWindow)
+		return;
+	_sizeMoveRedraws = 0;
+	railPlatformRunModalDrag(sdlWindow, moveType);
+	WLog_DBG(TAG, "modal drag end id=0x%08" PRIx32 " redraws=%" PRIu32, windowId, _sizeMoveRedraws);
+	completeLocalMoveIfPending();
+}
+
+SDL_Window* SdlRail::beginLocalMove(uint32_t windowId, uint16_t moveType)
+{
 	const RailDragModel model = railPlatformCaps().drag;
 	if (model == RailDragModel::None)
-		return;
+		return nullptr;
 	const bool compositor = (model == RailDragModel::CompositorResize);
 
 	std::unique_lock lock(_windowsLock);
 	auto appWindow = getWindow(windowId);
 	if (!appWindow || !appWindow->window() || appWindow->isPopup())
-		return;
+		return nullptr;
 
 	const bool isMove = (moveType == RAIL_WMSZ_MOVE);
 	WLog_DBG(TAG, "local move start id=0x%08" PRIx32 " driver=%s type=%" PRIu16 " %s", windowId,
@@ -1144,17 +1203,7 @@ void SdlRail::handleLocalMoveRequested(uint32_t windowId, uint16_t moveType)
 	{
 		WLog_WARN(TAG, "WM move failed for RAIL window 0x%08" PRIx32, windowId);
 	}
-
-	/* Native modal loop: runs unlocked until the drag ends. */
-	if (started && (model == RailDragModel::ModalLoop))
-	{
-		SDL_Window* sdlWindow = appWindow->window();
-		_sizeMoveRedraws = 0;
-		railPlatformRunModalDrag(sdlWindow, moveType);
-		WLog_DBG(TAG, "modal drag end id=0x%08" PRIx32 " redraws=%" PRIu32, windowId,
-		         _sizeMoveRedraws);
-		completeLocalMoveIfPending();
-	}
+	return (started && (model == RailDragModel::ModalLoop)) ? appWindow->window() : nullptr;
 }
 
 /* Wayland: keep server window position in sync with the active monitor across displays. */
@@ -1547,6 +1596,21 @@ void SdlRail::completeLocalMoveIfPending()
 	railPlatformEndDrag(appWindow->window());
 }
 
+UINT SdlRail::server_power_display_request(RailClientContext* context,
+                                           const RAIL_POWER_DISPLAY_REQUEST* power)
+{
+	WINPR_ASSERT(context);
+	WINPR_ASSERT(power);
+	auto rail = static_cast<SdlRail*>(context->custom);
+	if (!rail)
+		return CHANNEL_RC_OK; /* late order after disconnect */
+
+	WLog_DBG(TAG, "power display request %s", power->active ? "on" : "off");
+	rail->_displayRequested = (power->active != 0);
+	rail->queueScreenSaverUpdate();
+	return CHANNEL_RC_OK;
+}
+
 UINT SdlRail::server_min_max_info(RailClientContext* context,
                                   const RAIL_MINMAXINFO_ORDER* minMaxInfo)
 {
@@ -1689,6 +1753,15 @@ BOOL SdlRail::window_common(rdpContext* context, const WINDOW_ORDER_INFO* orderI
 		if (marginsSet(sm))
 			appWindow->setResizeMargins(sm.x, sm.y, sm.w, sm.h);
 		/* The SDL window is created lazily on the main thread (reconcile), as SDL requires. */
+
+		/* Ask for the application ID, the answer is used as the window's app_id. */
+		if (rail->_rail && rail->_rail->ClientGetAppIdRequest)
+		{
+			const RAIL_GET_APPID_REQ_ORDER request = { orderInfo->windowId };
+			if (rail->_rail->ClientGetAppIdRequest(rail->_rail, &request) != CHANNEL_RC_OK)
+				WLog_WARN(TAG, "Get AppID request failed for window 0x%08" PRIx32,
+				          orderInfo->windowId);
+		}
 	}
 
 	if (!appWindow)
@@ -1768,16 +1841,33 @@ SdlRailIcon* SdlRail::iconCacheLookup(uint32_t cacheId, uint32_t cacheEntry)
 /* ICON_INFO (1/4/8/16/24/32 bpp + AND mask) -> BGRA32, like xf convert_rail_icon. */
 static bool convertRailIcon(const ICON_INFO* info, SdlRailIcon& icon)
 {
+	/* width, height and cbBitsColor come straight from the wire. Every format accepted by
+	 * freerdp_image_copy_from_icon_data needs at least one byte of bitsColor per pixel, so an
+	 * icon claiming more pixels than that is rejected before the BGRA buffer is allocated
+	 * (4 * 65535 * 65535 bytes otherwise). A failed decode leaves the cache slot empty so a
+	 * later WindowCachedIcon does not pick up a half-initialized icon. */
+	const size_t pixels = 1ULL * info->width * info->height;
+	if (pixels > info->cbBitsColor)
+	{
+		icon = {};
+		return false;
+	}
+
 	icon.w = info->width;
 	icon.h = info->height;
-	icon.bgra.assign(4ULL * info->width * info->height, 0);
-	return freerdp_image_copy_from_icon_data(
-	           icon.bgra.data(), PIXEL_FORMAT_BGRA32, 0, 0, 0,
-	           WINPR_ASSERTING_INT_CAST(UINT16, info->width),
-	           WINPR_ASSERTING_INT_CAST(UINT16, info->height), info->bitsColor,
-	           WINPR_ASSERTING_INT_CAST(UINT16, info->cbBitsColor), info->bitsMask,
-	           WINPR_ASSERTING_INT_CAST(UINT16, info->cbBitsMask), info->colorTable,
-	           WINPR_ASSERTING_INT_CAST(UINT16, info->cbColorTable), info->bpp) == TRUE;
+	icon.bgra.assign(4ULL * pixels, 0);
+	if (freerdp_image_copy_from_icon_data(
+	        icon.bgra.data(), PIXEL_FORMAT_BGRA32, 0, 0, 0,
+	        WINPR_ASSERTING_INT_CAST(UINT16, info->width),
+	        WINPR_ASSERTING_INT_CAST(UINT16, info->height), info->bitsColor,
+	        WINPR_ASSERTING_INT_CAST(UINT16, info->cbBitsColor), info->bitsMask,
+	        WINPR_ASSERTING_INT_CAST(UINT16, info->cbBitsMask), info->colorTable,
+	        WINPR_ASSERTING_INT_CAST(UINT16, info->cbColorTable), info->bpp) != TRUE)
+	{
+		icon = {};
+		return false;
+	}
+	return true;
 }
 
 BOOL SdlRail::window_icon(rdpContext* context, const WINDOW_ORDER_INFO* orderInfo,

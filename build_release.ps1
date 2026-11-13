@@ -40,7 +40,7 @@ AeroRemote Desktop $version
 ==================================
 
 Release Date : $(Get-Date -Format 'yyyy-MM-dd')
-FreeRDP Base : 3.33.0 (SDL3 client, D3D11 renderer)
+FreeRDP Base : 3.33.1 (SDL3 client, D3D11 renderer)
 
 ## What's New in $version
 
@@ -68,14 +68,14 @@ FreeRDP Base : 3.33.0 (SDL3 client, D3D11 renderer)
 - Scans ARP table and concurrent TCP port reachability (3389 RDP, 22 SSH).
 - One-click batch import into connection groups.
 
-### 🛡️ FreeRDP 3.33.0 & SDL3 Engine
-- Built against FreeRDP 3.33.0 with 13 CVE security patches.
+### 🛡️ FreeRDP 3.33.1 & SDL3 Engine
+- Built against FreeRDP 3.33.1.
 - D3D11 accelerated SDL3 client with /parent-window embedding.
 - RAIL RemoteApp, sound redirection, multi-monitor, and drive mapping.
 
 ## Usage Notes
 - Unzip `FreeRdpWrapper_$version.zip`.
-- Run `FreeRdpWrapper.exe` (all FreeRDP 3.33.0 binaries are pre-packaged in `Bin\FreeRDP`).
+- Run `FreeRdpWrapper.exe` (all FreeRDP 3.33.1 binaries are pre-packaged in `Bin\FreeRDP`).
 "@ | Set-Content "$releaseDir\RELEASE_NOTES.txt" -Encoding UTF8
 
 Write-Host "Zipping release..."

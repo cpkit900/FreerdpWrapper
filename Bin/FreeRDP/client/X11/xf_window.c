@@ -904,8 +904,9 @@ void xf_SetWindowStyle(xfContext* xfc, xfAppWindow* appWindow, UINT32 style, UIN
 
 	if (style & WS_POPUP)
 	{
-		window_type = xfc->NET_WM_WINDOW_TYPE_DIALOG;
 		/* this includes dialogs, popups, etc, that need to be full-fledged windows */
+		if (!redirect)
+			window_type = xfc->NET_WM_WINDOW_TYPE_DIALOG;
 
 		if (!((ex_style & WS_EX_DLGMODALFRAME) || (ex_style & WS_EX_LAYERED) ||
 		      (style & WS_SYSMENU)))
@@ -934,6 +935,7 @@ void xf_SetWindowStyle(xfContext* xfc, xfAppWindow* appWindow, UINT32 style, UIN
 		 */
 		XSetWindowAttributes attrs = WINPR_C_ARRAY_INIT;
 		attrs.override_redirect = redirect ? True : False;
+		appWindow->override_redirect = redirect;
 		LogDynAndXChangeWindowAttributes(xfc->log, xfc->display, appWindow->handle,
 		                                 CWOverrideRedirect, &attrs);
 	}
@@ -1041,7 +1043,7 @@ static void xf_FixWindowCoordinates(xfContext* xfc, int* x, int* y, int* width, 
 	}
 }
 
-BOOL xf_AppWindowInit(xfContext* xfc, xfAppWindow* appWindow)
+BOOL xf_AppWindowInit(xfContext* xfc, xfAppWindow* appWindow, BOOL hidden)
 {
 	BOOL redraw = FALSE;
 	if (!xfc || !appWindow)
@@ -1050,9 +1052,20 @@ BOOL xf_AppWindowInit(xfContext* xfc, xfAppWindow* appWindow)
 	xf_SetWindowDecorations(xfc, appWindow->handle, appWindow->decorations);
 	xf_SetWindowStyle(xfc, appWindow, appWindow->dwStyle, appWindow->dwExStyle);
 	xf_SetWindowPID(xfc, appWindow->handle, 0);
+	LogDynAndXClearWindow(xfc->log, xfc->display, appWindow->handle);
+
+	/* A window the server creates hidden stays unmapped until the server shows it, see
+	 * xf_ShowWindow(). Mapping it here and withdrawing it right after races with the window
+	 * manager: the later map request can be lost, leaving a withdrawn window that is never
+	 * shown while the application waits on it, e.g. a modal dialog. */
+	if (hidden)
+	{
+		xf_SetWindowText(xfc, appWindow, appWindow->title);
+		return FALSE;
+	}
+
 	if (xf_ShowWindow(xfc, appWindow, WINDOW_SHOW))
 		redraw = TRUE;
-	LogDynAndXClearWindow(xfc->log, xfc->display, appWindow->handle);
 	LogDynAndXMapWindow(xfc->log, xfc->display, appWindow->handle);
 	/* Move doesn't seem to work until window is mapped. */
 	if (xf_MoveWindow(xfc, appWindow, appWindow->x, appWindow->y, appWindow->width,
@@ -1084,6 +1097,7 @@ BOOL xf_AppWindowCreate(xfContext* xfc, xfAppWindow* appWindow)
 	appWindow->local_move.state = LMS_NOT_ACTIVE;
 	appWindow->is_mapped = FALSE;
 	appWindow->is_transient = FALSE;
+	appWindow->override_redirect = FALSE;
 	appWindow->rail_state = 0;
 	appWindow->maxVert = FALSE;
 	appWindow->maxHorz = FALSE;
@@ -1268,7 +1282,10 @@ BOOL xf_ShowWindow(xfContext* xfc, xfAppWindow* appWindow, BYTE state)
 	switch (state)
 	{
 		case WINDOW_HIDE:
-			LogDynAndXWithdrawWindow(xfc->log, xfc->display, appWindow->handle, xfc->screen_number);
+			/* Nothing to withdraw if the window was never shown, see xf_AppWindowInit(). */
+			if (appWindow->rail_state != WINDOW_HIDE)
+				LogDynAndXWithdrawWindow(xfc->log, xfc->display, appWindow->handle,
+				                         xfc->screen_number);
 			break;
 
 		case WINDOW_SHOW_MINIMIZED:
@@ -1321,6 +1338,14 @@ BOOL xf_ShowWindow(xfContext* xfc, xfAppWindow* appWindow, BYTE state)
 				xf_SetWindowUnlisted(xfc, appWindow->handle);
 
 			LogDynAndXMapWindow(xfc->log, xfc->display, appWindow->handle);
+			/* Move doesn't work until the window is mapped, see xf_AppWindowInit(). */
+			if ((appWindow->rail_state == WINDOW_HIDE) && (appWindow->width > 0) &&
+			    (appWindow->height > 0))
+				LogDynAndXMoveResizeWindow(xfc->log, xfc->display, appWindow->handle,
+				                           WINPR_ASSERTING_INT_CAST(int, appWindow->x),
+				                           WINPR_ASSERTING_INT_CAST(int, appWindow->y),
+				                           WINPR_ASSERTING_INT_CAST(uint32_t, appWindow->width),
+				                           WINPR_ASSERTING_INT_CAST(uint32_t, appWindow->height));
 			break;
 		default:
 			break;

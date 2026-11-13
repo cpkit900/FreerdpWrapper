@@ -620,11 +620,17 @@ int shadow_server_parse_command_line(rdpShadowServer* server, int argc, char** a
 
 		if (arg->Flags & COMMAND_LINE_VALUE_PRESENT)
 		{
-			/* Select monitors */
+			/* Select monitors. errno may hold anything from what ran before
+			 * (enumerating the monitors makes system calls of its own) */
+			errno = 0;
 			long val = strtol(arg->Value, nullptr, 0);
 
 			if ((val < 0) || (errno != 0) || ((UINT32)val >= numMonitors))
+			{
+				WLog_ERR(TAG, "no monitor '%s': there are %" PRIu32 " (/monitors lists them)",
+				         arg->Value, numMonitors);
 				status = COMMAND_LINE_STATUS_PRINT;
+			}
 
 			server->selectedMonitor = (UINT32)val;
 		}
@@ -1174,7 +1180,7 @@ rdpShadowServer* shadow_server_new(void)
 	server->h264HwAccel = FALSE;
 	server->authentication = TRUE;
 #if defined(WITH_GFX_AV1)
-	server->AV1BitRate = 500;
+	server->AV1BitRate = 3000; /* kbit/s */
 	server->AV1RateControlMode = FREERDP_AV1_VBR;
 #endif
 	server->settings = freerdp_settings_new(FREERDP_SETTINGS_SERVER_MODE);

@@ -250,6 +250,9 @@
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneNameMapUtils.c">
       <Filter>timezone</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneIanaAliases.c">
+      <Filter>timezone</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\timezone.c">
       <Filter>timezone</Filter>
     </ClCompile>
@@ -495,10 +498,16 @@
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneNameMap.h">
       <Filter>timezone</Filter>
     </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneIanaAliases.h">
+      <Filter>timezone</Filter>
+    </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\timezone.h">
       <Filter>timezone</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneNameMap_static.h">
+      <Filter>timezone</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\TimeZoneIanaAliases_static.h">
       <Filter>timezone</Filter>
     </ClInclude>
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\winpr\libwinpr\timezone\WindowsZones.h">

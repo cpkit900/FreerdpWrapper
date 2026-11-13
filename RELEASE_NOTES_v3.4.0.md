@@ -1,6 +1,6 @@
 # AeroRemote Desktop v3.4.0
 **Release Date**: 2026-11-10  
-**FreeRDP Base**: 3.33.0 (SDL3 client, D3D11 renderer)
+**FreeRDP Base**: 3.33.1 (SDL3 client, D3D11 renderer)
 
 ---
 
@@ -40,8 +40,8 @@
 * **Scalable Target Picker Dialog**: Designed for environments with 1,000s of servers, featuring real-time search, protocol filter pills, group filtering, and batch execution with unified live logging.
 * **Enhanced Script Editor**: Full multi-line editing support for PowerShell and Bash scripts with return key handling, tab key indentation, and `Ctrl+S` quick save shortcut.
 
-### 🛡️ FreeRDP 3.33.0 & SDL3 Engine
-* **Security Patches**: Built against FreeRDP 3.33.0 with 13 CVE fixes.
+### 🛡️ FreeRDP 3.33.1 & SDL3 Engine
+* **Security Patches**: Built against FreeRDP 3.33.1.
 * **D3D11 Acceleration**: Hardware-accelerated SDL3 client with container embedding (`/parent-window`).
 * **Protocol Features**: RAIL RemoteApp support, audio/microphone redirection, drive redirection, and multi-monitor topology.
 
@@ -50,4 +50,4 @@
 ## 📦 Download & Quick Start
 1. Download **`FreeRdpWrapper_v3.4.0.zip`** below.
 2. Extract the archive into any folder.
-3. Launch **`FreeRdpWrapper.exe`** (FreeRDP 3.33.0 and SDL3 runtimes are bundled in `Bin\FreeRDP`).
+3. Launch **`FreeRdpWrapper.exe`** (FreeRDP 3.33.1 and SDL3 runtimes are bundled in `Bin\FreeRDP`).

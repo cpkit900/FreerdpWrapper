@@ -373,6 +373,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_window.cpp" />
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_clip.hpp" />
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_clip.cpp" />
+    <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_web_clip_offers.hpp" />
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.hpp" />
     <ClCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_context.cpp" />
     <ClInclude Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\client\SDL\SDL3\sdl_rail.hpp" />

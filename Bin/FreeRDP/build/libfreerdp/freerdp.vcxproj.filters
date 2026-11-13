@@ -1319,6 +1319,9 @@
     <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\$(Configuration)\prim_copy_avx2.obj">
       <Filter>Object Libraries</Filter>
     </Object>
+    <Object Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\$(Configuration)\prim_YUV_avx2.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\version.rc">

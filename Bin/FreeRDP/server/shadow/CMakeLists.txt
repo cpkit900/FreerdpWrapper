@@ -32,6 +32,8 @@ set(SRCS
     shadow_surface.h
     shadow_encoder.c
     shadow_encoder.h
+    shadow_rfx_dirty.c
+    shadow_rfx_dirty.h
     shadow_capture.c
     shadow_capture.h
     shadow_channels.c
@@ -157,6 +159,10 @@ set_property(TARGET ${MODULE_NAME} PROPERTY FOLDER "Server/shadow")
 option(WITH_SERVER_SHADOW_CLI "Build shadow server cli tool" ON)
 if(WITH_SERVER_SHADOW_CLI)
   add_subdirectory(cli)
+endif()
+
+if(BUILD_TESTING)
+  add_subdirectory(test)
 endif()
 
 set_property(TARGET ${MODULE_NAME} PROPERTY FOLDER "Server/shadow")

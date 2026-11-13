@@ -29,7 +29,7 @@ endmacro()
 
 set(WinPR_VERSION_MAJOR "3")
 set(WinPR_VERSION_MINOR "33")
-set(WinPR_VERSION_REVISION "0")
+set(WinPR_VERSION_REVISION "1")
 set(WITH_WINPR_JSON "ON")
 
 set_and_check(WinPR_INCLUDE_DIR "${PACKAGE_PREFIX_DIR}/include/winpr3")

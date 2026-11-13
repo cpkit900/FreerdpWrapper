@@ -24,3 +24,4 @@ C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\sse\prim_copy_s
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\sse\prim_YUV_sse4.1.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\Release\prim_YUV_sse4.1.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\opencl\prim_YUV_opencl.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\Release\prim_YUV_opencl.obj
 C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\sse\prim_copy_avx2.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\Release\prim_copy_avx2.obj
+C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\libfreerdp\primitives\sse\prim_YUV_avx2.c;C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\libfreerdp\primitives\freerdp-primitives.dir\Release\prim_YUV_avx2.obj

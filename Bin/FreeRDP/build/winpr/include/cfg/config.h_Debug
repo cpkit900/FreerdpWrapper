@@ -18,7 +18,6 @@
 /* #undef WINPR_HAVE_AIO_H */
 /* #undef WINPR_HAVE_POLL_H */
 /* #undef WINPR_HAVE_SYSLOG_H */
-/* #undef WINPR_HAVE_JOURNALD_H */
 /* #undef WINPR_HAVE_PTHREAD_MUTEX_TIMEDLOCK */
 /* #undef WINPR_HAVE_EXECINFO_H */
 /* #undef WINPR_HAVE_GETLOGIN_R */

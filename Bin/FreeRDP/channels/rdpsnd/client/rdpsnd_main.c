@@ -297,17 +297,18 @@ static UINT rdpsnd_recv_server_audio_formats_pdu(rdpsndPlugin* rdpsnd, wStream* 
 	Stream_Read_UINT8(s, rdpsnd->cBlockNo);  /* cLastBlockConfirmed */
 	Stream_Read_UINT16(s, rdpsnd->wVersion); /* wVersion */
 	Stream_Seek_UINT8(s);                    /* bPad */
-	rdpsnd->NumberOfServerFormats = wNumberOfFormats;
 
 	if (!Stream_CheckAndLogRequiredLengthOfSize(TAG, s, wNumberOfFormats, 14ull))
 		return ERROR_BAD_LENGTH;
 
-	if (rdpsnd->NumberOfServerFormats > 0)
+	if (wNumberOfFormats > 0)
 	{
 		rdpsnd->ServerFormats = audio_formats_new(wNumberOfFormats);
 
 		if (!rdpsnd->ServerFormats)
 			return CHANNEL_RC_NO_MEMORY;
+
+		rdpsnd->NumberOfServerFormats = wNumberOfFormats;
 
 		for (UINT16 index = 0; index < wNumberOfFormats; index++)
 		{
@@ -675,7 +676,10 @@ static UINT rdpsnd_treat_wave(rdpsndPlugin* rdpsnd, wStream* s, size_t size)
 		{
 			Stream_SealLength(pcmData);
 
-			if (rdpsnd->device->PlayEx)
+			/* Decoders with priming delay (e.g. AAC) may legitimately produce no PCM yet */
+			if (Stream_Length(pcmData) == 0)
+				latency = 0;
+			else if (rdpsnd->device->PlayEx)
 				latency = rdpsnd->device->PlayEx(rdpsnd->device, format, Stream_Buffer(pcmData),
 				                                 Stream_Length(pcmData));
 			else
@@ -1433,7 +1437,23 @@ static void cleanup_internals(rdpsndPlugin* rdpsnd)
 		return;
 
 	if (rdpsnd->async)
+	{
 		EnterCriticalSection(&rdpsnd->asyncLock);
+		if (rdpsnd->queue && (MessageQueue_Clear(rdpsnd->queue) < 0))
+			WLog_WARN(TAG, "%s failed to clear the message queue",
+			          rdpsnd_is_dyn_str(rdpsnd->dynamic));
+	}
+
+	if (rdpsnd->device)
+	{
+		IFCALL(rdpsnd->device->Close, rdpsnd->device);
+		IFCALL(rdpsnd->device->Free, rdpsnd->device);
+		rdpsnd->device = nullptr;
+	}
+	rdpsnd->isOpen = FALSE;
+	rdpsnd->expectingWave = FALSE;
+	rdpsnd->firstFlagReceived = FALSE;
+	rdpsnd->totalLength = 0;
 
 	if (rdpsnd->pool)
 		StreamPool_Return(rdpsnd->pool, rdpsnd->data_in);
@@ -1468,28 +1488,17 @@ static UINT rdpsnd_virtual_channel_event_disconnected(rdpsndPlugin* rdpsnd)
 	{
 		DWORD opened = rdpsnd->OpenHandle;
 		rdpsnd->OpenHandle = 0;
-		if (rdpsnd->device)
-			IFCALL(rdpsnd->device->Close, rdpsnd->device);
-
 		error = rdpsnd->channelEntryPoints.pVirtualChannelCloseEx(rdpsnd->InitHandle, opened);
 
 		if (CHANNEL_RC_OK != error)
 		{
 			WLog_ERR(TAG, "%s pVirtualChannelCloseEx failed with %s [%08" PRIX32 "]",
 			         rdpsnd_is_dyn_str(rdpsnd->dynamic), WTSErrorToString(error), error);
-			return error;
 		}
 	}
 
 	cleanup_internals(rdpsnd);
-
-	if (rdpsnd->device)
-	{
-		IFCALL(rdpsnd->device->Free, rdpsnd->device);
-		rdpsnd->device = nullptr;
-	}
-
-	return CHANNEL_RC_OK;
+	return error;
 }
 
 static void queue_free(void* obj)
@@ -1585,7 +1594,6 @@ static DWORD WINAPI play_thread(LPVOID arg)
 		HANDLE handles[MAXIMUM_WAIT_OBJECTS] = WINPR_C_ARRAY_INIT;
 
 		handles[nCount++] = MessageQueue_Event(rdpsnd->queue);
-		handles[nCount++] = freerdp_abort_event(rdpsnd->rdpcontext);
 		status = WaitForMultipleObjects(nCount, handles, FALSE, INFINITE);
 		switch (status)
 		{
@@ -1595,24 +1603,30 @@ static DWORD WINAPI play_thread(LPVOID arg)
 				return ERROR_TIMEOUT;
 		}
 
+		/* cleanup_internals clears the queue under this lock. */
+		if (rdpsnd->async)
+			EnterCriticalSection(&rdpsnd->asyncLock);
+
 		rc = MessageQueue_Peek(rdpsnd->queue, &message, TRUE);
+		if ((rc > 0) && (message.id != WMQ_QUIT))
+		{
+			s = message.wParam;
+			error = rdpsnd_recv_pdu(rdpsnd, s);
+		}
+
+		if (rdpsnd->async)
+			LeaveCriticalSection(&rdpsnd->asyncLock);
+
 		if (rc < 1)
 			continue;
 
 		if (message.id == WMQ_QUIT)
 			break;
 
-		if (rdpsnd->async)
-			EnterCriticalSection(&rdpsnd->asyncLock);
-
-		s = message.wParam;
-		error = rdpsnd_recv_pdu(rdpsnd, s);
-
-		if (rdpsnd->async)
-			LeaveCriticalSection(&rdpsnd->asyncLock);
-
 		if (error)
-			return error;
+			WLog_Print(rdpsnd->log, WLOG_WARN, "%s PDU dropped [%08" PRIX32 "]",
+			           rdpsnd_is_dyn_str(rdpsnd->dynamic), error);
+		error = CHANNEL_RC_OK;
 	}
 
 	return CHANNEL_RC_OK;
@@ -1852,17 +1866,8 @@ static UINT rdpsnd_on_close(IWTSVirtualChannelCallback* pChannelCallback)
 	WINPR_ASSERT(rdpsnd);
 
 	rdpsnd->OnOpenCalled = FALSE;
-	if (rdpsnd->device)
-		IFCALL(rdpsnd->device->Close, rdpsnd->device);
-
 	cleanup_internals(rdpsnd);
-
 	free_internals(rdpsnd);
-	if (rdpsnd->device)
-	{
-		IFCALL(rdpsnd->device->Free, rdpsnd->device);
-		rdpsnd->device = nullptr;
-	}
 
 	free(pChannelCallback);
 	rdpsnd->connected = FALSE;

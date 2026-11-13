@@ -41,11 +41,13 @@
 #include <winpr/crt.h>
 #include <winpr/string.h>
 #include <winpr/assert.h>
+#include <winpr/interlocked.h>
 #include <winpr/image.h>
 #include <winpr/stream.h>
 #include <winpr/clipboard.h>
 #include <winpr/path.h>
 
+#include <freerdp/utils/helpers.h>
 #include <freerdp/utils/signal.h>
 #include <freerdp/log.h>
 #include <freerdp/client/cliprdr.h>
@@ -167,6 +169,7 @@ struct cliprdr_file_context
 	HANDLE fuse_start_sync;
 	HANDLE fuse_stop_sync;
 	HANDLE fuse_thread;
+	LONG fuse_failed; /* no mount: what the server copies cannot be pasted here */
 	struct fuse_session* fuse_sess;
 #if FUSE_USE_VERSION < 30
 	struct fuse_chan* ch;
@@ -1237,6 +1240,14 @@ static DWORD WINAPI cliprdr_file_fuse_thread(LPVOID arg)
 				fuse_session_loop(file->fuse_sess);
 				fuse_session_unmount(file->fuse_sess);
 			}
+			else
+			{
+				const LONG old = InterlockedExchange(&file->fuse_failed, 1);
+				WLog_Print(
+				    file->log, WLOG_WARN,
+				    "cannot mount '%s': files from the server cannot be pasted here (%" PRId32 ")",
+				    file->path, old);
+			}
 			freerdp_del_signal_cleanup_handler(file, fuse_abort);
 		}
 
@@ -1251,6 +1262,31 @@ static DWORD WINAPI cliprdr_file_fuse_thread(LPVOID arg)
 
 	ExitThread(0);
 	return 0;
+}
+
+WINPR_ATTR_NODISCARD
+WINPR_ATTR_FORMAT_ARG(4, 5)
+static UINT cliprdr_fail_content_reponse(CliprdrFileContext* file_context,
+                                         CliprdrFuseRequest* fuse_request, UINT32 streamID,
+                                         WINPR_FORMAT_ARG const char* format, ...)
+{
+	WINPR_ASSERT(file_context);
+	WINPR_ASSERT(fuse_request);
+	WINPR_ASSERT(format);
+
+	const DWORD level = WLOG_WARN;
+	if (WLog_IsLevelActive(file_context->log, level))
+	{
+		va_list ap;
+		va_start(ap, format);
+		WLog_PrintVA(file_context->log, WLOG_WARN, format, ap);
+		va_end(ap);
+	}
+
+	fuse_reply_err(fuse_request->fuse_req, EIO);
+	HashTable_Remove(file_context->request_table, (void*)(uintptr_t)streamID);
+	HashTable_Unlock(file_context->inode_table);
+	return CHANNEL_RC_OK;
 }
 
 static UINT cliprdr_file_context_server_file_contents_response(
@@ -1278,29 +1314,20 @@ static UINT cliprdr_file_context_server_file_contents_response(
 
 	if (!(file_contents_response->common.msgFlags & CB_RESPONSE_OK))
 	{
-		WLog_Print(file_context->log, WLOG_WARN,
-		           "FileContentsRequests for file \"%s\" was unsuccessful",
-		           fuse_request->fuse_file->filename);
-
-		fuse_reply_err(fuse_request->fuse_req, EIO);
-		HashTable_Remove(file_context->request_table,
-		                 (void*)(uintptr_t)file_contents_response->streamId);
-		HashTable_Unlock(file_context->inode_table);
-		return CHANNEL_RC_OK;
+		return cliprdr_fail_content_reponse(file_context, fuse_request,
+		                                    file_contents_response->streamId,
+		                                    "FileContentsRequests for file \"%s\" was unsuccessful",
+		                                    fuse_request->fuse_file->filename);
 	}
 
 	if ((fuse_request->operation_type == FUSE_LL_OPERATION_LOOKUP ||
 	     fuse_request->operation_type == FUSE_LL_OPERATION_GETATTR) &&
 	    file_contents_response->cbRequested != sizeof(UINT64))
 	{
-		WLog_Print(file_context->log, WLOG_WARN,
-		           "Received invalid file size for file \"%s\" from the client",
-		           fuse_request->fuse_file->filename);
-		fuse_reply_err(fuse_request->fuse_req, EIO);
-		HashTable_Remove(file_context->request_table,
-		                 (void*)(uintptr_t)file_contents_response->streamId);
-		HashTable_Unlock(file_context->inode_table);
-		return CHANNEL_RC_OK;
+		return cliprdr_fail_content_reponse(
+		    file_context, fuse_request, file_contents_response->streamId,
+		    "Received invalid file size for file \"%s\" from the client",
+		    fuse_request->fuse_file->filename);
 	}
 
 	if (fuse_request->operation_type == FUSE_LL_OPERATION_LOOKUP ||
@@ -1311,6 +1338,13 @@ static UINT cliprdr_file_context_server_file_contents_response(
 
 		fuse_request->fuse_file->size =
 		    *(WINPR_PACKED_ALIGN_CAST(const UINT64*, file_contents_response->requestedData));
+		if (fuse_request->fuse_file->size > INT64_MAX)
+		{
+			return cliprdr_fail_content_reponse(
+			    file_context, fuse_request, file_contents_response->streamId,
+			    "Received invalid file size for file \"%s\" from the client",
+			    fuse_request->fuse_file->filename);
+		}
 		fuse_request->fuse_file->has_size = TRUE;
 
 		entry.ino = fuse_request->fuse_file->ino;
@@ -1323,29 +1357,32 @@ static UINT cliprdr_file_context_server_file_contents_response(
 		DEBUG_CLIPRDR(file_context->log, "Received file range for file \"%s\" with stream id %u",
 		              fuse_request->fuse_file->filename, file_contents_response->streamId);
 	}
+
+	/* request_table is only accessed under the inode_table lock and owns fuse_request, so
+	 * keep what the reply needs and remove the request before releasing the lock */
+	const FuseLowlevelOperationType operation_type = fuse_request->operation_type;
+	fuse_req_t fuse_req = fuse_request->fuse_req;
+	HashTable_Remove(file_context->request_table,
+	                 (void*)(uintptr_t)file_contents_response->streamId);
 	HashTable_Unlock(file_context->inode_table);
 
-	switch (fuse_request->operation_type)
+	switch (operation_type)
 	{
 		case FUSE_LL_OPERATION_NONE:
 			break;
 		case FUSE_LL_OPERATION_LOOKUP:
-			fuse_reply_entry(fuse_request->fuse_req, &entry);
+			fuse_reply_entry(fuse_req, &entry);
 			break;
 		case FUSE_LL_OPERATION_GETATTR:
-			fuse_reply_attr(fuse_request->fuse_req, &entry.attr, entry.attr_timeout);
+			fuse_reply_attr(fuse_req, &entry.attr, entry.attr_timeout);
 			break;
 		case FUSE_LL_OPERATION_READ:
-			fuse_reply_buf(fuse_request->fuse_req,
-			               (const char*)file_contents_response->requestedData,
+			fuse_reply_buf(fuse_req, (const char*)file_contents_response->requestedData,
 			               file_contents_response->cbRequested);
 			break;
 		default:
 			break;
 	}
-
-	HashTable_Remove(file_context->request_table,
-	                 (void*)(uintptr_t)file_contents_response->streamId);
 
 	return CHANNEL_RC_OK;
 }
@@ -2395,6 +2432,15 @@ BOOL cliprdr_file_context_update_server_data(CliprdrFileContext* file_context, w
 	if (size > UINT32_MAX)
 		return FALSE;
 
+	/* paths below the mount point would lead nowhere: without a base there are none */
+	if (InterlockedCompareExchange(&file_context->fuse_failed, 0, 0) != 0)
+	{
+		wClipboardDelegate* delegate = ClipboardGetDelegate(clip);
+		WINPR_ASSERT(delegate);
+		delegate->basePath = nullptr;
+		return FALSE;
+	}
+
 	if (cliprdr_parse_file_list(data, (UINT32)size, &files, &n_files))
 	{
 		WLog_Print(file_context->log, WLOG_ERROR, "Failed to parse file list");
@@ -2519,11 +2565,19 @@ static BOOL create_base_path(CliprdrFileContext* file)
 {
 	WINPR_ASSERT(file);
 
-	char base[64] = WINPR_C_ARRAY_INIT;
-	(void)_snprintf(base, sizeof(base), "com.freerdp.client.cliprdr.%" PRIu32,
-	                GetCurrentProcessId());
+	const char* details = freerdp_getApplicationDetailsString();
+	WINPR_ASSERT(details);
+
+	/* Multiple RDP sessions can share a process, so include the clipboard
+	 * context address to keep their FUSE mount points separate. */
+	char* base = nullptr;
+	size_t blen = 0;
+	winpr_asprintf(&base, &blen, "%s.%" PRIu32 ".%p", details, GetCurrentProcessId(), (void*)file);
+	if (!base)
+		return FALSE;
 
 	file->path = GetKnownSubPath(KNOWN_PATH_TEMP, base);
+	winpr_znfree(base, blen);
 	if (!file->path)
 		return FALSE;
 
@@ -2996,11 +3050,11 @@ UINT32 cliprdr_file_context_remote_get_flags(CliprdrFileContext* file)
 
 BOOL cliprdr_file_context_has_local_support(CliprdrFileContext* file)
 {
-	WINPR_UNUSED(file);
-
 #if defined(WITH_FUSE)
-	return TRUE;
+	WINPR_ASSERT(file);
+	return InterlockedCompareExchange(&file->fuse_failed, 0, 0) == 0;
 #else
+	WINPR_UNUSED(file);
 	return FALSE;
 #endif
 }

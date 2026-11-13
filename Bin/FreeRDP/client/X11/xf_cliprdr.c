@@ -1183,17 +1183,17 @@ static BOOL xf_cliprdr_get_requested_data(xfClipboard* clipboard, Atom target)
 
 	size_t len = 0;
 
-	/* No data, empty return */
-	if ((total_bytes <= 0) && !clipboard->incr_starts)
-	{
-		xf_cliprdr_stop_incr(clipboard);
-	}
 	/* We have to read incremental updates */
-	else if (type == clipboard->incr_atom)
+	if ((type == clipboard->incr_atom) && !clipboard->incr_starts)
 	{
 		xf_cliprdr_stop_incr(clipboard);
 		clipboard->incr_starts = TRUE;
 		has_data = TRUE; /* data will follow in PropertyNotify event */
+	}
+	/* No data, empty return */
+	else if ((total_bytes <= 0) && !clipboard->incr_starts)
+	{
+		xf_cliprdr_stop_incr(clipboard);
 	}
 	else
 	{
@@ -1373,7 +1373,13 @@ static BOOL xf_cliprdr_process_selection_notify(xfClipboard* clipboard,
 	{
 		if (xevent->property == None)
 		{
-			xf_cliprdr_send_client_format_list(clipboard);
+			/* The owner refused to list its targets. Do not ask again from here:
+			 * xf_cliprdr_send_client_format_list would issue a new TARGETS request,
+			 * and an owner that keeps refusing (Xwayland can) turns that into a
+			 * busy loop that also sends the server a format list on every turn,
+			 * built from the stale TARGETS of the previous owner. Drop what was
+			 * cached and wait for the next owner change. */
+			xf_cliprdr_send_format_list(clipboard, nullptr, 0, nullptr, 0);
 		}
 		else
 		{

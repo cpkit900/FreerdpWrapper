@@ -52,6 +52,9 @@ typedef struct
 {
 	uint64_t cntGfxCodecID[RDPGFX_CODECID_MAX];
 	uint64_t cntGfxCommandID[RDPGFX_CMDID_MAX + 1];
+	uint64_t bytesGfxCodecID[RDPGFX_CODECID_MAX];
+	uint64_t framesDecoded;
+	uint64_t framesUnacknowledged;
 } RdpgfxClientContextStats;
 
 typedef struct
@@ -59,6 +62,20 @@ typedef struct
 	RdpgfxClientContext common;
 	RdpgfxClientContextStats stats;
 } RdpgfxClientContextInt;
+
+/* The name of a byte counter is the name of its codec ID with _BYTES added */
+static char bytesGfxCodecNames[RDPGFX_CODECID_MAX][64];
+static INIT_ONCE bytesGfxCodecNamesOnce = INIT_ONCE_STATIC_INIT;
+
+static BOOL CALLBACK rdpgfx_stats_init_names(WINPR_ATTR_UNUSED PINIT_ONCE once,
+                                             WINPR_ATTR_UNUSED PVOID param,
+                                             WINPR_ATTR_UNUSED PVOID* context)
+{
+	for (UINT16 x = 0; x < RDPGFX_CODECID_MAX; x++)
+		(void)_snprintf(bytesGfxCodecNames[x], sizeof(bytesGfxCodecNames[x]), "%s_BYTES",
+		                rdpgfx_get_codec_id_string(x));
+	return TRUE;
+}
 
 static const UINT32 MAX_SURFACE_SIZE = 32766;
 static const UINT32 MAX_MONITOR_COUNT = 16;
@@ -76,6 +93,23 @@ const char* rdpgfx_stats_name_for_index(size_t index)
 	index -= RDPGFX_CODECID_MAX;
 	if (index < RDPGFX_CMDID_MAX)
 		return rdpgfx_get_cmd_id_string(WINPR_ASSERTING_INT_CAST(UINT16, index));
+	if (index == RDPGFX_CMDID_MAX)
+		return "RDPGFX_CMDID_INVALID";
+
+	index -= RDPGFX_CMDID_MAX + 1;
+	if (index < RDPGFX_CODECID_MAX)
+	{
+		if (!InitOnceExecuteOnce(&bytesGfxCodecNamesOnce, rdpgfx_stats_init_names, nullptr,
+		                         nullptr))
+			return "RDPGFX_STATS_UNUSED";
+		return bytesGfxCodecNames[index];
+	}
+
+	index -= RDPGFX_CODECID_MAX;
+	if (index == 0)
+		return "RDPGFX_FRAMES_DECODED";
+	if (index == 1)
+		return "RDPGFX_FRAMES_UNACKNOWLEDGED";
 	return "RDPGFX_STATS_UNUSED";
 }
 
@@ -89,19 +123,32 @@ uint64_t rdpgfx_stats_value_for_index(RdpgfxClientContext* context, size_t index
 		return intCtx->stats.cntGfxCodecID[WINPR_ASSERTING_INT_CAST(UINT16, index)];
 
 	index -= RDPGFX_CODECID_MAX;
-	if (index < RDPGFX_CMDID_MAX)
+	if (index <= RDPGFX_CMDID_MAX)
 		return intCtx->stats.cntGfxCommandID[WINPR_ASSERTING_INT_CAST(UINT16, index)];
+
+	index -= RDPGFX_CMDID_MAX + 1;
+	if (index < RDPGFX_CODECID_MAX)
+		return intCtx->stats.bytesGfxCodecID[WINPR_ASSERTING_INT_CAST(UINT16, index)];
+
+	index -= RDPGFX_CODECID_MAX;
+	if (index == 0)
+		return intCtx->stats.framesDecoded;
+	if (index == 1)
+		return intCtx->stats.framesUnacknowledged;
 	return 0;
 }
 
-static void rdpgfx_codecid_event(RdpgfxClientContext* context, uint32_t index)
+static void rdpgfx_codecid_event(RdpgfxClientContext* context, uint32_t index, uint32_t length)
 {
 	if (!context)
 		return;
 	RdpgfxClientContextInt* intCtx = (RdpgfxClientContextInt*)context;
 	WINPR_ASSERT(intCtx);
 	if (index < RDPGFX_CODECID_MAX)
+	{
 		intCtx->stats.cntGfxCodecID[index]++;
+		intCtx->stats.bytesGfxCodecID[index] += length;
+	}
 	else
 	{
 		RDPGFX_PLUGIN* gfx = (RDPGFX_PLUGIN*)context->handle;
@@ -125,6 +172,23 @@ static void rdpgfx_stats_cmdid_event(RdpgfxClientContext* context, uint32_t inde
 		index = RDPGFX_CMDID_MAX;
 	}
 	intCtx->stats.cntGfxCommandID[index]++;
+}
+
+static void rdpgfx_stats_frame_decoded(RdpgfxClientContext* context)
+{
+	if (!context)
+		return;
+	RdpgfxClientContextInt* intCtx = (RdpgfxClientContextInt*)context;
+	intCtx->stats.framesDecoded++;
+}
+
+/* A copy: the plugin's own counter is reset before the stats are dumped on close */
+static void rdpgfx_stats_frames_unacknowledged(RdpgfxClientContext* context, UINT32 frames)
+{
+	if (!context)
+		return;
+	RdpgfxClientContextInt* intCtx = (RdpgfxClientContextInt*)context;
+	intCtx->stats.framesUnacknowledged = frames;
 }
 
 static BOOL delete_surface(const void* key, void* value, void* arg)
@@ -627,7 +691,10 @@ static UINT rdpgfx_send_frame_acknowledge_pdu(RdpgfxClientContext* context,
 	                                 nullptr);
 
 	if (error == CHANNEL_RC_OK) /* frame successfully acked */
+	{
 		gfx->UnacknowledgedFrames--;
+		rdpgfx_stats_frames_unacknowledged(context, gfx->UnacknowledgedFrames);
+	}
 
 fail:
 	Stream_Free(s, TRUE);
@@ -1314,6 +1381,7 @@ static UINT rdpgfx_recv_start_frame_pdu(GENERIC_CHANNEL_CALLBACK* callback, wStr
 	}
 
 	gfx->UnacknowledgedFrames++;
+	rdpgfx_stats_frames_unacknowledged(context, gfx->UnacknowledgedFrames);
 	return error;
 }
 
@@ -1353,6 +1421,7 @@ static UINT rdpgfx_recv_end_frame_pdu(GENERIC_CHANNEL_CALLBACK* callback, wStrea
 	const UINT64 end = GetTickCount64();
 	const UINT64 EndFrameTime = end - start;
 	gfx->TotalDecodedFrames++;
+	rdpgfx_stats_frame_decoded(context);
 
 	if (!gfx->sendFrameAcks)
 		return error;
@@ -1576,7 +1645,7 @@ UINT logSurfaceCommand(RDPGFX_PLUGIN* gfx, const RDPGFX_SURFACE_COMMAND* cmd)
 		WLog_Print(gfx->base.log, WLOG_ERROR,
 		           "context->SurfaceCommand failed with error %" PRIu32 "", error);
 
-	rdpgfx_codecid_event(context, cmd->codecId);
+	rdpgfx_codecid_event(context, cmd->codecId, cmd->length);
 	return error;
 }
 
@@ -1952,6 +2021,16 @@ static UINT rdpgfx_recv_map_surface_to_output_pdu(GENERIC_CHANNEL_CALLBACK* call
 	Stream_Read_UINT16(s, pdu.reserved);      /* reserved (2 bytes) */
 	Stream_Read_UINT32(s, pdu.outputOriginX); /* outputOriginX (4 bytes) */
 	Stream_Read_UINT32(s, pdu.outputOriginY); /* outputOriginY (4 bytes) */
+
+	if ((pdu.outputOriginX > MAX_SURFACE_SIZE) || (pdu.outputOriginY > MAX_SURFACE_SIZE))
+	{
+		WLog_Print(gfx->base.log, WLOG_ERROR,
+		           "context->MapSurfaceToOutput outputOriginX[%" PRIu32 "], outputOriginY[%" PRIu32
+		           "] > %" PRIu32,
+		           pdu.outputOriginX, pdu.outputOriginY, MAX_SURFACE_SIZE);
+		return ERROR_INVALID_DATA;
+	}
+
 	WLog_Print(gfx->base.log, WLOG_DEBUG,
 	           "RecvMapSurfaceToOutputPdu: surfaceId: %" PRIu16 " outputOriginX: %" PRIu32
 	           " outputOriginY: %" PRIu32 "",
@@ -1989,6 +2068,24 @@ static UINT rdpgfx_recv_map_surface_to_scaled_output_pdu(GENERIC_CHANNEL_CALLBAC
 	Stream_Read_UINT32(s, pdu.outputOriginY); /* outputOriginY (4 bytes) */
 	Stream_Read_UINT32(s, pdu.targetWidth);   /* targetWidth (4 bytes) */
 	Stream_Read_UINT32(s, pdu.targetHeight);  /* targetHeight (4 bytes) */
+
+	if ((pdu.outputOriginX > MAX_SURFACE_SIZE) || (pdu.outputOriginY > MAX_SURFACE_SIZE))
+	{
+		WLog_Print(gfx->base.log, WLOG_ERROR,
+		           "context->MapSurfaceToScaledOutput outputOriginX[%" PRIu32
+		           "], outputOriginY[%" PRIu32 "] > %" PRIu32,
+		           pdu.outputOriginX, pdu.outputOriginY, MAX_SURFACE_SIZE);
+		return ERROR_INVALID_DATA;
+	}
+	if ((pdu.targetWidth > MAX_SURFACE_SIZE) || (pdu.targetHeight > MAX_SURFACE_SIZE))
+	{
+		WLog_Print(gfx->base.log, WLOG_ERROR,
+		           "context->MapSurfaceToScaledOutput targetWidth[%" PRIu32
+		           "], targetHeight[%" PRIu32 "] > %" PRIu32,
+		           pdu.targetWidth, pdu.targetHeight, MAX_SURFACE_SIZE);
+		return ERROR_INVALID_DATA;
+	}
+
 	WLog_Print(gfx->base.log, WLOG_DEBUG,
 	           "RecvMapSurfaceToScaledOutputPdu: surfaceId: %" PRIu16 " outputOriginX: %" PRIu32
 	           " outputOriginY: %" PRIu32 " targetWidth: %" PRIu32 " targetHeight: %" PRIu32,
@@ -2109,6 +2206,14 @@ static UINT rdpgfx_recv_map_surface_to_scaled_window_pdu(GENERIC_CHANNEL_CALLBAC
 		           pdu.mappedWidth, pdu.mappedHeight, MAX_SURFACE_SIZE);
 		return ERROR_INVALID_DATA;
 	}
+	if ((pdu.targetWidth > MAX_SURFACE_SIZE) || (pdu.targetHeight > MAX_SURFACE_SIZE))
+	{
+		WLog_Print(gfx->base.log, WLOG_ERROR,
+		           "context->RecvMapSurfaceToScaledWindowPdu targetWidth[%" PRIu32
+		           "], targetHeight[%" PRIu32 "] > %" PRIu32,
+		           pdu.targetWidth, pdu.targetHeight, MAX_SURFACE_SIZE);
+		return ERROR_INVALID_DATA;
+	}
 
 	WLog_Print(gfx->base.log, WLOG_DEBUG,
 	           "RecvMapSurfaceToScaledWindowPdu: surfaceId: %" PRIu16 " windowId: 0x%016" PRIX64
@@ -2134,24 +2239,28 @@ static UINT rdpgfx_recv_map_surface_to_scaled_window_pdu(GENERIC_CHANNEL_CALLBAC
  *
  * @return 0 on success, otherwise a Win32 error code
  */
-static UINT rdpgfx_recv_pdu(GENERIC_CHANNEL_CALLBACK* callback, wStream* s)
+static UINT rdpgfx_recv_pdu(GENERIC_CHANNEL_CALLBACK* callback, wStream* data)
 {
 	RDPGFX_HEADER header = WINPR_C_ARRAY_INIT;
+	wStream sbuffer = WINPR_C_ARRAY_INIT;
 
 	WINPR_ASSERT(callback);
 	RDPGFX_PLUGIN* gfx = (RDPGFX_PLUGIN*)callback->plugin;
-	const size_t beg = Stream_GetPosition(s);
 
 	WINPR_ASSERT(gfx);
 
 	size_t packetlen = 0;
-	UINT error = rdpgfx_read_header(gfx->base.log, s, &header, &packetlen);
+	UINT error = rdpgfx_read_header(gfx->base.log, data, &header, &packetlen);
 	if (error != CHANNEL_RC_OK)
 	{
 		WLog_Print(gfx->base.log, WLOG_ERROR, "rdpgfx_read_header failed with error %" PRIu32 "!",
 		           error);
 		return error;
 	}
+
+	/* Limit the PDU parsers to the data of this PDU, the stream might contain more of them */
+	wStream* s = Stream_StaticConstInit(&sbuffer, Stream_ConstPointer(data), packetlen);
+	Stream_Seek(data, packetlen);
 
 	WLog_Print(gfx->base.log, WLOG_TRACE,
 	           "cmdId: %s (0x%04" PRIX16 ") flags: 0x%04" PRIX16 " pduLength: %" PRIu32 "",
@@ -2330,20 +2439,15 @@ static UINT rdpgfx_recv_pdu(GENERIC_CHANNEL_CALLBACK* callback, wStream* s)
 		WLog_Print(gfx->base.log, WLOG_ERROR,
 		           "Error while processing GFX cmdId: %s (0x%04" PRIX16 ")",
 		           rdpgfx_get_cmd_id_string(header.cmdId), header.cmdId);
-		if (!Stream_SetPosition(s, (beg + header.pduLength)))
-			return ERROR_INVALID_DATA;
 		return error;
 	}
 
 	const size_t end = Stream_GetPosition(s);
 
-	if (end != (beg + header.pduLength))
+	if (end != packetlen)
 	{
 		WLog_Print(gfx->base.log, WLOG_ERROR,
-		           "Unexpected gfx pdu end: Actual: %" PRIuz ", Expected: %" PRIuz, end,
-		           (beg + header.pduLength));
-		if (!Stream_SetPosition(s, (beg + header.pduLength)))
-			return ERROR_INVALID_DATA;
+		           "Unexpected gfx pdu end: Actual: %" PRIuz ", Expected: %" PRIuz, end, packetlen);
 	}
 
 	return error;

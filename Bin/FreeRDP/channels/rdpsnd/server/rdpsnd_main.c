@@ -209,28 +209,30 @@ static UINT rdpsnd_server_recv_formats(RdpsndServerContext* context, wStream* s)
 	Stream_Read_UINT32(s, context->initialVolume);      /* dwVolume */
 	Stream_Read_UINT32(s, context->initialPitch);       /* dwPitch */
 	Stream_Read_UINT16(s, context->udpPort);            /* wDGramPort */
-	Stream_Read_UINT16(s, context->num_client_formats); /* wNumberOfFormats */
+	const UINT16 wNumberOfFormats = Stream_Get_UINT16(s); /* wNumberOfFormats */
 	Stream_Read_UINT8(s, context->lastblock);           /* cLastBlockConfirmed */
 	Stream_Read_UINT16(s, context->clientVersion);      /* wVersion */
 	Stream_Seek_UINT8(s);                               /* bPad */
 
 	/* this check is only a guess as cbSize can influence the size of a format record */
-	if (!Stream_CheckAndLogRequiredLengthOfSize(TAG, s, context->num_client_formats, 18ull))
+	if (!Stream_CheckAndLogRequiredLengthOfSize(TAG, s, wNumberOfFormats, 18ull))
 		return ERROR_INVALID_DATA;
 
-	if (!context->num_client_formats)
+	if (wNumberOfFormats == 0)
 	{
 		WLog_ERR(TAG, "client doesn't support any format!");
 		return ERROR_INTERNAL_ERROR;
 	}
 
-	context->client_formats = audio_formats_new(context->num_client_formats);
+	context->client_formats = audio_formats_new(wNumberOfFormats);
 
 	if (!context->client_formats)
 	{
 		WLog_ERR(TAG, "calloc failed!");
 		return CHANNEL_RC_NO_MEMORY;
 	}
+
+	context->num_client_formats = wNumberOfFormats;
 
 	for (UINT16 i = 0; i < context->num_client_formats; i++)
 	{
@@ -522,13 +524,19 @@ static UINT rdpsnd_server_training(RdpsndServerContext* context, UINT16 timestam
 	return status ? CHANNEL_RC_OK : ERROR_INTERNAL_ERROR;
 }
 
-static BOOL rdpsnd_server_align_wave_pdu(wStream* s, UINT32 alignment)
+/* Pads the wave with zeros to a multiple of the block alignment of its format.
+ * Not an Opus packet: it has no frame sync, every byte after it is taken as
+ * part of it, and with zeros there it no longer decodes (the client echoes
+ * back the alignment the server offered, which may well be more than 1). */
+static BOOL rdpsnd_server_align_wave_pdu(wStream* s, const AUDIO_FORMAT* format)
 {
 	size_t size = 0;
 	Stream_SealLength(s);
 	size = Stream_Length(s);
 
-	if ((size % alignment) != 0)
+	WINPR_ASSERT(format);
+	const UINT32 alignment = format->nBlockAlign;
+	if ((format->wFormatTag != WAVE_FORMAT_OPUS) && ((size % alignment) != 0))
 	{
 		size_t offset = alignment - size % alignment;
 
@@ -582,7 +590,7 @@ static UINT rdpsnd_server_send_wave_pdu(RdpsndServerContext* context, UINT16 wTi
 		return ERROR_INTERNAL_ERROR;
 
 	/* Set stream size */
-	if (!rdpsnd_server_align_wave_pdu(s, format->nBlockAlign))
+	if (!rdpsnd_server_align_wave_pdu(s, format))
 		return ERROR_INTERNAL_ERROR;
 
 	const size_t end = Stream_GetPosition(s);
@@ -688,7 +696,7 @@ static UINT rdpsnd_server_send_wave2_pdu(RdpsndServerContext* context, UINT16 fo
 		}
 
 		const AUDIO_FORMAT* format = &context->client_formats[formatNo];
-		if (!rdpsnd_server_align_wave_pdu(s, format->nBlockAlign))
+		if (!rdpsnd_server_align_wave_pdu(s, format))
 		{
 			error = ERROR_INTERNAL_ERROR;
 			goto out;
