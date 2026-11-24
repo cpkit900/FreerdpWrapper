@@ -125,6 +125,19 @@ namespace FreeRdpWrapper.UI
                 baseArgs += $" /parent-window:{this.Handle}";
             }
 
+            string secArg = config.SecurityProtocol switch
+            {
+                RdpSecurityProtocol.AAD => "/sec:aad",
+                RdpSecurityProtocol.NLA => "/sec:nla",
+                RdpSecurityProtocol.TLS => "/sec:tls",
+                RdpSecurityProtocol.RDP => "/sec:rdp",
+                _                       => config.EnableAadAuth ? "/sec:aad" : string.Empty
+            };
+            if (!string.IsNullOrEmpty(secArg))
+            {
+                baseArgs += $" {secArg}";
+            }
+
             baseArgs += $" {dynRes} {certArg}";
 
             if (!string.IsNullOrEmpty(config.RemoteApp))

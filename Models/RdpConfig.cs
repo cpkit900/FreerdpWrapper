@@ -14,6 +14,15 @@ namespace FreeRdpWrapper.Models
         Deny
     }
 
+    public enum RdpSecurityProtocol
+    {
+        Negotiate,
+        AAD,
+        NLA,
+        TLS,
+        RDP
+    }
+
     public class RdpConfig
     {
         public string Host { get; set; } = string.Empty;
@@ -22,7 +31,7 @@ namespace FreeRdpWrapper.Models
         public string Domain { get; set; } = string.Empty;
         
         // Advanced Display & Exec
-                public RdpClientType ClientType { get; set; } = RdpClientType.WFreeRdp;
+        public RdpClientType ClientType { get; set; } = RdpClientType.WFreeRdp;
         // Backwards compatibility property
         public bool UseSdl 
         { 
@@ -30,6 +39,12 @@ namespace FreeRdpWrapper.Models
             set { if (value) ClientType = RdpClientType.Sdl3; else if (ClientType == RdpClientType.Sdl3) ClientType = RdpClientType.WFreeRdp; } 
         }
         public CertSecurity CertConfig { get; set; } = CertSecurity.Ignore;
+        public RdpSecurityProtocol SecurityProtocol { get; set; } = RdpSecurityProtocol.Negotiate;
+        public bool EnableAadAuth
+        {
+            get => SecurityProtocol == RdpSecurityProtocol.AAD;
+            set { if (value) SecurityProtocol = RdpSecurityProtocol.AAD; else if (SecurityProtocol == RdpSecurityProtocol.AAD) SecurityProtocol = RdpSecurityProtocol.Negotiate; }
+        }
         public bool DynamicResolution { get; set; } = true;
         public bool UseCustomResolution { get; set; } = false;
         public int ResolutionWidth { get; set; } = 1920;

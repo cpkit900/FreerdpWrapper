@@ -128,6 +128,13 @@ namespace FreeRdpWrapper.Services
                 conn.MultiMonitor = multi.Value == "1";
             }
 
+            // Microsoft Entra ID / AAD Web Auth (enablerdsaadauth)
+            if (dict.TryGetValue("enablerdsaadauth", out var aad) && aad.Value == "1")
+            {
+                conn.SecurityProtocol = RdpSecurityProtocol.AAD;
+                conn.EnableAadAuth = true;
+            }
+
             return conn;
         }
 
@@ -159,6 +166,7 @@ namespace FreeRdpWrapper.Services
             }
             if (conn.AdminSession) sb.AppendLine("administrative session:i:1");
             if (conn.MultiMonitor) sb.AppendLine("use multimon:i:1");
+            if (conn.EnableAadAuth || conn.SecurityProtocol == RdpSecurityProtocol.AAD) sb.AppendLine("enablerdsaadauth:i:1");
             return sb.ToString();
         }
     }

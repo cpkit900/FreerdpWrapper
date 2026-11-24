@@ -16,7 +16,9 @@ namespace FreeRdpWrapper.UI
         private TextBox txtUser = null!;
         private TextBox txtPass = null!;
         private TextBox txtDomain = null!;
+        private CheckBox chkAadAuth = null!;
         private ComboBox cmbRdpClient = null!;
+        private ComboBox cmbSecProtocol = null!;
         private ComboBox cmbCertSecurity = null!;
         private ComboBox cmbResolution = null!;
         private TextBox txtResWidth = null!;
@@ -66,7 +68,7 @@ namespace FreeRdpWrapper.UI
         private void SetupUI()
         {
             this.Text = "Connection Properties";
-            this.Size = new Size(450, 500);
+            this.Size = new Size(460, 520);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
             this.MaximizeBox = false;
@@ -76,31 +78,31 @@ namespace FreeRdpWrapper.UI
             this.BackColor = isDark ? Color.FromArgb(30, 30, 30) : Color.WhiteSmoke;
             this.ForeColor = isDark ? Color.FromArgb(220, 220, 220) : Color.Black;
 
-            tabs = new TabControl { Dock = DockStyle.Top, Height = 400 };
+            tabs = new TabControl { Dock = DockStyle.Top, Height = 420 };
 
             // General Tab
             tabGeneral = new TabPage("⚙️ General");
-            int y = 20, lblW = 100, txtW = 250;
+            int y = 18, lblW = 100, txtW = 250;
             
             tabGeneral.Controls.Add(new Label { Text = "Protocol:", Location = new Point(20, y), Width = lblW });
             cmbProtocol = new ComboBox { Location = new Point(120, y), Width = txtW, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbProtocol.Items.AddRange(new string[] { "RDP", "SSH", "SSH (PuTTY)" });
-            tabGeneral.Controls.Add(cmbProtocol); y += 30;
+            tabGeneral.Controls.Add(cmbProtocol); y += 28;
 
             tabGeneral.Controls.Add(new Label { Text = "Profile Name:", Location = new Point(20, y), Width = lblW });
             txtName = new TextBox { Location = new Point(120, y), Width = txtW };
-            tabGeneral.Controls.Add(txtName); y += 30;
+            tabGeneral.Controls.Add(txtName); y += 28;
 
             tabGeneral.Controls.Add(new Label { Text = "Group:", Location = new Point(20, y), Width = lblW });
             txtGroup = new TextBox { Location = new Point(120, y), Width = txtW };
-            tabGeneral.Controls.Add(txtGroup); y += 30;
+            tabGeneral.Controls.Add(txtGroup); y += 28;
 
             tabGeneral.Controls.Add(new Label { Text = "Host / IP:", Location = new Point(20, y), Width = lblW });
             txtHost = new TextBox { Location = new Point(120, y), Width = txtW };
-            tabGeneral.Controls.Add(txtHost); y += 30;
+            tabGeneral.Controls.Add(txtHost); y += 28;
 
             tabGeneral.Controls.Add(new Label { Text = "Username:", Location = new Point(20, y), Width = lblW });
-            txtUser = new TextBox { Location = new Point(120, y), Width = txtW - 38 };
+            txtUser = new TextBox { Location = new Point(120, y), Width = txtW - 35, PlaceholderText = "Username" };
             tabGeneral.Controls.Add(txtUser);
 
             var btnPickCred = new Button { Text = "🔑", Location = new Point(120 + txtW - 34, y - 1), Width = 34, Height = 24, FlatStyle = FlatStyle.Flat };
@@ -125,7 +127,6 @@ namespace FreeRdpWrapper.UI
                     }
                     return;
                 }
-
                 var menu = new ContextMenuStrip();
                 foreach (var cr in creds)
                 {
@@ -139,21 +140,31 @@ namespace FreeRdpWrapper.UI
                 menu.Show(btnPickCred, new Point(0, btnPickCred.Height));
             };
             tabGeneral.Controls.Add(btnPickCred);
-            y += 30;
+            y += 28;
 
             tabGeneral.Controls.Add(new Label { Text = "Password:", Location = new Point(20, y), Width = lblW });
             txtPass = new TextBox { Location = new Point(120, y), Width = txtW, PasswordChar = '*' };
-            tabGeneral.Controls.Add(txtPass); y += 30;
+            tabGeneral.Controls.Add(txtPass); y += 28;
 
             tabGeneral.Controls.Add(new Label { Text = "Domain:", Location = new Point(20, y), Width = lblW });
             txtDomain = new TextBox { Location = new Point(120, y), Width = txtW };
-            tabGeneral.Controls.Add(txtDomain); y += 40;
+            tabGeneral.Controls.Add(txtDomain); y += 32;
+
+            chkAadAuth = new CheckBox 
+            { 
+                Text = "🔑 Use Web Account / MS Entra ID (/sec:aad)", 
+                Location = new Point(120, y), 
+                Width = 300, 
+                Font = new Font(this.Font, FontStyle.Bold),
+                ForeColor = isDark ? Color.FromArgb(0, 255, 102) : Color.DarkGreen
+            };
+            tabGeneral.Controls.Add(chkAadAuth); y += 26;
 
             chkCredGuard = new CheckBox { Text = "Enable Remote Credential Guard", Location = new Point(120, y), Width = 250 };
-            tabGeneral.Controls.Add(chkCredGuard); y += 30;
+            tabGeneral.Controls.Add(chkCredGuard); y += 26;
 
             chkAdminSession = new CheckBox { Text = "Connect to Console/Admin Session (+admin)", Location = new Point(120, y), Width = 250 };
-            tabGeneral.Controls.Add(chkAdminSession); y += 30;
+            tabGeneral.Controls.Add(chkAdminSession); y += 26;
 
             lblSshKey = new Label { Text = "SSH Key:", Location = new Point(20, y), Width = lblW };
             tabGeneral.Controls.Add(lblSshKey);
@@ -165,11 +176,89 @@ namespace FreeRdpWrapper.UI
                 if (ofd.ShowDialog() == DialogResult.OK) txtSshKey.Text = ofd.FileName;
             };
             tabGeneral.Controls.Add(btnBrowseSshKey);
-            y += 30;
+            y += 28;
+
+            // Display Tab
+            tabDisplay = new TabPage("🖥️ Display");
+            y = 18;
+            chkDynamicRes = new CheckBox { Text = "Dynamic Resolution (Resize window)", Location = new Point(20, y), Width = 300 };
+            tabDisplay.Controls.Add(chkDynamicRes); y += 28;
+
+            tabDisplay.Controls.Add(new Label { Text = "Resolution:", Location = new Point(20, y), Width = 80 });
+            cmbResolution = new ComboBox { Location = new Point(100, y), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbResolution.Items.AddRange(new string[] { "Default", "1920x1080", "2560x1440", "Custom" });
+            tabDisplay.Controls.Add(cmbResolution);
+            
+            txtResWidth = new TextBox { Location = new Point(260, y), Width = 40, Enabled = false };
+            tabDisplay.Controls.Add(txtResWidth);
+            txtResHeight = new TextBox { Location = new Point(310, y), Width = 40, Enabled = false };
+            tabDisplay.Controls.Add(txtResHeight); y += 28;
+
+            cmbResolution.SelectedIndexChanged += (s, e) => {
+                bool isCustom = cmbResolution.SelectedItem?.ToString() == "Custom";
+                txtResWidth.Enabled = isCustom;
+                txtResHeight.Enabled = isCustom;
+            };
+            
+            chkEnableDpiScale = new CheckBox { Text = "Enable High DPI Scaling (+dpiscale)", Location = new Point(20, y), Width = 300 };
+            tabDisplay.Controls.Add(chkEnableDpiScale); y += 28;
+
+            chkMultiMonitor = new CheckBox { Text = "Use Multiple Monitors (/multimon)\nNote: Will launch detached", Location = new Point(20, y), Width = 300, Height = 35 };
+            tabDisplay.Controls.Add(chkMultiMonitor); y += 38;
+
+            tabDisplay.Controls.Add(new Label { Text = "RDP Client:", Location = new Point(20, y + 3), Width = 80 });
+            cmbRdpClient = new ComboBox { Location = new Point(100, y), Width = 220, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbRdpClient.Items.AddRange(new string[] { "wfreerdp (Windows Native)", "sdl3-freerdp (SDL3 Engine)", "xfreerdp (X11 / Linux)" });
+            tabDisplay.Controls.Add(cmbRdpClient); y += 32;
+
+            tabDisplay.Controls.Add(new Label { Text = "Protocol Sec:", Location = new Point(20, y + 3), Width = 80 });
+            cmbSecProtocol = new ComboBox { Location = new Point(100, y), Width = 220, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbSecProtocol.Items.AddRange(new string[] { 
+                "Negotiate (Auto)", 
+                "Microsoft Entra ID (/sec:aad)", 
+                "NLA (Network Level Auth /sec:nla)", 
+                "TLS (/sec:tls)", 
+                "RDP Standard (/sec:rdp)" 
+            });
+            tabDisplay.Controls.Add(cmbSecProtocol); y += 30;
+
+            tabDisplay.Controls.Add(new Label { Text = "Cert Security:", Location = new Point(20, y + 3), Width = 80 });
+            cmbCertSecurity = new ComboBox { Location = new Point(100, y), Width = 220, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbCertSecurity.Items.AddRange(new string[] { "Ignore", "Trust on First Use (TOFU)", "Deny" });
+            tabDisplay.Controls.Add(cmbCertSecurity); y += 30;
+
+            chkAutoNetworkProfile = new CheckBox { Text = "Auto Network Profile (/network:auto)", Location = new Point(20, y), Width = 300 };
+            tabDisplay.Controls.Add(chkAutoNetworkProfile);
+
+            // Sync AadAuth checkbox with SecProtocol combo
+            chkAadAuth.CheckedChanged += (s, e) => {
+                if (chkAadAuth.Checked)
+                {
+                    if (cmbSecProtocol.SelectedIndex != 1) cmbSecProtocol.SelectedIndex = 1;
+                    if (string.IsNullOrEmpty(txtUser.PlaceholderText) || txtUser.PlaceholderText == "Username")
+                    {
+                        txtUser.PlaceholderText = @"AzureAD\user@domain.com";
+                    }
+                }
+                else
+                {
+                    if (cmbSecProtocol.SelectedIndex == 1) cmbSecProtocol.SelectedIndex = 0;
+                    txtUser.PlaceholderText = "Username";
+                }
+            };
+
+            cmbSecProtocol.SelectedIndexChanged += (s, e) => {
+                bool isAad = (cmbSecProtocol.SelectedIndex == 1);
+                if (chkAadAuth.Checked != isAad)
+                {
+                    chkAadAuth.Checked = isAad;
+                }
+            };
 
             cmbProtocol.SelectedIndexChanged += (s, e) => {
                 bool isSsh = cmbProtocol.SelectedIndex >= 1;
                 txtDomain.Enabled = !isSsh;
+                chkAadAuth.Enabled = !isSsh;
                 chkCredGuard.Enabled = !isSsh;
                 chkAdminSession.Enabled = !isSsh;
 
@@ -187,47 +276,6 @@ namespace FreeRdpWrapper.UI
                     if (!tabs.TabPages.Contains(tabAdvanced)) tabs.TabPages.Add(tabAdvanced);
                 }
             };
-
-            // Display Tab
-            tabDisplay = new TabPage("🖥️ Display");
-            y = 20;
-            chkDynamicRes = new CheckBox { Text = "Dynamic Resolution (Resize window)", Location = new Point(20, y), Width = 300 };
-            tabDisplay.Controls.Add(chkDynamicRes); y += 30;
-
-            tabDisplay.Controls.Add(new Label { Text = "Resolution:", Location = new Point(20, y), Width = 80 });
-            cmbResolution = new ComboBox { Location = new Point(100, y), Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbResolution.Items.AddRange(new string[] { "Default", "1920x1080", "2560x1440", "Custom" });
-            tabDisplay.Controls.Add(cmbResolution);
-            
-            txtResWidth = new TextBox { Location = new Point(260, y), Width = 40, Enabled = false };
-            tabDisplay.Controls.Add(txtResWidth);
-            txtResHeight = new TextBox { Location = new Point(310, y), Width = 40, Enabled = false };
-            tabDisplay.Controls.Add(txtResHeight); y += 30;
-
-            cmbResolution.SelectedIndexChanged += (s, e) => {
-                bool isCustom = cmbResolution.SelectedItem?.ToString() == "Custom";
-                txtResWidth.Enabled = isCustom;
-                txtResHeight.Enabled = isCustom;
-            };
-            
-            chkEnableDpiScale = new CheckBox { Text = "Enable High DPI Scaling (+dpiscale)", Location = new Point(20, y), Width = 300 };
-            tabDisplay.Controls.Add(chkEnableDpiScale); y += 30;
-
-            chkMultiMonitor = new CheckBox { Text = "Use Multiple Monitors (/multimon)\nNote: Will launch detached", Location = new Point(20, y), Width = 300, Height = 35 };
-            tabDisplay.Controls.Add(chkMultiMonitor); y += 40;
-
-            tabDisplay.Controls.Add(new Label { Text = "RDP Client:", Location = new Point(20, y + 3), Width = 80 });
-            cmbRdpClient = new ComboBox { Location = new Point(100, y), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbRdpClient.Items.AddRange(new string[] { "wfreerdp (Windows Native)", "sdl3-freerdp (SDL3 Engine)", "xfreerdp (X11 / Linux)" });
-            tabDisplay.Controls.Add(cmbRdpClient); y += 35;
-
-            tabDisplay.Controls.Add(new Label { Text = "Cert Security:", Location = new Point(20, y), Width = 80 });
-            cmbCertSecurity = new ComboBox { Location = new Point(100, y), Width = 200, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbCertSecurity.Items.AddRange(new string[] { "Ignore", "Trust on First Use (TOFU)", "Deny" });
-            tabDisplay.Controls.Add(cmbCertSecurity); y += 30;
-
-            chkAutoNetworkProfile = new CheckBox { Text = "Auto Network Profile (/network:auto)", Location = new Point(20, y), Width = 300 };
-            tabDisplay.Controls.Add(chkAutoNetworkProfile);
 
             // Local Resources Tab
             tabResources = new TabPage("🖧 Local Resources");
@@ -300,11 +348,11 @@ namespace FreeRdpWrapper.UI
             this.Controls.Add(tabs);
 
             // Buttons
-            Button btnSave = new Button { Text = "Save", Location = new Point(250, 420), Width = 80 };
+            Button btnSave = new Button { Text = "Save", Location = new Point(260, 440), Width = 80, Height = 30 };
             btnSave.Click += BtnSave_Click;
             this.Controls.Add(btnSave);
 
-            Button btnCancel = new Button { Text = "Cancel", Location = new Point(340, 420), Width = 80 };
+            Button btnCancel = new Button { Text = "Cancel", Location = new Point(350, 440), Width = 80, Height = 30 };
             btnCancel.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
             this.Controls.Add(btnCancel);
         }
@@ -324,6 +372,17 @@ namespace FreeRdpWrapper.UI
             txtPass.Text = Connection.Pass;
             txtSshKey.Text = Connection.SshKeyPath;
             txtDomain.Text = Connection.Domain;
+
+            chkAadAuth.Checked = Connection.EnableAadAuth || Connection.SecurityProtocol == RdpSecurityProtocol.AAD;
+            cmbSecProtocol.SelectedIndex = Connection.SecurityProtocol switch
+            {
+                RdpSecurityProtocol.AAD => 1,
+                RdpSecurityProtocol.NLA => 2,
+                RdpSecurityProtocol.TLS => 3,
+                RdpSecurityProtocol.RDP => 4,
+                _                       => Connection.EnableAadAuth ? 1 : 0
+            };
+
             chkCredGuard.Checked = Connection.EnableCredGuard;
             chkAdminSession.Checked = Connection.AdminSession;
 
@@ -339,7 +398,7 @@ namespace FreeRdpWrapper.UI
 
             chkEnableDpiScale.Checked = Connection.EnableDpiScale;
             chkMultiMonitor.Checked = Connection.MultiMonitor;
-                        cmbRdpClient.SelectedIndex = Connection.ClientType switch
+            cmbRdpClient.SelectedIndex = Connection.ClientType switch
             {
                 RdpClientType.Sdl3     => 1,
                 RdpClientType.XFreeRdp => 2,
@@ -398,6 +457,17 @@ namespace FreeRdpWrapper.UI
             Connection.Pass = txtPass.Text;
             Connection.SshKeyPath = txtSshKey.Text;
             Connection.Domain = txtDomain.Text;
+
+            Connection.SecurityProtocol = cmbSecProtocol.SelectedIndex switch
+            {
+                1 => RdpSecurityProtocol.AAD,
+                2 => RdpSecurityProtocol.NLA,
+                3 => RdpSecurityProtocol.TLS,
+                4 => RdpSecurityProtocol.RDP,
+                _ => chkAadAuth.Checked ? RdpSecurityProtocol.AAD : RdpSecurityProtocol.Negotiate
+            };
+            Connection.EnableAadAuth = (Connection.SecurityProtocol == RdpSecurityProtocol.AAD);
+
             Connection.EnableCredGuard = chkCredGuard.Checked;
             Connection.AdminSession = chkAdminSession.Checked;
 
@@ -421,7 +491,7 @@ namespace FreeRdpWrapper.UI
 
             Connection.EnableDpiScale = chkEnableDpiScale.Checked;
             Connection.MultiMonitor = chkMultiMonitor.Checked;
-                        Connection.ClientType = cmbRdpClient.SelectedIndex switch
+            Connection.ClientType = cmbRdpClient.SelectedIndex switch
             {
                 1 => RdpClientType.Sdl3,
                 2 => RdpClientType.XFreeRdp,
@@ -457,7 +527,10 @@ namespace FreeRdpWrapper.UI
             Connection.AutoReconnect = chkAutoReconnect.Checked;
             Connection.DisableUdp = chkDisableUdp.Checked;
 
-            Connection.AdditionalFlags = "/gfx"; // Auto-negotiate best graphics
+            if (string.IsNullOrEmpty(Connection.AdditionalFlags))
+            {
+                Connection.AdditionalFlags = "/gfx"; // Auto-negotiate best graphics
+            }
 
             this.DialogResult = DialogResult.OK;
             this.Close();
