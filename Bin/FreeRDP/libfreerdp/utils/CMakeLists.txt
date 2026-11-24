@@ -56,6 +56,7 @@ if(WIN32)
   freerdp_library_add(ws2_32)
   freerdp_library_add(credui)
   freerdp_library_add(cfgmgr32)
+  freerdp_library_add(crypt32)
 endif()
 
 check_library_exists(m pow "" HAVE_LIB_M)

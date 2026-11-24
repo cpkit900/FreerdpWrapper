@@ -198,6 +198,12 @@ namespace FreeRdpWrapper.UI
             string currentPath = Environment.GetEnvironmentVariable("PATH") ?? "";
             startInfo.EnvironmentVariables["PATH"] = $"{vcpkgBin};{exeDir};{currentPath}";
 
+            string caBundle = System.IO.Path.Combine(exeDir, "ca-bundle.crt");
+            if (System.IO.File.Exists(caBundle))
+            {
+                startInfo.EnvironmentVariables["SSL_CERT_FILE"] = caBundle;
+            }
+
             OnLogMessage?.Invoke($"Launching process: {exePath} {baseArgs}");
 
             _rdpProcess = new Process { StartInfo = startInfo };

@@ -26,6 +26,27 @@
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/x509.h>
+
+#if defined(_WIN32)
+#include <windows.h>
+#include <wincrypt.h>
+#ifdef X509_NAME
+#undef X509_NAME
+#endif
+#ifdef X509_EXTENSIONS
+#undef X509_EXTENSIONS
+#endif
+#ifdef X509_CERT_PAIR
+#undef X509_CERT_PAIR
+#endif
+#ifdef PKCS7_SIGNER_INFO
+#undef PKCS7_SIGNER_INFO
+#endif
+#ifdef OCSP_RESPONSE
+#undef OCSP_RESPONSE
+#endif
+#endif
 
 #include <freerdp/log.h>
 #define TAG FREERDP_TAG("utils.http")
@@ -86,6 +107,63 @@ static int get_line(BIO* bio, char* buffer, size_t size)
 	return BIO_get_line(bio, buffer, (int)size);
 #endif
 }
+
+#if defined(_WIN32)
+static void http_load_windows_system_certs(SSL_CTX* ssl_ctx, wLog* log)
+{
+	X509_STORE* store = SSL_CTX_get_cert_store(ssl_ctx);
+	if (!store)
+		return;
+
+	/* Also look for a local bundle adjacent to the executable or libexec if present */
+	char module_path[MAX_PATH];
+	if (GetModuleFileNameA(NULL, module_path, MAX_PATH))
+	{
+		char* sep = strrchr(module_path, '\\');
+		if (sep)
+		{
+			*sep = '\0';
+			char bundle_path[MAX_PATH];
+			const char* const bundle_names[] = { "ca-bundle.crt", "cacert.pem", "curl-ca-bundle.crt" };
+			for (size_t i = 0; i < sizeof(bundle_names) / sizeof(bundle_names[0]); i++)
+			{
+				(void)_snprintf(bundle_path, sizeof(bundle_path), "%s\\%s", module_path, bundle_names[i]);
+				if (GetFileAttributesA(bundle_path) != INVALID_FILE_ATTRIBUTES)
+				{
+					WLog_Print(log, WLOG_DEBUG, "Loading CA bundle from: %s", bundle_path);
+					SSL_CTX_load_verify_locations(ssl_ctx, bundle_path, NULL);
+					break;
+				}
+			}
+		}
+	}
+
+	const char* const store_names[] = { "ROOT", "CA", "AuthRoot" };
+	size_t loaded_count = 0;
+	for (size_t i = 0; i < sizeof(store_names) / sizeof(store_names[0]); i++)
+	{
+		HCERTSTORE hStore = CertOpenSystemStoreA(0, store_names[i]);
+		if (!hStore)
+			continue;
+
+		PCCERT_CONTEXT pContext = NULL;
+		while ((pContext = CertEnumCertificatesInStore(hStore, pContext)) != NULL)
+		{
+			const unsigned char* pbCert = pContext->pbCertEncoded;
+			X509* x509 = d2i_X509(NULL, &pbCert, (long)pContext->cbCertEncoded);
+			if (x509)
+			{
+				if (X509_STORE_add_cert(store, x509))
+					loaded_count++;
+				X509_free(x509);
+			}
+		}
+		CertCloseStore(hStore, 0);
+	}
+	WLog_Print(log, WLOG_DEBUG, "Loaded %zu root/intermediate certificates from Windows Certificate Store", loaded_count);
+	ERR_clear_error();
+}
+#endif
 
 BOOL freerdp_http_request(const char* url, const char* body, long* status_code, BYTE** response,
                           size_t* response_length)
@@ -157,6 +235,10 @@ BOOL freerdp_http_request(const char* url, const char* body, long* status_code, 
 			log_errors(log, "could not set ssl context verify paths");
 			goto out;
 		}
+
+#if defined(_WIN32)
+		http_load_windows_system_certs(ssl_ctx, log);
+#endif
 
 		SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_PEER, nullptr);
 
