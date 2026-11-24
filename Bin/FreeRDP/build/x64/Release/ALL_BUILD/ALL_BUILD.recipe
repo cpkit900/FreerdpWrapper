@@ -11,6 +11,9 @@
       <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\Release\freerdp-client3.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\webview-aad-helper\Release\freerdp-webview-aad-helper.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\SDL2\Release\sdl2-freerdp.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>

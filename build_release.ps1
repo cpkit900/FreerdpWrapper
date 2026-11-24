@@ -28,6 +28,12 @@ $binDir = "$releaseDir\Bin\FreeRDP"
 New-Item -ItemType Directory -Force -Path $binDir | Out-Null
 Copy-Item "$baseDir\Bin\FreeRDP\Compiled\bin\*" -Destination $binDir -Recurse -Force
 
+if (Test-Path "$baseDir\Bin\FreeRDP\Compiled\libexec") {
+    $libexecDir = "$releaseDir\Bin\FreeRDP\libexec"
+    New-Item -ItemType Directory -Force -Path $libexecDir | Out-Null
+    Copy-Item "$baseDir\Bin\FreeRDP\Compiled\libexec\*" -Destination $libexecDir -Recurse -Force
+}
+
 if (Test-Path "$baseDir\Assets") {
     $assetsDir = "$releaseDir\Assets"
     New-Item -ItemType Directory -Force -Path $assetsDir | Out-Null

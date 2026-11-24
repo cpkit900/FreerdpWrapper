@@ -113,6 +113,7 @@ C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/lib/cmake/FreeRDP-Client3/Fr
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/lib/cmake/FreeRDP-Client3/FreeRDP-ClientTargets-release.cmake
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/lib/freerdp-client3.lib
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/bin/freerdp-client3.dll
+C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/libexec/freerdp-webview-aad-helper.exe
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/bin/wfreerdp.exe
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/bin/sdl2-freerdp.exe
 C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/Compiled/bin/sdl3-freerdp.exe

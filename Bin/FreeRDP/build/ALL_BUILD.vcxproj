@@ -185,6 +185,10 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\common\webview-aad-helper\freerdp-webview-aad-helper.vcxproj">
+      <Project>{F9CF5D9B-24A0-3B3C-B715-7BBAF715C756}</Project>
+      <Name>freerdp-webview-aad-helper</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\channels\geometry\client\geometry-client.vcxproj">
       <Project>{58BD6898-5361-3115-88CB-68131EBFBF67}</Project>
       <Name>geometry-client</Name>
@@ -324,6 +328,10 @@
       <Name>video-client</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\_deps\webview-build\core\webview_core_static.vcxproj">
+      <Project>{BF23BD64-B04F-3E4A-BADA-4DD7E8DED33E}</Project>
+      <Name>webview_core_static</Name>
     </ProjectReference>
     <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\Windows\cli\wfreerdp.vcxproj">
       <Project>{51C780EF-8B30-30FC-88F3-CD54FFD29004}</Project>

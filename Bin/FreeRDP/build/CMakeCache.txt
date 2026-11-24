@@ -698,6 +698,33 @@ ENABLE_WARNING_VERBOSE:BOOL=OFF
 //Export all symbols form library
 EXPORT_ALL_SYMBOLS:BOOL=OFF
 
+//Directory under which to collect all populated content
+FETCHCONTENT_BASE_DIR:PATH=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/_deps
+
+//Disables all attempts to download or update content and assumes
+// source dirs already exist
+FETCHCONTENT_FULLY_DISCONNECTED:BOOL=OFF
+
+//Enables QUIET option for all content population
+FETCHCONTENT_QUIET:BOOL=ON
+
+//When not empty, overrides where to find pre-populated content
+// for microsoft_web_webview2
+FETCHCONTENT_SOURCE_DIR_MICROSOFT_WEB_WEBVIEW2:PATH=
+
+//When not empty, overrides where to find pre-populated content
+// for webview
+FETCHCONTENT_SOURCE_DIR_WEBVIEW:PATH=
+
+//Enables UPDATE_DISCONNECTED behavior for all content population
+FETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of microsoft_web_webview2
+FETCHCONTENT_UPDATES_DISCONNECTED_MICROSOFT_WEB_WEBVIEW2:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of webview
+FETCHCONTENT_UPDATES_DISCONNECTED_WEBVIEW:BOOL=OFF
+
 //The FFmpeg cflags.
 FFMPEG_DEFINITIONS:STRING=
 
@@ -748,6 +775,9 @@ LIB_EAY_RELEASE:FILEPATH=C:/Users/Junnu/vcpkg/installed/x64-windows/lib/libcrypt
 
 //Path to a file.
 MSVC_REDIST_DIR:PATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Redist/MSVC/14.44.35112
+
+//Path to a file.
+MSWebView2_INCLUDE_DIR:PATH=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/_deps/microsoft_web_webview2-src/build/native/include
 
 //Path to a file.
 OPENH264_INCLUDE_DIR:PATH=C:/Users/Junnu/vcpkg/installed/x64-windows/include
@@ -909,6 +939,48 @@ VCPKG_VERBOSE:BOOL=OFF
 
 //FreeRDP package vendor
 VENDOR:STRING=FreeRDP
+
+//Enable building
+WEBVIEW_BUILD:BOOL=ON
+
+//Enable checks
+WEBVIEW_ENABLE_CHECKS:BOOL=OFF
+
+//Enable clang-format
+WEBVIEW_ENABLE_CLANG_FORMAT:BOOL=OFF
+
+//Enable clang-tidy
+WEBVIEW_ENABLE_CLANG_TIDY:BOOL=OFF
+
+//Enable packaging
+WEBVIEW_ENABLE_PACKAGING:BOOL=OFF
+
+//Install documentation
+WEBVIEW_INSTALL_DOCS:BOOL=OFF
+
+//Install targets
+WEBVIEW_INSTALL_TARGETS:BOOL=OFF
+
+//MS WebView2 version
+WEBVIEW_MSWEBVIEW2_VERSION:STRING=1.0.1150.38
+
+//Make checks strict
+WEBVIEW_STRICT_CHECKS:BOOL=OFF
+
+//Make clang-format check strict
+WEBVIEW_STRICT_CLANG_FORMAT:BOOL=OFF
+
+//Make clang-tidy check strict
+WEBVIEW_STRICT_CLANG_TIDY:BOOL=OFF
+
+//Use built-in MS WebView2
+WEBVIEW_USE_BUILTIN_MSWEBVIEW2:BOOL=ON
+
+//Use compatibility helper for MinGW
+WEBVIEW_USE_COMPAT_MINGW:BOOL=OFF
+
+//Use static runtime library (MSVC)
+WEBVIEW_USE_STATIC_MSVC_RUNTIME:BOOL=OFF
 
 //The maximum (default) number of threads in a pool
 WINPR_THREADPOOL_DEFAULT_MAX_COUNT:STRING=16
@@ -1359,7 +1431,7 @@ WITH_VIDEO_FFMPEG:BOOL=ON
 
 //Build the out-of-process webview-based AAD auth helper (used
 // for AAD login popups)
-WITH_WEBVIEW_AAD_AUTH_HELPER:BOOL=OFF
+WITH_WEBVIEW_AAD_AUTH_HELPER:BOOL=ON
 
 //Use Windows 8 libraries
 WITH_WIN8:BOOL=OFF
@@ -1416,6 +1488,15 @@ _VCPKG_INSTALLED_DIR:PATH=C:/Users/Junnu/vcpkg/installed
 //The directory containing a CMake configuration file for cJSON.
 cJSON_DIR:PATH=C:/Users/Junnu/vcpkg/installed/x64-windows/share/cjson
 
+//Value Computed by CMake
+freerdp-webview-aad-helper_BINARY_DIR:STATIC=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/client/common/webview-aad-helper
+
+//Value Computed by CMake
+freerdp-webview-aad-helper_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+freerdp-webview-aad-helper_SOURCE_DIR:STATIC=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/common/webview-aad-helper
+
 //The directory containing a CMake configuration file for jansson.
 jansson_DIR:PATH=jansson_DIR-NOTFOUND
 
@@ -1445,6 +1526,15 @@ sdl-freerdp_SOURCE_DIR:STATIC=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/client/
 
 //The directory containing a CMake configuration file for uriparser.
 uriparser_DIR:PATH=uriparser_DIR-NOTFOUND
+
+//Value Computed by CMake
+webview_BINARY_DIR:STATIC=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/_deps/webview-build
+
+//Value Computed by CMake
+webview_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+webview_SOURCE_DIR:STATIC=C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/_deps/webview-src
 
 
 ########################
@@ -1637,7 +1727,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=126
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=130
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //noop for ranlib
@@ -1726,6 +1816,8 @@ FFMPEG_LIBRARIES-ADVANCED:INTERNAL=1
 FIND_PACKAGE_MESSAGE_DETAILS_Cairo:INTERNAL=[C:/Users/Junnu/vcpkg/installed/x64-windows/lib/cairo.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/include/cairo][v()]
 //Details about finding FFmpeg
 FIND_PACKAGE_MESSAGE_DETAILS_FFmpeg:INTERNAL=[C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avcodec.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/lib/avcodec.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/include][TRUE][found components: AVCODEC ][v()]
+//Details about finding MSWebView2
+FIND_PACKAGE_MESSAGE_DETAILS_MSWebView2:INTERNAL=[C:/Users/Junnu/Freerdp Wrapper/Bin/FreeRDP/build/_deps/microsoft_web_webview2-src/build/native/include][v()]
 //Details about finding OpenH264
 FIND_PACKAGE_MESSAGE_DETAILS_OpenH264:INTERNAL=[C:/Users/Junnu/vcpkg/installed/x64-windows/lib/openh264.lib][C:/Users/Junnu/vcpkg/installed/x64-windows/include][v()]
 //Details about finding OpenSSL
@@ -1866,9 +1958,19 @@ VCPKG_MANIFEST_INSTALL:INTERNAL=OFF
 //ADVANCED property for variable: VCPKG_VERBOSE
 VCPKG_VERBOSE-ADVANCED:INTERNAL=1
 //dependencies
-WARN_EXPERIMENTAL_LIST_PRIVATE:INTERNAL=SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF
+WARN_EXPERIMENTAL_LIST_PRIVATE:INTERNAL=SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF;SDL2 client, deactivate with -DWITH_CLIENT_SDL2=OFF
 //dependencies
 WARN_UNMAINTAINED_LIST_PRIVATE:INTERNAL=
+//Build documentation
+WEBVIEW_BUILD_DOCS:INTERNAL=OFF
+//Build examples
+WEBVIEW_BUILD_EXAMPLES:INTERNAL=OFF
+//Build shared libraries
+WEBVIEW_BUILD_SHARED_LIBRARY:INTERNAL=OFF
+//Build static libraries
+WEBVIEW_BUILD_STATIC_LIBRARY:INTERNAL=ON
+//Build tests
+WEBVIEW_BUILD_TESTS:INTERNAL=OFF
 //Test WINPR_HAVE_ACCEPT4
 WINPR_HAVE_ACCEPT4:INTERNAL=
 //Have includes aio.h

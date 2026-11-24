@@ -37,7 +37,8 @@ cmake -S $freeRdpDir -B $buildDir `
       -DWITH_OPENH264=ON `
       -DWITH_CLIENT_SDL=ON `
       -DWITH_CLIENT_SDL3=ON `
-      -DWITH_CLIENT_SDL_VERSIONED=ON
+      -DWITH_CLIENT_SDL_VERSIONED=ON `
+      -DWITH_WEBVIEW_AAD_AUTH_HELPER=ON
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "CMake configuration failed."
@@ -61,6 +62,10 @@ Write-Host "Copying vcpkg dependencies into Compiled/bin..."
 $vcpkgBin = "C:\Users\Junnu\vcpkg\installed\x64-windows\bin"
 if (Test-Path $vcpkgBin) {
     Copy-Item "$vcpkgBin\*.dll" -Destination "$compiledDir\bin\" -Force
+}
+
+if (Test-Path "$compiledDir\libexec\freerdp-webview-aad-helper.exe") {
+    Copy-Item "$compiledDir\libexec\freerdp-webview-aad-helper.exe" -Destination "$compiledDir\bin\" -Force
 }
 
 Write-Host "=========================================="

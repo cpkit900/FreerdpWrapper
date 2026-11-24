@@ -205,7 +205,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\client\SDL\ALL_BUILD.vcxproj">
+    <ProjectReference Include="C:\Users\Junnu\Freerdp Wrapper\Bin\FreeRDP\build\_deps\webview-build\ALL_BUILD.vcxproj">
       <Project>{5B4FE68C-CD4C-3162-8024-8865C17BDCED}</Project>
       <Name>ALL_BUILD</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
