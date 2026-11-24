@@ -104,6 +104,17 @@ namespace
 				    auto handle = w.window();
 				    if (handle.ok())
 					    gtk_widget_show(GTK_WIDGET(handle.value()));
+#elif defined(_WIN32)
+				    auto handle = w.window();
+				    if (handle.ok())
+				    {
+					    HWND hwnd = static_cast<HWND>(handle.value());
+					    ShowWindow(hwnd, SW_SHOWNORMAL);
+					    SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0,
+					                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+					    SetForegroundWindow(hwnd);
+					    SetFocus(hwnd);
+				    }
 #endif
 				    w.set_title(title);
 				    w.set_size(800, 600, WEBVIEW_HINT_NONE);
@@ -156,6 +167,14 @@ namespace
 					    gtk_widget_hide(GTK_WIDGET(handle.value()));
 				    else
 					    w.navigate("about:blank");
+#elif defined(_WIN32)
+				    auto handle = w.window();
+				    if (handle.ok())
+				    {
+					    HWND hwnd = static_cast<HWND>(handle.value());
+					    ShowWindow(hwnd, SW_HIDE);
+				    }
+				    w.navigate("about:blank");
 #else
 				    w.navigate("about:blank");
 #endif
@@ -197,9 +216,11 @@ namespace
 		                             void* arg)
 		{
 			(void)wv;
-			if (type != WEBVIEW_LOAD_FINISHED)
-				return;
-			static_cast<Session*>(arg)->onNavigate(uri);
+			if (uri)
+			{
+				std::cerr << "[helper] onNavigateStatic event=" << type << " uri=" << uri << std::endl;
+				static_cast<Session*>(arg)->onNavigate(uri);
+			}
 		}
 
 		void onNavigate(const std::string& uri)
@@ -208,11 +229,18 @@ namespace
 			if (!current || !watcher.matches(uri))
 				return;
 
+			std::cerr << "[helper] onNavigate matched redirect URI: " << uri << std::endl;
 			std::string err;
 			if (watcher.hasError(uri, err))
+			{
+				std::cerr << "[helper] onNavigate matched error: " << err << std::endl;
 				finishCurrentLocked(false, "", err);
+			}
 			else
+			{
+				std::cerr << "[helper] onNavigate matched success! URI=" << uri << std::endl;
 				finishCurrentLocked(true, uri, "");
+			}
 		}
 
 		/* caller must hold stateMtx */
@@ -416,13 +444,22 @@ namespace
 				const std::string userAgent = getStringField(params, "user_agent");
 				const uint32_t timeoutMs = getUintField(params, "timeout_ms", kDefaultTimeoutMs);
 
+				std::cerr << "[helper] navigate requested: title='" << title << "' redirectUri='"
+				          << redirectUri << "' timeoutMs=" << timeoutMs << std::endl;
+
 				std::string redirectUrl;
 				std::string error;
 				if (session.navigate(title, url, redirectUri, timeoutMs, userAgent, redirectUrl,
 				                     error))
+				{
+					std::cerr << "[helper] navigate succeeded, redirectUrl=" << redirectUrl << std::endl;
 					sendNavigateResult(id, redirectUrl);
+				}
 				else
+				{
+					std::cerr << "[helper] navigate failed: " << error << std::endl;
 					sendError(id, 1, error);
+				}
 			}
 			else if (method == "cancel")
 			{
