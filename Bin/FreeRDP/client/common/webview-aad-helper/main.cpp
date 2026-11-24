@@ -115,6 +115,20 @@ namespace
 					    SetForegroundWindow(hwnd);
 					    SetFocus(hwnd);
 				    }
+				    auto widget = w.widget();
+				    if (widget.ok())
+				    {
+					    HWND hWidget = static_cast<HWND>(widget.value());
+					    ShowWindow(hWidget, SW_SHOW);
+				    }
+				    auto ctrl = w.browser_controller();
+				    if (ctrl.ok())
+				    {
+					    ICoreWebView2Controller* pController =
+					        static_cast<ICoreWebView2Controller*>(ctrl.value());
+					    if (pController)
+						    pController->put_IsVisible(TRUE);
+				    }
 #endif
 				    w.set_title(title);
 				    w.set_size(800, 600, WEBVIEW_HINT_NONE);
@@ -155,9 +169,7 @@ namespace
 
 			/* the popup has served its purpose once this navigate() is done, whatever the
 			 * outcome - hide it now rather than leaving it sitting on screen until the next
-			 * navigate() (if any) reuses and re-shows it. webview has no portable hide(), so on
-			 * platforms without a native-handle-based fallback below, blanking the content is the
-			 * best available approximation. */
+			 * navigate() (if any) reuses and re-shows it. */
 			w.dispatch(
 			    [this]()
 			    {
@@ -174,7 +186,20 @@ namespace
 					    HWND hwnd = static_cast<HWND>(handle.value());
 					    ShowWindow(hwnd, SW_HIDE);
 				    }
-				    w.navigate("about:blank");
+				    auto widget = w.widget();
+				    if (widget.ok())
+				    {
+					    HWND hWidget = static_cast<HWND>(widget.value());
+					    ShowWindow(hWidget, SW_HIDE);
+				    }
+				    auto ctrl = w.browser_controller();
+				    if (ctrl.ok())
+				    {
+					    ICoreWebView2Controller* pController =
+					        static_cast<ICoreWebView2Controller*>(ctrl.value());
+					    if (pController)
+						    pController->put_IsVisible(FALSE);
+				    }
 #else
 				    w.navigate("about:blank");
 #endif
