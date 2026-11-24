@@ -189,7 +189,8 @@ namespace FreeRdpWrapper.UI
                 UseShellExecute       = false,
                 CreateNoWindow        = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError  = true
+                RedirectStandardError  = true,
+                RedirectStandardInput  = true
             };
 
             // Ensure vcpkg and exe directory are on PATH so FreeRDP finds its DLLs

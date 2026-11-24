@@ -475,8 +475,61 @@ AadAuthHelper* aad_auth_helper_start(rdpClientContext* context)
 	 * reads it through this still-live block, an earlier version of this function that closed
 	 * `handles`' scope before calling CreateProcessA() (relying only on
 	 * `attrList`/`siStartInfoEx` still being valid) tripped exactly that. */
-	HANDLE handles[5] = { siStartInfoEx.StartupInfo.hStdOutput, siStartInfoEx.StartupInfo.hStdInput,
-		                  siStartInfoEx.StartupInfo.hStdError, hCmdInRead, hCmdOutWrite };
+	HANDLE handles[5] = { 0 };
+	DWORD handleCount = 0;
+
+	if (siStartInfoEx.StartupInfo.hStdOutput && (siStartInfoEx.StartupInfo.hStdOutput != INVALID_HANDLE_VALUE))
+	{
+		DWORD flags = 0;
+		SetHandleInformation(siStartInfoEx.StartupInfo.hStdOutput, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
+		if (GetHandleInformation(siStartInfoEx.StartupInfo.hStdOutput, &flags) && (flags & HANDLE_FLAG_INHERIT))
+			handles[handleCount++] = siStartInfoEx.StartupInfo.hStdOutput;
+		else
+			siStartInfoEx.StartupInfo.hStdOutput = nullptr;
+	}
+	else
+	{
+		siStartInfoEx.StartupInfo.hStdOutput = nullptr;
+	}
+
+	if (siStartInfoEx.StartupInfo.hStdInput && (siStartInfoEx.StartupInfo.hStdInput != INVALID_HANDLE_VALUE))
+	{
+		DWORD flags = 0;
+		SetHandleInformation(siStartInfoEx.StartupInfo.hStdInput, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
+		if (GetHandleInformation(siStartInfoEx.StartupInfo.hStdInput, &flags) && (flags & HANDLE_FLAG_INHERIT))
+			handles[handleCount++] = siStartInfoEx.StartupInfo.hStdInput;
+		else
+			siStartInfoEx.StartupInfo.hStdInput = nullptr;
+	}
+	else
+	{
+		siStartInfoEx.StartupInfo.hStdInput = nullptr;
+	}
+
+	if (siStartInfoEx.StartupInfo.hStdError && (siStartInfoEx.StartupInfo.hStdError != INVALID_HANDLE_VALUE))
+	{
+		DWORD flags = 0;
+		SetHandleInformation(siStartInfoEx.StartupInfo.hStdError, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
+		if (GetHandleInformation(siStartInfoEx.StartupInfo.hStdError, &flags) && (flags & HANDLE_FLAG_INHERIT))
+			handles[handleCount++] = siStartInfoEx.StartupInfo.hStdError;
+		else
+			siStartInfoEx.StartupInfo.hStdError = nullptr;
+	}
+	else
+	{
+		siStartInfoEx.StartupInfo.hStdError = nullptr;
+	}
+
+	if (!siStartInfoEx.StartupInfo.hStdInput && !siStartInfoEx.StartupInfo.hStdOutput && !siStartInfoEx.StartupInfo.hStdError)
+	{
+		siStartInfoEx.StartupInfo.dwFlags &= ~STARTF_USESTDHANDLES;
+	}
+
+	if (hCmdInRead)
+		handles[handleCount++] = hCmdInRead;
+	if (hCmdOutWrite)
+		handles[handleCount++] = hCmdOutWrite;
+
 	{
 		SIZE_T size = 0;
 
@@ -494,9 +547,9 @@ AadAuthHelper* aad_auth_helper_start(rdpClientContext* context)
 		}
 
 		if (!UpdateProcThreadAttribute(attrList, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
-		                               (PVOID)handles, sizeof(handles), nullptr, nullptr))
+		                               (PVOID)handles, handleCount * sizeof(HANDLE), nullptr, nullptr))
 		{
-			WLog_ERR(TAG, "aad-auth-helper: UpdateProcThreadAttribute failed");
+			WLog_ERR(TAG, "aad-auth-helper: UpdateProcThreadAttribute failed (error %lu)", GetLastError());
 			goto cleanup;
 		}
 
@@ -516,7 +569,7 @@ AadAuthHelper* aad_auth_helper_start(rdpClientContext* context)
 	}
 
 	if (!created)
-		WLog_ERR(TAG, "aad-auth-helper: failed to spawn '%s'", helper->exe);
+		WLog_ERR(TAG, "aad-auth-helper: failed to spawn '%s' (error %lu)", helper->exe, GetLastError());
 
 cleanup:
 	free(cmdline);
