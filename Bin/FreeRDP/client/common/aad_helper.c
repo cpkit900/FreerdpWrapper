@@ -806,7 +806,7 @@ static AadAuthHelperNavigateStatus aad_helper_navigate(AadAuthHelper* helper, co
 	size_t outLen = 0;
 	const char* user_agent = helper->userAgent;
 	const AadAuthHelperNavigateStatus status = aad_auth_helper_navigate(
-	    helper, title, url, redirectUri, user_agent, 180000, &out, &outLen);
+	    helper, title, url, redirectUri, user_agent, 300000, &out, &outLen);
 	winpr_zfree(redirectUri);
 	if (status != AAD_AUTH_HELPER_NAVIGATE_OK)
 	{

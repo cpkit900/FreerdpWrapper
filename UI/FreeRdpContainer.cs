@@ -219,7 +219,24 @@ namespace FreeRdpWrapper.UI
             _rdpProcess = new Process { StartInfo = startInfo };
 
             _rdpProcess.OutputDataReceived += (s, e) => { if (e.Data != null) OnLogMessage?.Invoke(e.Data); };
-            _rdpProcess.ErrorDataReceived  += (s, e) => { if (e.Data != null) OnLogMessage?.Invoke("ERROR: " + e.Data); };
+            _rdpProcess.ErrorDataReceived  += (s, e) =>
+            {
+                if (e.Data == null) return;
+                OnLogMessage?.Invoke("ERROR: " + e.Data);
+                if (e.Data.Contains("[aad-auth] authentication timed out") && this.IsHandleCreated && !this.IsDisposed)
+                {
+                    this.BeginInvoke((MethodInvoker)(() =>
+                    {
+                        Disconnect();
+                        OnDisconnected?.Invoke();
+                        MessageBox.Show(this,
+                            "Entra ID (AAD) authentication timed out after 5 minutes.\nPlease try connecting again.",
+                            "Authentication Timeout",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }));
+                }
+            };
 
             _rdpProcess.EnableRaisingEvents = true;
             _rdpProcess.Exited += (s, e) =>
@@ -253,8 +270,8 @@ namespace FreeRdpWrapper.UI
 
         private void CaptureChildHandle(string exePath)
         {
-            // AAD / Okta MFA login can take up to 180s before the RDP window is created
-            const int maxWaitMs  = 200_000;
+            // AAD / Okta MFA login can take up to 300s before the RDP window is created
+            const int maxWaitMs  = 320_000;
             const int intervalMs = 100;
             int elapsed = 0;
 

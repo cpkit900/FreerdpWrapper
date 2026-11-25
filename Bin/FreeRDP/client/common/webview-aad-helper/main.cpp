@@ -47,7 +47,7 @@
 namespace
 {
 
-	constexpr uint32_t kDefaultTimeoutMs = 180000;
+	constexpr uint32_t kDefaultTimeoutMs = 300000;
 
 	struct PendingResult
 	{
