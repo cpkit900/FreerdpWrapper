@@ -11,6 +11,7 @@ namespace FreeRdpWrapper.UI
     {
         private Process? _rdpProcess;
         private IntPtr _rdpHandle = IntPtr.Zero;
+        private uint _attachedThreadId = 0;
         private RdpConfig? _lastConfig;
         private string _lastExePath = string.Empty;
 
@@ -56,7 +57,15 @@ namespace FreeRdpWrapper.UI
         const uint RDW_ALLCHILDREN = 0x0080;
         const uint RDW_UPDATENOW   = 0x0100;
         const uint WM_PAINT        = 0x000F;
+        [DllImport("user32.dll")]
+        static extern IntPtr GetFocus();
+
         const uint WM_ACTIVATE     = 0x0006;
+        const uint WM_MOUSEACTIVATE = 0x0021;
+        const uint WM_PARENTNOTIFY = 0x0210;
+        const uint WM_LBUTTONDOWN  = 0x0201;
+        const uint WM_RBUTTONDOWN  = 0x0204;
+        const uint WM_MBUTTONDOWN  = 0x0207;
 
         // ── Events ───────────────────────────────────────────────────────────
 
@@ -311,10 +320,18 @@ namespace FreeRdpWrapper.UI
         /// AttachThreadInput + SetFocus bridges the cross-process focus gap.
         /// WM_ACTIVATE is also sent so SDL3's internal focus tracking updates correctly.
         /// </summary>
+        private void DetachRdpThread()
+        {
+            if (_attachedThreadId != 0)
+            {
+                AttachThreadInput(GetCurrentThreadId(), _attachedThreadId, false);
+                _attachedThreadId = 0;
+            }
+        }
+
         public void FocusRdpWindow()
         {
             RepaintRdpWindow();
-            this.Focus(); // focus our container first
 
             if (_rdpHandle == IntPtr.Zero) return;
 
@@ -323,18 +340,21 @@ namespace FreeRdpWrapper.UI
 
             if (targetThreadId != 0 && targetThreadId != myThreadId)
             {
-                AttachThreadInput(myThreadId, targetThreadId, true);
+                if (_attachedThreadId != targetThreadId)
+                {
+                    DetachRdpThread();
+                    if (AttachThreadInput(myThreadId, targetThreadId, true))
+                        _attachedThreadId = targetThreadId;
+                }
                 BringWindowToTop(_rdpHandle);
-                SetFocus(_rdpHandle);
-                // WM_ACTIVATE(WA_ACTIVE=1) triggers SDL3's SDL_EVENT_WINDOW_FOCUS_GAINED
-                // so its event loop recognises the focus and starts routing key events
+                if (GetFocus() != _rdpHandle)
+                    SetFocus(_rdpHandle);
                 SendMessage(_rdpHandle, WM_ACTIVATE, (IntPtr)1, IntPtr.Zero);
-                Task.Delay(150).ContinueWith(_ =>
-                    AttachThreadInput(myThreadId, targetThreadId, false));
             }
             else
             {
-                SetFocus(_rdpHandle);
+                if (GetFocus() != _rdpHandle)
+                    SetFocus(_rdpHandle);
                 SendMessage(_rdpHandle, WM_ACTIVATE, (IntPtr)1, IntPtr.Zero);
             }
         }
@@ -344,12 +364,39 @@ namespace FreeRdpWrapper.UI
             base.OnVisibleChanged(e);
             if (this.Visible)
                 FocusRdpWindow();
+            else
+                DetachRdpThread();
         }
 
         protected override void OnEnter(EventArgs e)
         {
             base.OnEnter(e);
             FocusRdpWindow();
+        }
+
+        protected override void OnLeave(EventArgs e)
+        {
+            base.OnLeave(e);
+            DetachRdpThread();
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_MOUSEACTIVATE)
+            {
+                if (_rdpHandle != IntPtr.Zero)
+                    BeginInvoke((MethodInvoker)(() => FocusRdpWindow()));
+            }
+            else if (m.Msg == WM_PARENTNOTIFY)
+            {
+                uint childMsg = (uint)(m.WParam.ToInt64() & 0xFFFF);
+                if ((childMsg == WM_LBUTTONDOWN || childMsg == WM_RBUTTONDOWN || childMsg == WM_MBUTTONDOWN)
+                    && _rdpHandle != IntPtr.Zero)
+                {
+                    BeginInvoke((MethodInvoker)(() => FocusRdpWindow()));
+                }
+            }
+            base.WndProc(ref m);
         }
 
         /// <summary>
@@ -423,6 +470,7 @@ namespace FreeRdpWrapper.UI
 
         public void Disconnect()
         {
+            DetachRdpThread();
             if (_rdpProcess != null && !_rdpProcess.HasExited)
             {
                 try { _rdpProcess.Kill(); } catch { }
