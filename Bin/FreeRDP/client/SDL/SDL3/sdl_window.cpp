@@ -21,13 +21,17 @@
 #include <sstream>
 #include <cmath>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "sdl_window.hpp"
 #include "sdl_utils.hpp"
 
 #include <freerdp/utils/string.h>
 
 SdlWindow::SdlWindow(SDL_DisplayID id, const std::string& title, const SDL_Rect& rect,
-                     [[maybe_unused]] Uint32 flags)
+                     [[maybe_unused]] Uint32 flags, void* parentHwnd)
     : _initialW(rect.w), _initialH(rect.h), _displayID(id)
 {
 	float pd = SDL_GetDisplayContentScale(id);
@@ -50,7 +54,7 @@ SdlWindow::SdlWindow(SDL_DisplayID id, const std::string& title, const SDL_Rect&
 	if (flags & SDL_WINDOW_FULLSCREEN)
 		SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_FULLSCREEN_BOOLEAN, true);
 
-	if (flags & SDL_WINDOW_BORDERLESS)
+	if ((flags & SDL_WINDOW_BORDERLESS) || parentHwnd)
 		SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_BORDERLESS_BOOLEAN, true);
 
 	if (flags & SDL_WINDOW_TRANSPARENT)
@@ -62,6 +66,26 @@ SdlWindow::SdlWindow(SDL_DisplayID id, const std::string& title, const SDL_Rect&
 
 	_window = SDL_CreateWindowWithProperties(props);
 	SDL_DestroyProperties(props);
+
+#ifdef _WIN32
+	// Post-creation: reparent the SDL3 window into the host Win32 container.
+	if (parentHwnd && _window)
+	{
+		HWND sdlHwnd = static_cast<HWND>(SDL_GetPointerProperty(
+		    SDL_GetWindowProperties(_window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+		if (sdlHwnd)
+		{
+			LONG style = GetWindowLong(sdlHwnd, GWL_STYLE);
+			style &= ~(WS_POPUP | WS_CAPTION | WS_THICKFRAME | WS_OVERLAPPED);
+			style |= WS_CHILD;
+			SetWindowLong(sdlHwnd, GWL_STYLE, style);
+			SetParent(sdlHwnd, static_cast<HWND>(parentHwnd));
+			SetWindowPos(sdlHwnd, nullptr, 0, 0, createW, createH,
+			             SWP_NOZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+		}
+	}
+#endif
+
 	SDL_SetHint(SDL_HINT_APP_NAME, "");
 	std::ignore = SDL_SyncWindow(_window);
 
@@ -748,7 +772,7 @@ bool SdlWindow::paintResizeFrame(SDL_Surface* surface, SDL_Point off, bool conte
 }
 
 SdlWindow SdlWindow::create(SDL_DisplayID id, const std::string& title, Uint32 flags, Uint32 width,
-                            Uint32 height)
+                            Uint32 height, void* parentHwnd)
 {
 	flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
@@ -761,7 +785,7 @@ SdlWindow SdlWindow::create(SDL_DisplayID id, const std::string& title, Uint32 f
 		std::ignore = SDL_GetDisplayBounds(id, &rect);
 	}
 
-	SdlWindow window{ id, title, rect, flags };
+	SdlWindow window{ id, title, rect, flags, parentHwnd };
 
 	if ((flags & SDL_WINDOW_FULLSCREEN) != 0)
 	{

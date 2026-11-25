@@ -489,8 +489,20 @@ bool SdlContext::createWindows()
 		if (freerdp_settings_get_bool(settings, FreeRDP_RemoteApplicationMode))
 			flags |= SDL_WINDOW_HIDDEN;
 
+		void* parentHwnd = nullptr;
+#ifdef _WIN32
+		{
+			const auto parentId = freerdp_settings_get_uint64(settings, FreeRDP_ParentWindowId);
+			if (parentId != 0)
+			{
+				parentHwnd = reinterpret_cast<void*>(static_cast<uintptr_t>(parentId));
+				flags |= SDL_WINDOW_BORDERLESS;
+			}
+		}
+#endif
+
 		auto did = WINPR_ASSERTING_INT_CAST(SDL_DisplayID, id);
-		auto window = SdlWindow::create(did, title, flags, w, h);
+		auto window = SdlWindow::create(did, title, flags, w, h, parentHwnd);
 
 		if (freerdp_settings_get_bool(settings, FreeRDP_UseMultimon))
 		{
@@ -726,6 +738,17 @@ int SdlContext::sdl_client_thread_connect(std::string& error_msg)
 
 	_rdpThreadRunning = true;
 	BOOL rc = freerdp_connect(instance);
+
+#if defined(WITH_AAD)
+	{
+		rdpClientContext* cctx = reinterpret_cast<rdpClientContext*>(context());
+		if (cctx && cctx->aadHelper)
+		{
+			aad_auth_helper_stop(cctx->aadHelper);
+			cctx->aadHelper = nullptr;
+		}
+	}
+#endif
 
 	rdpSettings* settings = context()->settings;
 	WINPR_ASSERT(settings);
@@ -1387,6 +1410,14 @@ bool SdlContext::handleEvent(const SDL_WindowEvent& ev)
 
 	switch (ev.type)
 	{
+		case SDL_EVENT_WINDOW_EXPOSED:
+		case SDL_EVENT_WINDOW_SHOWN:
+			if (isConnected())
+			{
+				std::ignore = drawToWindow(*window);
+				std::ignore = restoreCursor();
+			}
+			break;
 		case SDL_EVENT_WINDOW_MOUSE_ENTER:
 			return restoreCursor();
 		case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:

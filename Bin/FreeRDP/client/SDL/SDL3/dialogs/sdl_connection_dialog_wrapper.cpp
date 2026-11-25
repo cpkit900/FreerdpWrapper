@@ -39,6 +39,10 @@ void SdlConnectionDialogWrapper::create(rdpContext* context)
 	const auto enabled =
 	    freerdp_settings_get_bool(context->settings, FreeRDP_UseCommonStdioCallbacks);
 	_connection_dialog.reset();
+
+	const auto parentId = freerdp_settings_get_uint64(context->settings, FreeRDP_ParentWindowId);
+	if (parentId != 0)
+		return;
 #if defined(__EMSCRIPTEN__)
 	/* Every SDL window of an Emscripten build draws on the page's one canvas, so a dialog
 	 * window would take over the session's canvas. SDL 3.2 also throws from creating a

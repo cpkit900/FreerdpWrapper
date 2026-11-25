@@ -244,7 +244,8 @@ namespace FreeRdpWrapper.UI
 
         private void CaptureChildHandle(string exePath)
         {
-            const int maxWaitMs  = 20_000;
+            // AAD / Okta MFA login can take up to 180s before the RDP window is created
+            const int maxWaitMs  = 200_000;
             const int intervalMs = 100;
             int elapsed = 0;
 

@@ -30,7 +30,8 @@ class SdlWindow
 {
   public:
 	[[nodiscard]] static SdlWindow create(SDL_DisplayID id, const std::string& title, Uint32 flags,
-	                                      Uint32 width = 0, Uint32 height = 0);
+	                                      Uint32 width = 0, Uint32 height = 0,
+	                                      void* parentHwnd = nullptr);
 	/* Create at an explicit position+size (RAIL windows: server-driven geometry). */
 	[[nodiscard]] static SdlWindow create(SDL_DisplayID id, const std::string& title, Uint32 flags,
 	                                      const SDL_Rect& rect);
@@ -97,7 +98,8 @@ class SdlWindow
 	void updateSurface();
 
   protected:
-	SdlWindow(SDL_DisplayID id, const std::string& title, const SDL_Rect& rect, Uint32 flags);
+	SdlWindow(SDL_DisplayID id, const std::string& title, const SDL_Rect& rect, Uint32 flags,
+	          void* parentHwnd = nullptr);
 	SdlWindow(SDL_Window* parent, const SDL_Rect& rect, bool transparent, bool tooltip);
 
 	[[nodiscard]] static bool fill(SDL_Window* window, Uint8 r = 0x00, Uint8 g = 0x00,
