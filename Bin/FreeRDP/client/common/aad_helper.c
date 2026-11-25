@@ -563,9 +563,9 @@ AadAuthHelper* aad_auth_helper_start(rdpClientContext* context)
 		if (rc < 0)
 			goto cleanup;
 
-		created =
-		    CreateProcessA(nullptr, cmdline, nullptr, nullptr, TRUE, EXTENDED_STARTUPINFO_PRESENT,
-		                   nullptr, nullptr, (LPSTARTUPINFOA)&siStartInfoEx, &procInfo);
+		created = CreateProcessA(nullptr, cmdline, nullptr, nullptr, TRUE,
+		                         EXTENDED_STARTUPINFO_PRESENT | CREATE_NO_WINDOW, nullptr, nullptr,
+		                         (LPSTARTUPINFOA)&siStartInfoEx, &procInfo);
 	}
 
 	if (!created)

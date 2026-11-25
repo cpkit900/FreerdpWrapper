@@ -46,6 +46,12 @@ FetchContent_MakeAvailable(webview)
 
 add_executable(${PROJECT_NAME} main.cpp redirect_watcher.hpp redirect_watcher.cpp)
 set_property(TARGET ${PROJECT_NAME} PROPERTY FOLDER "Client/Common")
+if(WIN32)
+  set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+  if(MSVC)
+    target_link_options(${PROJECT_NAME} PRIVATE "/ENTRY:mainCRTStartup")
+  endif()
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE winpr webview::core)
 
